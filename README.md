@@ -9,3 +9,10 @@ Our Team members are:
 <li> Name :: Role</li>
 <li> Name :: Role</li>
 </ul>
+<h2 align="center"> Testing </h2>
+We wanted to ensure a high code coverage in our tests so we ...
+
+
+
+<h2 align="center"> Highlights </h2>
+We would like to draw your attention to ...
