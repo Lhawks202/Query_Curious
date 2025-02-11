@@ -8,8 +8,6 @@ instance/
 *~
 *.swp
 *.swo
-*.sqlite
-*.sql
 
 .pytest_cache/
 .coverage
