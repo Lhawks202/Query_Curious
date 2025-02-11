@@ -1,3 +1,8 @@
+### Northwind ECommerce Site
+
+## Running locally
+1. Run `flask --app northwind init-db` to update the Northwind DB schema
+
 <h3 align=”center”>
 Hi there, we are Query Curious! 
 </h3>
