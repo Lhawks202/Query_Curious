@@ -19,7 +19,7 @@ def index():
     if selected_category and selected_category != 'All':
         items = db.execute(
         'SELECT ProductName, UnitPrice, QuantityPerUnit'
-        ' FROM Products p '
+        ' FROM Product p '
         ' JOIN Categories c on p.CategoryID = c.Id'
         ' WHERE c.CategoryName = ?'
         ' ORDER BY ProductName',
@@ -28,7 +28,7 @@ def index():
     else:
         items = db.execute(
             'SELECT ProductName, UnitPrice, QuantityPerUnit'
-            ' FROM Products'
+            ' FROM Product'
             ' ORDER BY ProductName'
         ).fetchall()
     
