@@ -34,4 +34,7 @@ def create_app(test_config=None):
     from . import auth
     app.register_blueprint(auth.bp)
 
+    from . import search
+    app.register_blueprint(search.bp)
+
     return app
