@@ -1,11 +1,44 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1>{% block title %}Home{% endblock %}</h1>
+  <h1>{% block title %} HOME{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
-<div>
-    this will eventually be the home page
-</div>
+<h2> Browse Products by Category</h2>
+
+<form method="POST">
+    <label for="category">Select Category:</label>
+    <select name="category" id="category" onchange="this.form.submit()">
+        <option value="All" {% if not selected_category or selected_category == "All" %}selected{% endif %}All Products </option>
+            {% for category in categories %}
+            <option value="{{ category['CategoryName'] }}" {% if selected_category == category['CategoryName'] %}selected{% endif %}>
+                {{ category['CategoryName'] }}
+            </option>
+            {% endfor %}
+    </select>
+</form>
+
+<h2> 
+    {% if selected_category and selected_category != "All" %}
+    Products in "{{ selected_category }}"
+    {% else %}
+    All Products
+    {% endif %}
+</h2>
+
+  {% for product in items %}
+    <article class="product">
+      <header>
+        <div>
+          <h1>{{ item['ProductName'] }}</h1>
+          <div class="about">Unit Price: ${{ item['UnitPrice'] }}</div>
+        </div>
+      </header>
+      <p class="body"> Quantity per Unit: {{ item['QuantityPerUnit'] }}</p>
+    </article>
+    {% if not loop.last %}
+      <hr>
+    {% endif %}
+  {% endfor %}
 {% endblock %}

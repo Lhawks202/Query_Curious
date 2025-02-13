@@ -13,7 +13,7 @@ bp = Blueprint('auth', __name__, url_prefix='/auth')
 def fetch_customer(customer_id):
     db = get_db()
     return db.execute(
-        'SELECT * FROM Customers WHERE CustomerID = ?', (customer_id,)
+        'SELECT * FROM Customer WHERE Id = ?', (customer_id,)
     ).fetchone()
 
 # fetches user from Authentication by UserID
@@ -46,7 +46,7 @@ def register():
             try:
                 # first, create entry in the customers table
                 db.execute(
-                    "INSERT INTO Customers (CustomerID) VALUES (?)", (user_id,),
+                    "INSERT INTO Customer (Id) VALUES (?)", (user_id,),
                 )
                 # then, create entry in authentication table 
                 # TODO: replace session id with the session id set when the user is not authenticated
