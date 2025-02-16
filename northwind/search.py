@@ -18,13 +18,14 @@ def search():
         products = db.execute(
             'SELECT ProductName, UnitPrice'
             ' FROM Product'
-            ' WHERE ProductName = ?', (item,)
+            ' WHERE ProductName = ? COLLATE NOCASE', (item,)
         ).fetchall()
 
         product_type = db.execute(
             'SElECT ProductName, UnitPrice'
             ' FROM Product, Category'
-            ' WHERE CategoryName = ? AND Category.id = Product.CategoryId', (item,)
+            ' WHERE CategoryName = ? COLLATE NOCASE'
+            ' AND Category.id = Product.CategoryId ', (item,)
         ).fetchall()
         if not products and not product_type:
             return render_template('search/search-error.html')
