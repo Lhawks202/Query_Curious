@@ -41,4 +41,16 @@
       <hr>
     {% endif %}
   {% endfor %}
+<div>
+  <form method="post" id="search">
+    <label for="search">Search</label>
+    <input 
+    type="text" placeholder="Name or Type of Product" 
+    name="search" id="search">
+    <button for="search" type="submit" value="Submit">Submit</button>
+</form>
+</div>
+
+{% block search_content %}{% endblock %}
+
 {% endblock %}

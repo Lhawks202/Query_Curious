@@ -9,7 +9,7 @@ from northwind.db import get_db
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
-# fetches customer from Customers by CustomerID
+# fetches customer from Customer by Id
 def fetch_customer(customer_id):
     db = get_db()
     return db.execute(
@@ -36,7 +36,7 @@ def register():
         elif not password:
             error = 'Password is required.'
         
-        # check if user is in Customers table
+        # check if user is in Customer table
         customer = fetch_customer(user_id)
         if customer:
             error = 'Customer already exists—try logging in!'
@@ -44,7 +44,7 @@ def register():
         # no error, proceed
         if error is None:
             try:
-                # first, create entry in the customers table
+                # first, create entry in the customer table
                 db.execute(
                     "INSERT INTO Customer (Id) VALUES (?)", (user_id,),
                 )
