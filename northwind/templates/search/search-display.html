@@ -1,0 +1,20 @@
+{% extends 'index.html' %}
+
+{% block header %}
+    <h1>{% block title %}Search Products{% endblock %}</h1>
+{% endblock %}
+
+{% block search_content %}
+    <table>
+        <tr>
+            <th>Product Name</th>
+            <th>Unit Price</th>
+        </tr>
+        {% for item in products %}
+        <tr>
+            <td>{{ item['ProductName'] }}</td>
+            <td>{{ item['UnitPrice'] }}</td>
+        </tr>
+        {% endfor %} 
+    </table>
+{% endblock %}
