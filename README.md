@@ -10,7 +10,7 @@ Our Team members are:
 <ul>
 <li> Luke Sanford :: Unit Testing</li>
 <li> Joshua Gorniak :: Development Engineer - Shopping Cart and Checkout</li>
-<li> Name :: Role</li>
+<li> Rafael Singer :: Development Engineer - Authentication </li>
 <li> Name :: Role</li>
 <li> Name :: Role</li>
 </ul>
