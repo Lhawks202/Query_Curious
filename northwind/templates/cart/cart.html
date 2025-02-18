@@ -1,9 +1,69 @@
 {% extends 'base.html' %}
 
+{% block title %}Cart{% endblock %}
+
 {% block header %}
-    <h1>{% block title %}Cart{% endblock %}</h1>
+  <div class="py-4">
+    {% if g.user %}
+      <h1 class="mb-0">{{ g.user['UserID'] }}'s Cart</h1>
+    {% else %}
+      <h1 class="mb-0">Guest's Cart</h1>
+    {% endif %}
+  </div>
 {% endblock %}
 
 {% block content %}
-    <p>You will be able to view your shopping cart here.</p>
+  {% if cart %}
+    <div class="table-responsive mt-4">
+      <table class="table align-middle">
+        <thead class="table-light">
+          <tr>
+            <th scope="col" style="min-width: 300px;">Item</th>
+            <th scope="col" class="text-center">Price</th>
+            <th scope="col" class="text-center">Quantity</th>
+            <th scope="col" class="text-end">Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in cart_items %}
+            <tr>
+              <td>
+                <div class="fw-bold mb-1 text-dark" style="font-size: 1.1rem;">
+                  {{ item['ProductName'] }}
+                </div>
+              </td>
+              <td class="text-center">
+                <span class="fw-semibold">
+                  ${{ "%.2f"|format(item['UnitPrice']) }}
+                </span>
+              </td>
+              <td class="text-center" style="width: 150px;">
+                <div class="input-group input-group-sm" style="width: 120px;">
+                    <button class="btn btn-outline-secondary" type="button">-</button>
+                    <input 
+                      type="text" 
+                      class="form-control text-center" 
+                      value="{{ item['Quantity'] }}"
+                    >
+                    <button class="btn btn-outline-secondary" type="button">+</button>
+                  </div>
+                  
+              </td>
+              <td class="text-end">
+                <span class="fw-semibold">
+                  ${{ "%.2f"|format(item['UnitPrice'] * item['Quantity']) }}
+                </span>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  {% else %}
+    <p class="mt-4">
+      Shopping Cart is empty.
+      <a href="{{ url_for('index') }}">Click Here</a> to start browsing.
+    </p>
+  {% endif %}
 {% endblock %}

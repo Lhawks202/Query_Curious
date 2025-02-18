@@ -118,6 +118,11 @@ html {
   .content input, .content textarea {
     margin-bottom: 1em;
   }
+
+  .input-group .form-control {
+    margin-bottom: 0 !important;
+  }
+  
   
   .content textarea {
     min-height: 12em;
