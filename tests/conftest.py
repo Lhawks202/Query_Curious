@@ -1,18 +1,21 @@
 import shutil
 import os
 import pytest
+import sys 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from northwind import create_app, db
 TEST_DB = "test_northwind.sqlite"
 
 @pytest.fixture(scope='session')
 def app():
-    shutil.copyfile('../northwind/northwind.sqlite', TEST_DB)
+    shutil.copyfile('./northwind/northwind.sqlite', TEST_DB)
 
     app = create_app()
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{TEST_DB}'
 
     with app.app_context():
-        db.create_all()
+        db.init_db()
         yield app
     os.remove(TEST_DB)
 
