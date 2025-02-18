@@ -9,7 +9,7 @@ Hi there, we are Query Curious!
 Our Team members are:
 <ul>
 <li> Luke Sanford :: Unit Testing</li>
-<li> Name :: Role</li>
+<li> Joshua Gorniak :: Development Engineer - Shopping Cart and Checkout</li>
 <li> Name :: Role</li>
 <li> Name :: Role</li>
 <li> Name :: Role</li>
