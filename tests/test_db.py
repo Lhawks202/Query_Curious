@@ -3,7 +3,6 @@ import sqlite3
 from flask import g
 from northwind.db import close_db, get_db
 
-
 @pytest.fixture #Ensures a new db connection for each test.
 def db_connection():
     conn = sqlite3.connect('test_northwind.sqlite')
@@ -27,7 +26,6 @@ def test_close_db(app):
 
 
 def test_init_db(runner, db_connection):
-    # Run the init-db command
     result = runner.invoke(args=['init-db'])
     assert result.exit_code == 0
     assert 'Initialized Authentication table.\n' in result.output
@@ -40,7 +38,6 @@ def test_init_db(runner, db_connection):
         WHERE type='table' AND name='Authentication';
     """)
     table = cursor.fetchone()
-
     assert table is not None, "Authentication table was not created"
 
     # Check if the Product table has an index on ProductName
@@ -49,6 +46,4 @@ def test_init_db(runner, db_connection):
         WHERE type='index' AND name='idx_product_name';
     """)
     index = cursor.fetchone()
-
-    # Assert the index was created
     assert index is not None, "Index 'idx_product_name' was not created"

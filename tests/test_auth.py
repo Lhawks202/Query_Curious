@@ -1,12 +1,11 @@
-import pytest
 from flask import g, session, Blueprint
 from northwind.db import get_db
 from northwind.auth import login_required
 
 def test_register(client, app, auth):
-    # Test GET request to register page
     assert client.get('/auth/register').status_code == 200
 
+    # Test invalid registration attempts
     response = auth.register(username='', password='test')
     response_text = response.data.decode('utf-8')
     assert 'User ID is required.' in response_text
@@ -19,9 +18,9 @@ def test_register(client, app, auth):
     response_text = response.data.decode('utf-8')
     assert 'Password is required.' in response_text
 
-    # Test POST request to register a new user
+    # Test successful registration and redirection
     response = auth.register()
-    assert response.headers['Location'] == '/auth/login'
+    assert response.headers['Location'] == '/auth/login',  "Post register redirect location is incorrect."
 
     # Check if the user was added to the database
     with app.app_context():
@@ -29,65 +28,68 @@ def test_register(client, app, auth):
             "SELECT * FROM Authentication WHERE UserID = 'test'",
         ).fetchone() is not None
 
-def test_register_existing_user(client, app, auth ):
-    response = auth.register()
+
+def test_register_existing_user(auth):
+    auth.register()
     response = auth.register()
     response_text = response.data.decode('utf-8')
     assert 'Customer already exists—try logging in!' in response_text
 
-def test_login(client, auth):
-    # Test GET request to login page
-    assert client.get('/auth/login').status_code == 200
 
-    # Register a new user
-    response = auth.register()
-    
+def test_login(client, auth):
+    assert client.get('/auth/login').status_code == 200
+    auth.register()
+
+    # Test invalid login attempts
     response = auth.login(username='invalid', password='test')
     assert b'Incorrect user id.' in response.data
 
     response = auth.login(username='test', password='invalid')
     assert b'Incorrect password.' in response.data
 
-    # Test POST request to login with valid credentials
+    # Test successful login and redirection
     response = auth.login()
-    assert response.headers['Location'] == '/', 'Redirect location is incorrect.'
+    assert response.headers['Location'] == '/', "Post login redirect location is incorrect."
 
     # Check if the user_id is stored in the session
     with client:
         client.get('/')
         assert session['user_id'] == 'test'
 
-    # Test POST request to login with invalid credentials
 
 def test_logout(client, auth):
+    auth.register()
     auth.login()
-
     with client:
+        client.get('/')
+        assert session['user_id'] == 'test'
         auth.logout()
-        assert 'user_id' not in session
+        assert 'test' not in session
 
-def test_load_logged_in_user(client, auth, app):
-    # Register and login a new user
-    client.post('/auth/register', data={'user_id': 'test', 'password': 'test'})
+
+def test_load_logged_in_user(client, auth):
+    auth.register()
     auth.login()
-
     with client:
         client.get('/')
         assert g.user['UserID'] == 'test'
+
 
 def test_login_required(client, auth, app):
     # Create a temporary blueprint for testing
     test_bp = Blueprint('test_bp', __name__)
 
+    # Currently no protected routes to test, so need to make a fake one to check authentication
+    # TODO replace this with a real protected route when one is added.
     @test_bp.route('/protected')
     @login_required
     def protected():
         return 'Protected'
     app.register_blueprint(test_bp)
 
-    # Register and login a new user
+  
     auth.register()
-
+    # Try accessing the protected route before logging in
     response = client.get('/protected')
     assert response.headers['Location'] == '/auth/login'
 

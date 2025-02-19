@@ -1,4 +1,3 @@
-import pytest
 from northwind import create_app
 
 def test_create_app_with_test_config():
