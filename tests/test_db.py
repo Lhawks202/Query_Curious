@@ -26,14 +26,12 @@ def test_close_db(app):
         assert 'db' not in g, "Database connection not removed from g"
 
 
-def test_init_db_no_errors(runner):
+def test_init_db(runner, db_connection):
     # Run the init-db command
     result = runner.invoke(args=['init-db'])
     assert result.exit_code == 0
     assert 'Initialized Authentication table.\n' in result.output
 
-
-def test_init_db_auth_table_created(db_connection):
     cursor = db_connection.cursor()
 
     # Check if the Authentication table exists
@@ -44,10 +42,6 @@ def test_init_db_auth_table_created(db_connection):
     table = cursor.fetchone()
 
     assert table is not None, "Authentication table was not created"
-
-
-def test_init_db_product_index(db_connection):
-    cursor = db_connection.cursor()
 
     # Check if the Product table has an index on ProductName
     cursor.execute("""
