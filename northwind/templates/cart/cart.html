@@ -5,7 +5,7 @@
 {% block header %}
   <div class="py-4">
     {% if g.user %}
-      <h1 class="mb-0">{{ g.user['UserID'] }}'s Cart</h1>
+      <h1 class="mb-0">{{ g.user['UserID'].capitalize() }}'s Cart</h1>
     {% else %}
       <h1 class="mb-0">Guest's Cart</h1>
     {% endif %}
