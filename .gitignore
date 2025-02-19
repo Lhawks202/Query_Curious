@@ -13,10 +13,11 @@ instance/
 .coverage
 htmlcov/
 
+hitmlcov/
 dist/
 build/
 *.egg-info/
 
 .DS_Store
 
-.sqlite
+*.sqlite
