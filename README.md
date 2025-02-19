@@ -9,8 +9,11 @@ Our Team members are:
 - Katie Baek :: 
 - Sofia Utoft ::
 
-## Running locally
-1. Run `flask --app northwind init-db` to update the Northwind DB schema
+## Setting up your environment
+1. Clone the repo
+2. Download the `northwind.sqlite` binary from releases
+3. Place that binary in `<project-root>/northwind/`
+4. Run `flask --app northwind init-db` to update the Northwind DB schema
 
 ## Testing
 To generate a full interactable testing report on coverage you can view in a web browser:
