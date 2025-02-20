@@ -23,7 +23,7 @@ def get_product(item):
     product = db.execute(
             'SELECT ProductName, UnitPrice'
             ' FROM Product'
-            ' WHERE ProductName = ? COLLATE NOCASE', (item,)
+            ' WHERE ProductName LIKE ? COLLATE NOCASE', ('%' + item + '%',)
         ).fetchall()
 
     product_type = db.execute(

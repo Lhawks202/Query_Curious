@@ -14,7 +14,7 @@
         {% for item in products %}
         <tr>
             <td>{{ item['ProductName'] }}</td>
-            <td>{{ item['UnitPrice'] }}</td>
+            <td>{{ "%.2f"|format(item['UnitPrice']) }}</td>
         </tr>
         {% endfor %} 
     </table>
