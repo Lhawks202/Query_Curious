@@ -3,67 +3,73 @@
 {% block title %}Cart{% endblock %}
 
 {% block header %}
-  <div class="py-4">
+<div class="py-4">
     {% if g.user %}
-      <h1 class="mb-0">{{ g.user['UserID'].capitalize() }}'s Cart</h1>
+    <h1 class="mb-0">{{ g.user['UserID'].capitalize() }}'s Cart</h1>
     {% else %}
-      <h1 class="mb-0">Guest's Cart</h1>
+    <h1 class="mb-0">Guest's Cart</h1>
     {% endif %}
-  </div>
+</div>
 {% endblock %}
 
 {% block content %}
-  {% if cart %}
-    <div class="table-responsive mt-4">
-      <table class="table align-middle">
+{% if cart %}
+<div class="table-responsive mt-4">
+    <table class="table align-middle">
         <thead class="table-light">
-          <tr>
-            <th scope="col" style="min-width: 300px;">Item</th>
-            <th scope="col" class="text-center">Price</th>
-            <th scope="col" class="text-center">Quantity</th>
-            <th scope="col" class="text-end">Subtotal</th>
-          </tr>
+            <tr>
+                <th scope="col" style="min-width: 300px;">Item</th>
+                <th scope="col" class="text-center">Price</th>
+                <th scope="col" class="text-center">Quantity</th>
+                <th scope="col" class="text-end">Subtotal</th>
+            </tr>
         </thead>
         <tbody>
-          {% for item in cart_items %}
+            {% for item, update_quantity_form, remove_item_form in cart_item_forms %}
             <tr>
-              <td>
-                <div class="fw-bold mb-1 text-dark" style="font-size: 1.1rem;">
-                  {{ item['ProductName'] }}
-                </div>
-              </td>
-              <td class="text-center">
-                <span class="fw-semibold">
-                  ${{ "%.2f"|format(item['UnitPrice']) }}
-                </span>
-              </td>
-              <td class="text-center" style="width: 150px;">
-                <div class="input-group input-group-sm" style="width: 120px;">
-                    <button class="btn btn-outline-secondary" type="button">-</button>
-                    <input 
-                      type="text" 
-                      class="form-control text-center" 
-                      value="{{ item['Quantity'] }}"
-                    >
-                    <button class="btn btn-outline-secondary" type="button">+</button>
-                  </div>
-                  
-              </td>
-              <td class="text-end">
-                <span class="fw-semibold">
-                  ${{ "%.2f"|format(item['UnitPrice'] * item['Quantity']) }}
-                </span>
-              </td>
+                <td>
+                    <div class="d-flex align-items-center fw-bold mb-1 text-dark" style="font-size: 1.1rem;">
+                        <form action="{{ url_for('cart.remove_item') }}" method="post">
+                            {{ remove_item_form.hidden_tag() }}
+                            <button class="btn" type="submit" name="remove" value="true"><i class="fa-solid fa-x"></i></button>
+                        </form>
+                        <p class="mb-0">{{ item['ProductName'] }}</p>
+                    </div>
+                </td>
+                <td class="text-center">
+                    <span class="fw-semibold">
+                        ${{ "%.2f"|format(item['UnitPrice']) }}
+                    </span>
+                </td>
+                <td class="text-center" style="width: 150px;">
+                    <form action="{{ url_for('cart.update_quantity') }}" method="post">
+                        {{ update_quantity_form.hidden_tag() }}
+                        <div class="input-group input-group-sm" style="width: 120px;">
+                            <button class="btn btn-outline-secondary" type="submit" name="decrement" value="true" {% if item['Quantity'] <= 1 %}disabled{% endif %}>
+                                {{update_quantity_form.decrement.label.text}}
+                            </button>
+                            <p class="form-control form-control-sm text-center m-0">{{item['Quantity']}}</p>
+                            <button class="btn btn-outline-secondary" type="submit" name="increment" value="true">
+                                {{update_quantity_form.increment.label.text}}
+                            </button>
+                        </div>
+                    </form>
+                </td>
+                <td class="text-end">
+                    <span class="fw-semibold">
+                        ${{ "%.2f"|format(item['UnitPrice'] * item['Quantity']) }}
+                    </span>
+                </td>
             </tr>
-          {% endfor %}
+            {% endfor %}
         </tbody>
-      </table>
-    </div>
+    </table>
+</div>
 
-  {% else %}
-    <p class="mt-4">
-      Shopping Cart is empty.
-      <a href="{{ url_for('index') }}">Click Here</a> to start browsing.
-    </p>
-  {% endif %}
+{% else %}
+<p class="mt-4">
+    Shopping Cart is empty.
+    <a href="{{ url_for('index') }}">Click Here</a> to start browsing.
+</p>
+{% endif %}
 {% endblock %}
