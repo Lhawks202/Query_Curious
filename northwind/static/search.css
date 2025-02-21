@@ -1,0 +1,9 @@
+.content input, .content textarea {
+    margin-bottom: 1em;
+  }
+
+
+td {
+  padding-right: 15px; 
+  padding-bottom: 2px;
+}
