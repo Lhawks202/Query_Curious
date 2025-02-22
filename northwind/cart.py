@@ -1,7 +1,7 @@
 from flask import (Blueprint, render_template, session, redirect, url_for, flash, request)
 from northwind.db import get_db
 import secrets
-from .forms import (UpdateItemQuantity, RemoveItem)
+from .forms import (UpdateItemQuantity, RemoveItem, AddToCart)
 
 bp = Blueprint('cart', __name__, url_prefix='/cart')
 
@@ -117,3 +117,28 @@ def remove_item():
         db.commit()
 
     return redirect(url_for('cart.view_cart'))
+
+@bp.route('/add-to-cart', methods=['POST'])
+def add_to_cart():
+    form = AddToCart()
+    if not form.validate_on_submit():
+        flash("Error adding item to cart.")
+        return redirect(url_for('search.search'))
+    
+    db = get_db()
+    product_id = form.product_id.data
+    quantity = form.quantity.data
+
+    if form.add.data:
+        session_id = get_session_id()
+        cart = get_cart(db, session_id)
+        cart_id = cart['CartID']
+
+        db.execute(
+            "INSERT IMTO Cart_Items (CartID, ProductID, Quantity) VALUES (?, ?, ?)",
+            (cart_id, product_id, quantity,)
+        )
+        db.commit()
+    # Need to Confirm with Katie that this is the Proper URL
+    return redirect(url_for('search.search'))
+
