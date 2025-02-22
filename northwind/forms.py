@@ -11,4 +11,9 @@ class UpdateItemQuantity(FlaskForm):
 
 class RemoveItem(FlaskForm):
     item_id = HiddenField('Item ID', validators=[DataRequired()])
-    remove = SubmitField('remove')
+    remove = SubmitField('Remove')
+
+class AddToCart(FlaskForm):
+    product_id = IntegerField('Product ID', validators=[DataRequired(), NumberRange(min=1)], widget=HiddenInput())
+    quantity = IntegerField('Quantity', validators=[DataRequired(), NumberRange(min=1)])
+    add = SubmitField('Add')
