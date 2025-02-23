@@ -1,0 +1,7 @@
+{% extends 'index.html' %}
+
+{% block content %}
+  <h2>No results found for "{{ search_query }}"</h2>
+  <p>Try searching again with a different term.</p>
+  <a href="{{ url_for('index.index') }}">Back to Products</a>
+{% endblock %}
