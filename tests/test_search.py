@@ -16,8 +16,7 @@ def test_search_product(client, search):
     response = client.get(response.headers['Location'])
     assert response.status_code == 200
     response_text = response.data.decode('utf-8')
-    assert 'TestProduct' in response_text
-    assert re.search(r'<td>TestProduct</td>\s*<td>10\.00</td>', response_text), "Decimals Dropping in Unit Price"
+    assert re.search(r'TestProduct\s*</a>\s*</td>\s*<td>\$10\.00', response_text), "Decimals Dropping in Unit Price"
 
 def test_search_partial_matches(client, search):
     supplier_id = search.insert_supplier()
@@ -46,7 +45,7 @@ def test_search_category(client, search):
     assert response.status_code == 200
     response_text = response.data.decode('utf-8')
     assert 'TestProduct' in response_text
-    assert re.search(r'<td>TestProduct</td>\s*<td>10\.00</td>', response_text), "Decimals Dropping in Unit Price"
+    assert re.search(r'TestProduct\s*</a>\s*</td>\s*<td>\$10\.00', response_text), "Decimals Dropping in Unit Price"
 
 
 def test_search_no_results(client):
