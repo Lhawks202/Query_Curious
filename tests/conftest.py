@@ -2,6 +2,9 @@ import shutil
 import os
 import pytest
 import sys 
+from flask import session
+from flask_wtf.csrf import generate_csrf
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from northwind import create_app, db
@@ -15,6 +18,7 @@ def app():
 
     app = create_app()
     app.config['DATABASE'] = TEST_DB
+    app.config['WTF_CSRF_ENABLED'] = False  # Disable CSRF protection for testing
 
     with app.app_context():
         db.init_db()
@@ -98,9 +102,9 @@ class CartActions(object):
             db = get_db()
             db.execute("INSERT INTO Cart_Items (CartID, ProductID, Quantity) VALUES (?, ?, ?)", (cart_id, product_id, quantity))
             db.commit()
+     
 
-
-@pytest.fixture
+@pytest.fixture(scope='function')
 def auth(client):
     return AuthActions(client)
 

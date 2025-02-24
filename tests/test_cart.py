@@ -1,5 +1,5 @@
-from flask import session
 import re
+from flask import session
 from northwind.cart import get_cart, get_cart_items, get_units_in_stock, update_quantity
 from northwind.db import get_db
 
@@ -91,23 +91,113 @@ def test_update_quantity(client, app, search, cart):
         with client:
             with client.session_transaction() as sess:
                 sess['session_id'] = session_id
+            # Test incrementing quantity
             response = client.post('/cart/update-quantity', data={
                 'item_id': cart_item_id,
                 'quantity': 2,
-                'increment': '+'
+                'increment': 'true'
                 })
-            assert response.status_code == 302  # Redirect to view_cart
-            
-            # Access flashed messages from the session
+            assert response.status_code == 302
             with client.session_transaction() as sess:
                 flashed_messages = sess.get('_flashes', [])
                 assert "Error updating item quantity." not in [msg for category, msg in flashed_messages]
-
             with app.app_context():
                 updated_quantity = db.execute("SELECT Quantity FROM Cart_Items WHERE CartItemID = ?", (cart_item_id,)).fetchone()[0]
                 assert updated_quantity == 3
+            # Test decrementing quantity
+            response = client.post('/cart/update-quantity', data={
+                'item_id': cart_item_id,
+                'quantity': 3,
+                'decrement': 'true'
+                })
+            assert response.status_code == 302
+            with client.session_transaction() as sess:
+                flashed_messages = sess.get('_flashes', [])
+                assert "Error updating item quantity." not in [msg for category, msg in flashed_messages]
+            with app.app_context():
+                updated_quantity = db.execute("SELECT Quantity FROM Cart_Items WHERE CartItemID = ?", (cart_item_id,)).fetchone()[0]
+                assert updated_quantity == 2
 
-                
+
+def test_update_quantity_item_out_of_stock(client, app, search, cart):
+    with app.app_context():
+        db = get_db()
+        session_id = "testtesttesttesttesttesttesttest"
+        supplier_id = search.insert_supplier()
+        category_id = search.insert_category()
+        product_id = search.insert_product(supplier_id=supplier_id, category_id=category_id)
+        cart_id = cart.insert_shopping_cart()
+        cart.insert_cart_items(cart_id, product_id, 999)
+        cart_item_id = db.execute("SELECT CartItemID FROM Cart_Items WHERE CartID = ? AND ProductID = ?", (cart_id, product_id)).fetchone()[0]
+        with client:
+            with client.session_transaction() as sess:
+                sess['session_id'] = session_id
+            response = client.post('/cart/update-quantity', data={
+                'item_id': cart_item_id,
+                'quantity': 999,
+                'increment': 'true'
+                })
+            assert response.status_code == 302
+            with client.session_transaction() as sess:
+                flashed_messages = sess.get('_flashes', [])
+                assert "Error updating item quantity." not in [msg for category, msg in flashed_messages]
+                assert "Quantity Requested is not in Stock" in [msg for category, msg in flashed_messages]
+            with app.app_context():
+                updated_quantity = db.execute("SELECT Quantity FROM Cart_Items WHERE CartItemID = ?", (cart_item_id,)).fetchone()[0]
+                assert updated_quantity == 999
+
+
+def test_update_quantity_errors(client, app, search, cart):
+    with app.app_context():
+        db = get_db()
+        session_id = "testtesttesttesttesttesttesttest"
+        supplier_id = search.insert_supplier()
+        category_id = search.insert_category()
+        product_id = search.insert_product(supplier_id=supplier_id, category_id=category_id)
+        cart_id = cart.insert_shopping_cart()
+        cart.insert_cart_items(cart_id, product_id, 999)
+        cart_item_id = db.execute("SELECT CartItemID FROM Cart_Items WHERE CartID = ? AND ProductID = ?", (cart_id, product_id)).fetchone()[0]
+        with client:
+            with client.session_transaction() as sess:
+                sess['session_id'] = session_id
+            response = client.post('/cart/update-quantity', data={
+                'item_id': "FAKE",
+                'quantity': 0,
+                'increment': 'true'
+                })
+            assert response.status_code == 302
+            with client.session_transaction() as sess:
+                flashed_messages = sess.get('_flashes', [])
+                assert "Error updating item quantity." in [msg for category, msg in flashed_messages]
+
+
+def test_update_quantity_zero_items(client, app, search, cart):
+    with app.app_context():
+        db = get_db()
+        session_id = "testtesttesttesttesttesttesttest"
+        supplier_id = search.insert_supplier()
+        category_id = search.insert_category()
+        product_id = search.insert_product(supplier_id=supplier_id, category_id=category_id)
+        cart_id = cart.insert_shopping_cart()
+        cart.insert_cart_items(cart_id, product_id, 1)
+        cart_item_id = db.execute("SELECT CartItemID FROM Cart_Items WHERE CartID = ? AND ProductID = ?", (cart_id, product_id)).fetchone()[0]
+        with client:
+            with client.session_transaction() as sess:
+                sess['session_id'] = session_id
+            response = client.post('/cart/update-quantity', data={
+                'item_id': cart_item_id,
+                'quantity': 1,
+                'decrement': 'true'
+                })
+            assert response.status_code == 302
+            with client.session_transaction() as sess:
+                flashed_messages = sess.get('_flashes', [])
+                assert "Error updating item quantity." not in [msg for category, msg in flashed_messages]
+            with app.app_context():
+                updated_quantity = db.execute("SELECT Quantity FROM Cart_Items WHERE CartItemID = ?", (cart_item_id,)).fetchone()[0]
+                assert updated_quantity == 1, "Quantity should not be decremented below 1"
+
+
 def test_remove_item(client, app, search, cart):
     with app.app_context():
         db = get_db()
@@ -123,5 +213,28 @@ def test_remove_item(client, app, search, cart):
                 sess['session_id'] = session_id
             response = client.post('/cart/remove-item', data={'item_id': cart_item_id, 'remove': True})
             assert response.status_code == 302  # Redirect to view_cart
+            with client.session_transaction() as sess:
+                flashed_messages = sess.get('_flashes', [])
+                assert "Error removing item." not in [msg for category, msg in flashed_messages]
             cart_items = db.execute("SELECT * FROM Cart_Items WHERE CartItemID = ?", (cart_item_id,)).fetchall()
             assert len(cart_items) == 0
+
+
+def test_remove_item_errors(client, app, search, cart):
+    with app.app_context():
+        db = get_db()
+        session_id = "testtesttesttesttesttesttesttest"
+        supplier_id = search.insert_supplier()
+        category_id = search.insert_category()
+        product_id = search.insert_product(supplier_id=supplier_id, category_id=category_id)
+        cart_id = cart.insert_shopping_cart()
+        cart.insert_cart_items(cart_id, product_id, 2)
+        cart_item_id = db.execute("SELECT CartItemID FROM Cart_Items WHERE CartID = ? AND ProductID = ?", (cart_id, product_id)).fetchone()[0]
+        with client:
+            with client.session_transaction() as sess:
+                sess['session_id'] = session_id
+            response = client.post('/cart/remove-item', data={})
+            assert response.status_code == 302  # Redirect to view_cart
+            with client.session_transaction() as sess:
+                flashed_messages = sess.get('_flashes', [])
+                assert "Error removing item." in [msg for category, msg in flashed_messages]
