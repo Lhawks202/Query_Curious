@@ -73,6 +73,31 @@ class SearchActions(object):
             db.execute("INSERT INTO Product (ProductName, UnitPrice, CategoryId, SupplierId, UnitsInStock, UnitsOnOrder, ReorderLevel, Discontinued) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                        (product_name, unit_price, category_id, supplier_id, 999, 999, 999, discontinued))
             db.commit()
+            return db.execute("SELECT Id FROM Product WHERE ProductName = ?", (product_name,)).fetchone()[0]
+
+
+class CartActions(object):
+    def __init__(self, app):
+        self._app = app
+
+    def insert_shopping_cart(self, user_id = None, session_id = "testtesttesttesttesttesttesttest"):
+        with self._app.app_context():
+            db = get_db()
+            if user_id is not None:
+                db.execute("INSERT INTO Shopping_Cart (UserID, SessionID) VALUES (?, ?)", (user_id, session_id))
+            else:
+                db.execute("INSERT INTO Shopping_Cart (SessionID) VALUES (?)", (session_id,))
+            db.commit()
+            if user_id is not None:
+                return db.execute("SELECT CartID FROM Shopping_Cart WHERE UserID = ?", (user_id,)).fetchone()[0]
+            else:
+                return db.execute("SELECT CartID FROM Shopping_Cart WHERE SessionID = ?", (session_id,)).fetchone()[0]
+
+    def insert_cart_items(self, cart_id, product_id, quantity):
+        with self._app.app_context():
+            db = get_db()
+            db.execute("INSERT INTO Cart_Items (CartID, ProductID, Quantity) VALUES (?, ?, ?)", (cart_id, product_id, quantity))
+            db.commit()
 
 
 @pytest.fixture
@@ -83,3 +108,8 @@ def auth(client):
 @pytest.fixture
 def search(app):
     return SearchActions(app)
+
+
+@pytest.fixture
+def cart(app):
+    return CartActions(app)
