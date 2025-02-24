@@ -1,6 +1,7 @@
 {% extends 'index.html' %}
 
 {% block header %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='search.css') }}">
     <h1>{% block title %}Search Products{% endblock %}</h1>
 {% endblock %}
 
@@ -12,8 +13,12 @@
         </tr>
         {% for item in products %}
         <tr>
-            <td>{{ item['ProductName'] }}</td>
-            <td>{{ item['UnitPrice'] }}</td>
+            <td>
+                <a href="{{ url_for('product.product_page', product=item['ProductName']) }}">
+                    {{ item['ProductName'] }}
+                </a>
+            </td>
+            <td>${{ "%.2f"|format(item['UnitPrice']) }}</td>
         </tr>
         {% endfor %} 
     </table>
