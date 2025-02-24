@@ -22,7 +22,7 @@ def create_cart(db):
         )
     else:
         db.execute(
-            "INSERT INTO Shopping_Cart (SessionID) VALUES (?)"
+            "INSERT INTO Shopping_Cart (SessionID) VALUES (?)",
             (session_id,)
         )
     db.commit()
