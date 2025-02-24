@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Product{% endblock %}</h1>
+  <p><a href="{{ url_for('index') }}">Return Home</a></p>
+{% endblock %}
+
+{% block content %}
+  <h3>{{ product['ProductName'] }}</h3>
+  {% if product['Discontinued'] %}
+    <p>Sorry, this product is discontinued</p>
+  {% else %}
+    <ul>
+      <li>Unit Price: ${{"%.2f"|format(product['UnitPrice'])}}</li>
+      <li>Quantity per Unit: {{ product['QuantityPerUnit'] }}</li>
+      <li>Units in Stock: {{ product ['UnitsInStock'] }}</li>
+    </ul>
+    <form method="post" id="add-to-cart">
+      <label for="quantity">Add to Cart</label>
+      <input type="number" id="quantity" placeholder="Quantity">
+      <button type="submit">Add to Cart</button>
+    </form>
+  {% endif %}
+{% endblock %}
