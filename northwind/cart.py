@@ -1,7 +1,7 @@
 from flask import (Blueprint, render_template, session, redirect, url_for, flash, request)
 from northwind.db import get_db
 import secrets
-from .forms import (UpdateItemQuantity, RemoveItem)
+from .forms import (UpdateItemQuantity, RemoveItem, AddToCart)
 
 bp = Blueprint('cart', __name__, url_prefix='/cart')
 
@@ -9,9 +9,28 @@ def get_session_id():
     """Ensure a session_id exists in the session and return it."""
     if 'session_id' not in session:
         session['session_id'] = secrets.token_hex(16)
+    print(session['session_id'])
     return session['session_id']
 
-def get_cart(db, session_id):
+def create_cart(db):
+    """Create a cart for the current session/user if it exists."""
+    session_id = get_session_id()
+    if 'user_id' in session:
+        db.execute(
+            "INSERT INTO Shopping_Cart (SessionID, UserID) VALUES (?, ?)",
+            (session_id, session['user_id'],)
+        )
+    else:
+        db.execute(
+            "INSERT INTO Shopping_Cart (SessionID) VALUES (?)",
+            (session_id,)
+        )
+    db.commit()
+    cart_id = db.execute("SELECT last_insert_rowid()").fetchone()[0]
+    return cart_id
+
+
+def get_cart(db):
     """Return the cart for the current session/user if it exists."""
     cart = None
     if 'user_id' in session:
@@ -20,6 +39,7 @@ def get_cart(db, session_id):
             (session['user_id'],)
         ).fetchone()
     if cart is None:
+        session_id = get_session_id()
         cart = db.execute(
             "SELECT CartID FROM Shopping_Cart WHERE SessionID = ?",
             (session_id,)
@@ -56,8 +76,7 @@ def get_units_in_stock(db, item_id):
 @bp.route('/')
 def view_cart():
     db = get_db()
-    session_id = get_session_id()
-    cart = get_cart(db, session_id)
+    cart = get_cart(db)
     cart_items = get_cart_items(db, cart)
     
     cart_item_forms = []
@@ -117,3 +136,30 @@ def remove_item():
         db.commit()
 
     return redirect(url_for('cart.view_cart'))
+
+@bp.route('/add-to-cart', methods=['POST'])
+def add_to_cart():
+    form = AddToCart()
+    if not form.validate_on_submit():
+        flash("Error adding item to cart.")
+        return redirect(url_for('search.search'))
+    
+    db = get_db()
+    product_id = form.product_id.data
+    quantity = form.quantity.data
+
+    if form.add.data:
+        cart = get_cart(db)
+        if not cart:
+            cart_id = create_cart(db)
+        else:
+            cart_id = cart['CartID']
+
+        db.execute(
+            "INSERT INTO Cart_Items (CartID, ProductID, Quantity) VALUES (?, ?, ?)",
+            (cart_id, product_id, quantity,)
+        )
+        db.commit()
+    # Need to Confirm with Katie that this is the Proper URL
+    return redirect(url_for('search.search'))
+

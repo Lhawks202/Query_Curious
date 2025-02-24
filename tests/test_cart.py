@@ -18,8 +18,10 @@ def test_get_cart_user_id(client, app, auth, cart):
         user_id = "test"
         cart.insert_shopping_cart(user_id=user_id)
         with client:
+            with client.session_transaction() as sess:
+                sess['user_id'] = user_id
             client.get('/cart/')
-            cart = get_cart(db, user_id)
+            cart = get_cart(db)
             assert cart is not None
 
 
@@ -29,9 +31,11 @@ def test_get_cart_session_id(client, app, cart):
         session_id = "testtesttesttesttesttesttesttest"
         cart.insert_shopping_cart(session_id=session_id)
         with client:
+            with client.session_transaction() as sess:
+                sess['session_id'] = session_id
             client.get('/cart/')
-            cart = get_cart(db, session_id)
-            assert cart is not None        
+            cart = get_cart(db)
+            assert cart is not None  
         
 
 def test_get_cart_items(app, search, cart):
