@@ -47,3 +47,19 @@ def test_init_db(runner, db_connection):
     """)
     index = cursor.fetchone()
     assert index is not None, "Index 'idx_product_name' was not created"
+
+    # Check if the Shopping_Cart table exists
+    cursor.execute("""
+        SELECT name FROM sqlite_master 
+        WHERE type='table' AND name='Shopping_Cart';
+    """)
+    table = cursor.fetchone()
+    assert table is not None, "Shopping_Cart table was not created"
+
+    # Check if the Cart_Items table exists
+    cursor.execute("""
+        SELECT name FROM sqlite_master 
+        WHERE type='table' AND name='Cart_Items';
+    """)
+    table = cursor.fetchone()
+    assert table is not None, "Cart_Items table was not created"
