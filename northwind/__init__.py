@@ -31,11 +31,15 @@ def create_app(test_config=None):
     from . import db
     db.init_app(app)
 
-    from . import auth
+    from . import auth, cart
     app.register_blueprint(auth.bp)
+    app.register_blueprint(cart.bp)
 
     from . import browse
     app.register_blueprint(browse.bp)
     app.add_url_rule('/', endpoint='index')
+
+    from . import product
+    app.register_blueprint(product.bp)
 
     return app
