@@ -48,6 +48,7 @@ def test_get_session_id(client):
         session_id = session['session_id']
         assert len(session_id) == 32
 
+
 def test_get_cart_user_id(client, app, auth, cart):
     with app.app_context():
         db = get_db()
@@ -91,6 +92,7 @@ def test_get_cart_items(app, search, cart):
         assert cart_items[0]['ProductName'] == 'TestProduct'
         assert cart_items[0]['Quantity'] == 2
 
+
 def test_get_units_in_stock(app, search, cart):
     with app.app_context():
         db = get_db()
@@ -102,6 +104,7 @@ def test_get_units_in_stock(app, search, cart):
         cart_item_id = db.execute("SELECT CartItemID FROM Cart_Items WHERE CartID = ? AND ProductID = ?", (cart_id, product_id)).fetchone()[0]
         units_in_stock = get_units_in_stock(db, cart_item_id)
         assert units_in_stock['UnitsInStock'] == 999
+
 
 def test_view_cart(client, app, search, cart):
     with app.app_context():

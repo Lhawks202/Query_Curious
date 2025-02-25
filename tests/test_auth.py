@@ -42,10 +42,12 @@ def test_register_strange_characters(auth):
     response = auth.register(username='éñçøßΩ中あ😊€', password='éñçøßΩ中あ😊€')
     assert response.headers['Location'] == '/auth/login',  "Doesn't accept strange characters in username and password."
 
+
 def test_sql_injection_drop_table_register(auth):
     # Attempt to register with SQL injection in the user_id to drop the Customer table
     response = auth.register(username="'; DROP TABLE Customer; --", password='password')
     assert response.status_code == 302
+
     # Verify that the Customer table still exists
     db = get_db()
     try:
