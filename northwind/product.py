@@ -23,5 +23,5 @@ def product_page():
         ).fetchone()
     form.product_id.data = product['Id']
     if product is None:
-        return render_template('/search/search-display.html')
+        return render_template('/search-display.html')
     return render_template('display-product.html', product=product, form=form)
