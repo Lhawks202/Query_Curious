@@ -3,19 +3,10 @@
 {% block header %}
 <link rel="stylesheet" href="{{ url_for('static', filename='search.css') }}">
   <h1>{% block title %}Home{% endblock %}</h1>
+  <p><a href="{{ url_for('index') }}">Return Home</a></p>
 {% endblock %}
 
 {% block content %}
-
-<form method="POST" id="search">
-    <label for="search">Search</label>
-    <input 
-    type="text" placeholder="Name or Type of Product" 
-    name="search" id="search" value="{{ search_query or '' }}">
-    <input type="hidden" name="form_type" value="search">
-    <button for="search" type="submit" value="Submit">Submit</button>
-</form>
-
 <form method="POST">
   <label for="selected_category">Select Category:</label>
   <select name="selected_category" id="category" onchange="this.form.submit()">
@@ -31,21 +22,27 @@
   <input type="hidden" name="form_type" value="category">
 </form>
 
-<table>
-  <tr>
-      <th>Product Name</th>
-      <th>Unit Price</th>
-  </tr>
-  {% for item in items %}
-  <tr>
-      <td>
-          <a href="{{ url_for('product.product_page', product=item['ProductName']) }}">
-              {{ item['ProductName'] }}
-          </a>
-      </td>
-      <td>${{ "%.2f"|format(item['UnitPrice']) }}</td>
-  </tr>
-  {% endfor %} 
-</table>
-
+    <h2> 
+        {% if selected_category and selected_category != "All" %}
+        Products in "{{ selected_category }}"
+        {% else %}
+        All Products
+        {% endif %}
+    </h2>
+    <table>
+        <tr>
+            <th>Product Name</th>
+            <th>Unit Price</th>
+        </tr>
+        {% for item in products %}
+        <tr>
+            <td>
+                <a href="{{ url_for('product.product_page', product=item['ProductName']) }}">
+                    {{ item['ProductName'] }}
+                </a>
+            </td>
+            <td>${{ "%.2f"|format(item['UnitPrice']) }}</td>
+        </tr>
+        {% endfor %} 
+    </table>
 {% endblock %}

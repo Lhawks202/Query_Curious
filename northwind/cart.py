@@ -161,5 +161,5 @@ def add_to_cart():
         )
         db.commit()
     # Need to Confirm with Katie that this is the Proper URL
-    return redirect(url_for('search.search'))
+    return redirect(url_for('cart.view_cart'))
 

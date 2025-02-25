@@ -24,10 +24,6 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    @app.route('/')
-    def index():
-        return render_template('index.html')
-
     from . import db
     db.init_app(app)
 
@@ -35,8 +31,9 @@ def create_app(test_config=None):
     app.register_blueprint(auth.bp)
     app.register_blueprint(cart.bp)
 
-    from . import search
-    app.register_blueprint(search.bp)
+    from . import browse
+    app.register_blueprint(browse.bp)
+    app.add_url_rule('/', endpoint='index')
 
     from . import product
     app.register_blueprint(product.bp)
