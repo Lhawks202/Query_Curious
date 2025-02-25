@@ -37,13 +37,13 @@ class AuthActions(object):
     def __init__(self, client):
         self._client = client
 
-    def register(self, username='test', password='test'):
+    def register(self, username='testtestingauth', password='testtestingauth'):
         return self._client.post(
             '/auth/register',
             data={'user_id': username, 'password': password}
         )
 
-    def login(self, username='test', password='test'):
+    def login(self, username='testtestingauth', password='testtestingauth'):
         return self._client.post(
             '/auth/login',
             data={'user_id': username, 'password': password}
@@ -71,11 +71,11 @@ class SearchActions(object):
             db.commit()
             return db.execute("SELECT Id FROM Category WHERE CategoryName = ?", (category_name,)).fetchone()[0]
 
-    def insert_product(self, product_name='TestProduct', unit_price=10.0, category_id=1, supplier_id=1, discontinued=0):
+    def insert_product(self, product_name='TestProduct', unit_price=10.0, category_id=1, supplier_id=1, discontinued=0, units_in_stock=999, units_on_order=999, reorder_level=999):
         with self._app.app_context():
             db = get_db()
             db.execute("INSERT INTO Product (ProductName, UnitPrice, CategoryId, SupplierId, UnitsInStock, UnitsOnOrder, ReorderLevel, Discontinued) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                       (product_name, unit_price, category_id, supplier_id, 999, 999, 999, discontinued))
+                       (product_name, unit_price, category_id, supplier_id, units_in_stock, units_on_order, reorder_level, discontinued))
             db.commit()
             return db.execute("SELECT Id FROM Product WHERE ProductName = ?", (product_name,)).fetchone()[0]
 
