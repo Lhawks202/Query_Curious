@@ -7,7 +7,7 @@ Our Team members are:
 - Joshua Gorniak :: Development Engineer - Shopping Cart and Checkout
 - Rafael Singer :: Development Engineer - Authentication
 - Katie Baek :: 
-- Sofia Utoft ::
+- Sofia Utoft :: Development Engineer - Browsing & Documentation
 
 ## Setting up your environment
 1. Clone the repo
