@@ -31,9 +31,10 @@ def create_app(test_config=None):
     from . import db
     db.init_app(app)
 
-    from . import auth, cart
+    from . import auth, cart, checkout
     app.register_blueprint(auth.bp)
     app.register_blueprint(cart.bp)
+    app.register_blueprint(checkout.bp)
 
     from . import search
     app.register_blueprint(search.bp)

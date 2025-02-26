@@ -29,21 +29,36 @@ def create_cart(db):
     cart_id = db.execute("SELECT last_insert_rowid()").fetchone()[0]
     return cart_id
 
+def get_cart_via_cart_item_id(db, item_id):
+    """Return the cart given an item belonging to that cart."""
+    return db.execute(
+        "SELECT CartID FROM Cart_Items WHERE CartItemID = ?",
+        (item_id,)
+    ).fetchone()
+
+def get_cart_via_session_id(db):
+    """Return the cart for the current session if it exists."""
+    session_id = get_session_id()
+    return db.execute(
+        "SELECT * FROM Shopping_Cart WHERE SessionID = ?",
+        (session_id,)
+    ).fetchone()
+
+def get_cart_via_user_id(db):
+    """Return the cart for the current user if it exists"""
+    return db.execute(
+        "SELECT * FROM Shopping_Cart WHERE UserID = ?",
+        (session['user_id'],)
+    ).fetchone()
+
 
 def get_cart(db):
     """Return the cart for the current session/user if it exists."""
     cart = None
     if 'user_id' in session:
-        cart = db.execute(
-            "SELECT CartID FROM Shopping_Cart WHERE UserID = ?",
-            (session['user_id'],)
-        ).fetchone()
+        cart = get_cart_via_user_id(db)
     if cart is None:
-        session_id = get_session_id()
-        cart = db.execute(
-            "SELECT CartID FROM Shopping_Cart WHERE SessionID = ?",
-            (session_id,)
-        ).fetchone()
+        cart = get_cart_via_session_id(db)
     return cart
 
 def get_cart_items(db, cart):
@@ -62,6 +77,7 @@ def get_cart_items(db, cart):
     return cart_items
 
 def get_units_in_stock(db, item_id):
+    """Return units in stock for a given item"""
     units_in_stock = db.execute(
         """
         SELECT p.UnitsInStock
@@ -72,6 +88,27 @@ def get_units_in_stock(db, item_id):
         (item_id,)
     ).fetchone()
     return units_in_stock
+
+def update_cart_totals(db, cart_id):
+    """Recalculate NumItems and TotalCost for a Given Cart; Called when Merging session_cart with user_cart"""
+    totals = db.execute(
+        """
+        SELECT SUM (Quantity) AS NumItems, SUM (Quantity * p.UnitPrice) AS TotalCost
+        FROM Cart_Items AS ci
+        JOIN Product as p ON ci.ProductID = p.Id
+        WHERE CartID = ?
+        """,
+        (cart_id,)
+    ).fetchone()
+
+    num_items = totals['NumItems'] if totals['NumItems'] else 0
+    total_cost = totals['TotalCost'] if totals['TotalCost'] else 0.0
+
+    db.execute(
+        "UPDATE Shopping_Cart SET NumItems = ?, TotalCost = ? WHERE CartID = ?",
+        (num_items, total_cost, cart_id)
+    )
+    db.commit()
 
 @bp.route('/')
 def view_cart():
@@ -116,6 +153,12 @@ def update_quantity():
         (quantity, item_id)
     )
     db.commit()
+
+    # Get the CartID associated with CartItemID
+    cart = get_cart_via_cart_item_id(db, item_id)
+    cart_id = cart['CartID']
+    update_cart_totals(db, cart_id)
+
     return redirect(url_for('cart.view_cart'))
 
 @bp.route('/remove-item', methods=['POST'])
@@ -128,12 +171,17 @@ def remove_item():
     db = get_db()
     item_id = form.item_id.data
 
+    cart = get_cart_via_cart_item_id(db, item_id)
+    cart_id = cart['CartID']
+
     if form.remove.data:
         db.execute(
             "DELETE FROM Cart_Items WHERE CartItemID = ?",
             (item_id,)
         )
         db.commit()
+    
+    update_cart_totals(db, cart_id)
 
     return redirect(url_for('cart.view_cart'))
 
@@ -155,11 +203,54 @@ def add_to_cart():
         else:
             cart_id = cart['CartID']
 
-        db.execute(
-            "INSERT INTO Cart_Items (CartID, ProductID, Quantity) VALUES (?, ?, ?)",
-            (cart_id, product_id, quantity,)
-        )
+        existing_item = db.execute(
+            "SELECT CartItemID, Quantity FROM Cart_Items WHERE CartID = ? AND ProductID = ?",
+            (cart_id, product_id,)
+        ).fetchone()
+
+        if existing_item:
+            quantity += existing_item['Quantity']
+            db.execute(
+                "UPDATE Cart_Items SET Quantity = ? WHERE CartItemID = ?",
+                (quantity, existing_item['CartItemID'],)
+            )
+        else:
+            db.execute(
+                "INSERT INTO Cart_Items (CartID, ProductID, Quantity) VALUES (?, ?, ?)",
+                (cart_id, product_id, quantity,)
+            )
         db.commit()
-    # Need to Confirm with Katie that this is the Proper URL
+
+        update_cart_totals(db, cart_id)
     return redirect(url_for('search.search'))
 
+@bp.route('/assign-user', methods=['GET', 'POST'])
+def assign_user():
+    db = get_db()
+    session_cart = get_cart_via_session_id(db)
+    user_cart = get_cart_via_user_id(db)
+    
+    if session_cart:
+        if user_cart:
+            # The User has already their User Cart
+            # Need to Merge Current Session Cart with Existing User Cart
+            db.execute(
+                "UPDATE Cart_Items SET CartID = ? WHERE CartID = ?",
+                (user_cart['CartID'], session_cart['CartID'],)
+            )
+            db.execute(
+                "DELETE FROM Shopping_Cart WHERE CartID = ?",
+                (session_cart['CartID'],)
+            )
+
+            update_cart_totals(db, user_cart['CartID'])
+        else:
+            # The User has no Cart Yet
+            # Can Modify Existing Session Cart
+            db.execute(
+                "UPDATE Shopping_Cart SET UserID = ? WHERE CartID = ? AND UserID IS NULL",
+                (session['user_id'], session_cart['CartID'],)
+            )
+        db.commit()
+
+    return redirect(url_for('index'))

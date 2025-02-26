@@ -80,9 +80,8 @@ def login():
             error = 'Incorrect password.'
 
         if error is None:
-            session.clear()
             session['user_id'] = user['UserID']
-            return redirect(url_for('index'))
+            return redirect(url_for('cart.assign_user'))
 
         flash(error)
 
