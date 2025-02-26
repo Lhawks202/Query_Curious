@@ -9,3 +9,26 @@
     color: white !important;
     border-color: #7ABD7E !important;
   }
+
+  .update-quantity-form {
+    padding-left: 6%;
+  }
+
+  .checkout-header {
+    color: white;
+  }
+
+  .checkout-card-header {
+    background-color: #377ba8;;
+  }
+
+  .checkout-button {
+    background-color: #377ba8;
+    border-color: #377ba8;
+  }
+
+  .checkout-button:hover {
+    background-color: #2e6494;
+    border-color: #2e6494;
+    color: #fff;
+}
