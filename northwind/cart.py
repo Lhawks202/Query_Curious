@@ -259,4 +259,7 @@ def assign_user():
             )
         db.commit()
 
+    next = session.pop('next', None)
+    if next:
+        return redirect(next)
     return redirect(url_for('index'))

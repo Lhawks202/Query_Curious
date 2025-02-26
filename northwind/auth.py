@@ -59,11 +59,15 @@ def register():
                 error = f"User {user_id} is already registered."
             else:
                 # TODO: redirect to correct page
+                next = request.form['next']
+                if next and next in ['/cart/', '/checkout/'] :
+                    return redirect(url_for("auth.login", next=next))
                 return redirect(url_for("auth.login"))
 
         flash(error)
 
-    return render_template('auth/register.html')
+    next = request.args.get('next')
+    return render_template('auth/register.html', next=next)
 
 @bp.route('/login', methods=('GET', 'POST'))
 def login():
@@ -81,11 +85,15 @@ def login():
 
         if error is None:
             session['user_id'] = user['UserID']
+            next = request.form['next']
+            if next and next in ['/cart/', '/checkout/'] :
+                session['next'] = next
             return redirect(url_for('cart.assign_user'))
 
         flash(error)
 
-    return render_template('auth/login.html')
+    next = request.args.get('next')
+    return render_template('auth/login.html', next=next)
 
 @bp.before_app_request
 def load_logged_in_user():

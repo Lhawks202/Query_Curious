@@ -8,11 +8,11 @@
   <h1>Northwind</h1>
   <ul>
     {% if g.user %}
-    <li><span>{{ g.user['UserID'] }}</span>
-    <li><a href="{{ url_for('auth.logout') }}">Log Out</a>
+    <li><span>{{ g.user['UserID'] }}</span></li>
+    <li><a href="{{ url_for('auth.logout') }}">Log Out</a></li>
       {% else %}
-    <li><a href="{{ url_for('auth.register') }}">Register</a>
-    <li><a href="{{ url_for('auth.login') }}">Log In</a>
+    <li><a href="{{ url_for('auth.register') }}">Register</a></li>
+    <li><a href="{{ url_for('auth.login', next=request.path) }}">Log In</a></li>
       {% endif %}
     <li><a href="{{ url_for('cart.view_cart') }}">Cart</a></li>
   </ul>
