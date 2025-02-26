@@ -190,7 +190,7 @@ def add_to_cart():
     form = AddToCart()
     if not form.validate_on_submit():
         flash("Error adding item to cart.")
-        return redirect(url_for('search.search'))
+        return redirect(url_for('cart.view_cart'))
     
     db = get_db()
     product_id = form.product_id.data
@@ -222,7 +222,7 @@ def add_to_cart():
         db.commit()
 
         update_cart_totals(db, cart_id)
-    return redirect(url_for('search.search'))
+    return redirect(url_for('cart.view_cart'))
 
 @bp.route('/assign-user', methods=['GET', 'POST'])
 def assign_user():
