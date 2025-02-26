@@ -69,7 +69,7 @@ def test_login(client, auth):
 
     # Test successful login and redirection
     response = auth.login()
-    assert response.headers['Location'] == '/', "Post login redirect location is incorrect."
+    assert response.headers['Location'] == '/cart/assign-user', "Post login redirect location is incorrect."
 
     # Check if the user_id is stored in the session
     with client:

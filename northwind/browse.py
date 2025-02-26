@@ -108,5 +108,7 @@ def display_search():
     product = search_product(item)
     db = get_db()
     categories = db.execute('SELECT DISTINCT CategoryName FROM Category').fetchall()
-
+    if not product:
+        flash("No products found.")
+        product = []
     return render_template('search-display.html', products=product, categories=categories)
