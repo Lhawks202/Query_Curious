@@ -195,6 +195,10 @@ def add_to_cart():
     db = get_db()
     product_id = form.product_id.data
     quantity = form.quantity.data
+    units_in_stock = db.execute(
+        "SELECT UnitsInStock FROM Product WHERE Id = ?",
+        (product_id,)
+    ).fetchone()['UnitsInStock']
 
     if form.add.data:
         cart = get_cart(db)
@@ -210,11 +214,13 @@ def add_to_cart():
 
         if existing_item:
             quantity += existing_item['Quantity']
+            quantity = quantity if quantity <= units_in_stock else units_in_stock
             db.execute(
                 "UPDATE Cart_Items SET Quantity = ? WHERE CartItemID = ?",
                 (quantity, existing_item['CartItemID'],)
             )
         else:
+            quantity = quantity if quantity <= units_in_stock else units_in_stock
             db.execute(
                 "INSERT INTO Cart_Items (CartID, ProductID, Quantity) VALUES (?, ?, ?)",
                 (cart_id, product_id, quantity,)
