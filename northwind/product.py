@@ -21,7 +21,7 @@ def product_page():
             ' FROM Product'
             ' WHERE ProductName = ? COLLATE NOCASE', (product_name,)
         ).fetchone()
-    form.product_id.data = product['Id']
     if product is None:
         return render_template('/search-display.html')
+    form.product_id.data = product['Id']
     return render_template('display-product.html', product=product, form=form)

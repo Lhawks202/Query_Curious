@@ -1,0 +1,11 @@
+.btn-decrement:hover {
+    background-color: #FF6961 !important;
+    color: white !important;
+    border-color: #FF6961 !important;
+  }
+
+  .btn-increment:hover {
+    background-color: #7ABD7E !important;
+    color: white !important;
+    border-color: #7ABD7E !important;
+  }
