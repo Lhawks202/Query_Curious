@@ -37,20 +37,20 @@ class AuthActions(object):
     def __init__(self, client):
         self._client = client
 
-    def register(self, username='testtestingauth', password='testtestingauth'):
+    def register(self, username='testtestingauth', password='testtestingauth', next='/'):
         return self._client.post(
-            '/auth/register',
-            data={'user_id': username, 'password': password}
+            'auth/register',
+            data={'user_id': username, 'password': password, 'next': next}
         )
 
-    def login(self, username='testtestingauth', password='testtestingauth'):
+    def login(self, username='testtestingauth', password='testtestingauth', next='/'):
         return self._client.post(
-            '/auth/login',
-            data={'user_id': username, 'password': password}
+            'auth/login',
+            data={'user_id': username, 'password': password, 'next': next}
         )
 
     def logout(self):
-        return self._client.get('/auth/logout')
+        return self._client.get('auth/logout')
 
 
 class SearchActions(object):
