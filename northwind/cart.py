@@ -214,12 +214,16 @@ def add_to_cart():
 
         if existing_item:
             quantity += existing_item['Quantity']
+            if quantity > units_in_stock:
+                flash(f"Only {units_in_stock} units in stock")
             quantity = quantity if quantity <= units_in_stock else units_in_stock
             db.execute(
                 "UPDATE Cart_Items SET Quantity = ? WHERE CartItemID = ?",
                 (quantity, existing_item['CartItemID'],)
             )
         else:
+            if quantity > units_in_stock:
+                flash(f"Only {units_in_stock} units in stock")
             quantity = quantity if quantity <= units_in_stock else units_in_stock
             db.execute(
                 "INSERT INTO Cart_Items (CartID, ProductID, Quantity) VALUES (?, ?, ?)",

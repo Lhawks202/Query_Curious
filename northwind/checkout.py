@@ -24,12 +24,20 @@ def delete_entries():
     pass
 
 
-@bp.route('/', methods=['GET'])
+@bp.route('/', methods=('GET', 'POST'))
 def checkout():
+    if request.method == 'POST':
+        pass
+    shipping = request.args.get('shipping', '')
     delete_entries()
     db = get_db()
     cart = get_cart(db)
     cart_items = get_cart_items(db, cart)
     total_items, total_cost = calc_cost(cart_items)
-    return render_template('checkout/checkout.html', num_items=total_items, total_amount=total_cost, cart_items=cart_items)
+    return render_template('checkout/checkout.html', num_items=total_items, total_amount=total_cost, cart_items=cart_items, shipping=shipping)
 
+@bp.route('/shipping/', methods=('GET', 'POST'))
+def shipping():
+    if request.method == 'POST':
+        pass
+    return render_template('checkout/shipping.html')
