@@ -1,6 +1,6 @@
 import re
 from flask import session
-from northwind.cart import get_cart, get_cart_items, get_units_in_stock, create_cart
+from northwind.cart import get_cart, get_cart_items, get_units_in_stock_cart_item_id, create_cart
 from northwind.db import get_db
 
 
@@ -102,8 +102,8 @@ def test_get_units_in_stock(app, search, cart):
         cart_id = cart.insert_shopping_cart()
         cart.insert_cart_items(cart_id, product_id, 2)
         cart_item_id = db.execute("SELECT CartItemID FROM Cart_Items WHERE CartID = ? AND ProductID = ?", (cart_id, product_id)).fetchone()[0]
-        units_in_stock = get_units_in_stock(db, cart_item_id)
-        assert units_in_stock['UnitsInStock'] == 999
+        units_in_stock = get_units_in_stock_cart_item_id(db, cart_item_id)
+        assert units_in_stock == 999
 
 
 def test_view_cart(client, app, search, cart):
