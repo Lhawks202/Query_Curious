@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Checkout{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="text-center mb-4">
+          <h3>Choose Shipping Method</h3>
+        </div>
+        <div class="d-flex flex-column">
+                <a href="{{ url_for('checkout.checkout', shipping='Speedy Express') }}" class="btn btn-secondary btn-lg mb-3">
+                    Speedy Express
+                </a>
+                <a href="{{ url_for('checkout.checkout', shipping='United Package') }}" class="btn btn-primary btn-lg mb-3">
+                    United Package
+                </a>
+                <a href="{{ url_for('checkout.checkout', shipping='Federal Shipping') }}" class="btn btn-secondary btn-lg mb-3">
+                    Federal Shipping
+                </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
