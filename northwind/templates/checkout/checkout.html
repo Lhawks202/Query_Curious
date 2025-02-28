@@ -30,14 +30,12 @@
                       ${{ "%.2f"|format(item['UnitPrice']) }}
                   </span>
               </td>
-              <td class="text-center" style="width: 150px;">
-                  <form action="{{ url_for('cart.update_quantity') }}" method="post">
-                      <div class="input-group input-group-sm" style="width: 120px;">
-                          
-                          <p class="form-control form-control-sm text-center m-0">{{item['Quantity']}}</p>
-                          
-                      </div>
-                  </form>
+              <td class="text-center">
+                  
+                      <span class="fw-semibold">
+                        {{item['Quantity']}}
+                      </span>                          
+                  
               </td>
               <td class="text-end">
                   <span class="fw-semibold">
