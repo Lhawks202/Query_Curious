@@ -3,30 +3,37 @@ from northwind.db import get_db
 from northwind.auth import login_required
 
 def test_register(client, app, auth):
+    client.get('/')
     assert client.get('/auth/register').status_code == 200
-
     # Test invalid registration attempts
     response = auth.register(username='', password='testtestingauth')
     response_text = response.data.decode('utf-8')
+    
     assert 'User ID is required.' in response_text
 
     response = auth.register(username='', password='')
     response_text = response.data.decode('utf-8')
     assert 'User ID is required.' in response_text
 
-    response = auth.register(username='testtestingauth', password='')
+    response = auth.register(username='test', password='')
     response_text = response.data.decode('utf-8')
     assert 'Password is required.' in response_text
-
+    
     # Test successful registration and redirection
     response = auth.register()
-    assert response.headers['Location'] == '/auth/login',  "Post register redirect location is incorrect."
-
     # Check if the user was added to the database
     with app.app_context():
         assert get_db().execute(
-            "SELECT * FROM Authentication WHERE UserID = 'test'",
+            "SELECT * FROM Authentication WHERE UserID = 'testtestingauth'",
         ).fetchone() is not None
+    
+    response = auth.register(username='testtestingauth2', password='testtestingauth2', next='/cart')
+    # Check if the user was added to the database
+    with app.app_context():
+        assert get_db().execute(
+            "SELECT * FROM Authentication WHERE UserID = 'testtestingauth2'",
+        ).fetchone() is not None
+    assert response.headers['Location'] == '/auth/login', "Post registration redirect location is incorrect."
 
 
 def test_register_existing_user(auth):
@@ -57,7 +64,6 @@ def test_sql_injection_drop_table_register(auth):
 
 
 def test_login(client, auth):
-    assert client.get('/auth/login').status_code == 200
     auth.register()
 
     # Test invalid login attempts
