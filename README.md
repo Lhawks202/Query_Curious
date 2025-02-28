@@ -6,7 +6,7 @@ Our Team members are:
 - Luke Sanford :: Unit Testing
 - Joshua Gorniak :: Development Engineer - Shopping Cart and Checkout
 - Rafael Singer :: Development Engineer - Authentication
-- Katie Baek :: 
+- Katie Baek :: Development Engineer - Searching & Product Page
 - Sofia Utoft :: Development Engineer - Browsing & Documentation
 
 ## Setting up your environment
