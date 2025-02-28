@@ -237,40 +237,6 @@ def add_to_cart():
         update_cart_totals(db, cart_id)
     return redirect(url_for('cart.view_cart'))
 
-# @bp.route('/assign-user', methods=['GET', 'POST'])
-# def assign_user():
-#     db = get_db()
-#     session_cart = get_cart_via_session_id(db)
-#     user_cart = get_cart_via_user_id(db)
-    
-#     if session_cart:
-#         if user_cart:
-#             # The User has already their User Cart
-#             # Need to Merge Current Session Cart with Existing User Cart
-#             db.execute(
-#                 "UPDATE Cart_Items SET CartID = ? WHERE CartID = ?",
-#                 (user_cart['CartID'], session_cart['CartID'],)
-#             )
-#             db.execute(
-#                 "DELETE FROM Shopping_Cart WHERE CartID = ?",
-#                 (session_cart['CartID'],)
-#             )
-
-#             update_cart_totals(db, user_cart['CartID'])
-#         else:
-#             # The User has no Cart Yet
-#             # Can Modify Existing Session Cart
-#             db.execute(
-#                 "UPDATE Shopping_Cart SET UserID = ? WHERE CartID = ? AND UserID IS NULL",
-#                 (session['user_id'], session_cart['CartID'],)
-#             )
-#         db.commit()
-
-#     next = session.pop('next', None)
-#     if next:
-#         return redirect(next)
-#     return redirect(url_for('index'))
-
 @bp.route('/assign-user', methods=['GET', 'POST'])
 def assign_user():
     db = get_db()
@@ -279,21 +245,18 @@ def assign_user():
     
     if session_cart:
         if user_cart:
-            # Merge session cart items into the user's cart
             session_items = db.execute(
                 "SELECT * FROM Cart_Items WHERE CartID = ?",
                 (session_cart['CartID'],)
             ).fetchall()
 
             for item in session_items:
-                # Check if this product already exists in the user's cart
                 existing_item = db.execute(
                     "SELECT CartItemID, Quantity FROM Cart_Items WHERE CartID = ? AND ProductID = ?",
                     (user_cart['CartID'], item['ProductID'])
                 ).fetchone()
 
                 if existing_item:
-                    # If it exists, add the quantities together
                     units_in_stock = get_units_in_stock_cart_item_id(db, existing_item['CartItemID'])
                     
                     quantity = existing_item['Quantity'] + item['Quantity']
@@ -304,13 +267,11 @@ def assign_user():
                         "UPDATE Cart_Items SET Quantity = ? WHERE CartItemID = ?",
                         (quantity, existing_item['CartItemID'])
                     )
-                    # Remove the duplicate session cart item
                     db.execute(
                         "DELETE FROM Cart_Items WHERE CartItemID = ?",
                         (item['CartItemID'],)
                     )
                 else:
-                    # If the product does not exist in the user cart, simply reassign its CartID
                     db.execute(
                         "UPDATE Cart_Items SET CartID = ? WHERE CartItemID = ?",
                         (user_cart['CartID'], item['CartItemID'])
