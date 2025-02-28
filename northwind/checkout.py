@@ -20,11 +20,13 @@ def calc_cost(cart_items):
         total_items += n_items
     return total_items, total_cost
 
-@bp.route('/', methods=('GET', 'POST'))
-def checkout():
-    if request.method == 'POST':
-        pass
+def delete_entries():
+    pass
 
+
+@bp.route('/', methods=['GET'])
+def checkout():
+    delete_entries()
     db = get_db()
     cart = get_cart(db)
     cart_items = get_cart_items(db, cart)
