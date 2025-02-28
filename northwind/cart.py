@@ -242,6 +242,7 @@ def assign_user():
     
     if session_cart:
         if user_cart:
+            flash("User already has a cart")
             # The User has already their User Cart
             # Need to Merge Current Session Cart with Existing User Cart
             db.execute(
