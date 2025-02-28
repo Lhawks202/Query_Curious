@@ -6,7 +6,54 @@
 
 {% block content %}
 {% if g.user %}
-<p>Hello {{g.user['UserID']}}</p>
+<div class="table-responsive mt-4">
+  <table class="table align-middle">
+      <thead class="table-light">
+          <tr>
+              <th scope="col" style="min-width: 300px;">Item</th>
+              <th scope="col" class="text-center">Price</th>
+              <th scope="col" class="text-center">Quantity</th>
+              <th scope="col" class="text-end">Subtotal</th>
+          </tr>
+      </thead>
+      <tbody>
+          {% for item in cart_items %}
+          <tr>
+              <td>
+                  <div class="d-flex align-items-center fw-bold mb-1 text-dark" style="font-size: 1.1rem;">
+                      
+                      <p class="mb-0">{{ item['ProductName'] }}</p>
+                  </div>
+              </td>
+              <td class="text-center">
+                  <span class="fw-semibold">
+                      ${{ "%.2f"|format(item['UnitPrice']) }}
+                  </span>
+              </td>
+              <td class="text-center">
+                  
+                      <span class="fw-semibold">
+                        {{item['Quantity']}}
+                      </span>                          
+                  
+              </td>
+              <td class="text-end">
+                  <span class="fw-semibold">
+                      ${{ "%.2f"|format(item['UnitPrice'] * item['Quantity']) }}
+                  </span>
+              </td>
+          </tr>
+          {% endfor %}
+      </tbody>
+  </table>
+</div>
+<div class="d-flex justify-content-end align-items-center mt-3">
+  <h5>Shipping: {{ shipping }}</h5>
+</div>
+<div class="d-flex justify-content-end align-items-center mt-3">
+  <h4 class="me-3">Cart Total: ${{ "%.2f"|format(total_amount) }}</h4>
+</div>
+
 {% else %}
 <div class="container my-5">
   <div class="row justify-content-center">
