@@ -346,3 +346,93 @@ def test_add_to_cart_invalid_form(client, app):
             with client.session_transaction() as sess:
                 flashed_messages = sess.get('_flashes', [])
                 assert "Error adding item to cart." in [msg for category, msg in flashed_messages]
+
+
+def test_assign_user_merge_carts(client, app, auth, cart, search):
+    with app.app_context():
+        db = get_db()
+        user_id = "testtestingauth"
+        session_id = "testtesttesttesttesttesttesttest"
+        auth.register()
+        auth.login()
+
+        # Create a session cart
+        supplier_id = search.insert_supplier()
+        category_id = search.insert_category()
+        product_id = search.insert_product(supplier_id=supplier_id, category_id=category_id)
+        session_cart_id = cart.insert_shopping_cart(session_id=session_id)
+        cart.insert_cart_items(session_cart_id, product_id, 2)
+
+        user_cart_id = cart.insert_shopping_cart(user_id=user_id)
+        cart.insert_cart_items(user_cart_id, product_id, 1)
+
+        with client.session_transaction() as sess:
+            sess['session_id'] = session_id
+            sess['user_id'] = user_id
+
+        response = client.get('/cart/assign-user')
+        assert response.status_code == 302
+
+        merged_cart_items = db.execute("SELECT * FROM Cart_Items WHERE CartID = ?", (user_cart_id,)).fetchall()
+
+        # Verify that the session cart items were merged into the user cart
+        assert len(merged_cart_items) == 1, "Cart items were not merged, still two seperate cart items"
+        assert merged_cart_items[0]['Quantity'] == 3
+
+        # Verify that the session cart was deleted
+        session_cart = db.execute("SELECT * FROM Shopping_Cart WHERE CartID = ?", (session_cart_id,)).fetchone()
+        assert session_cart is None
+
+
+def test_assign_user_no_user_cart(client, app, auth, cart, search):
+    with app.app_context():
+        db = get_db()
+        user_id = "testtestingauth"
+        session_id = "testtesttesttesttesttesttesttest"
+        auth.register()
+        auth.login()
+
+        # Create a session cart
+        supplier_id = search.insert_supplier()
+        category_id = search.insert_category()
+        product_id = search.insert_product(supplier_id=supplier_id, category_id=category_id)
+        session_cart_id = cart.insert_shopping_cart(session_id=session_id)
+        cart.insert_cart_items(session_cart_id, product_id, 2)
+
+        with client.session_transaction() as sess:
+            sess['session_id'] = session_id
+            sess['user_id'] = user_id
+
+        # Call the assign_user route
+        response = client.get('/cart/assign-user')
+        assert response.status_code == 302
+
+        # Verify that the session cart was assigned to the user
+        user_cart = db.execute("SELECT * FROM Shopping_Cart WHERE CartID = ?", (session_cart_id,)).fetchone()
+        assert user_cart is not None
+        assert user_cart['UserID'] == user_id
+
+
+def test_assign_user_redirect(client, app, auth, cart, search):
+    with app.app_context():
+        db = get_db()
+        user_id = "testtestingauth"
+        session_id = "testtesttesttesttesttesttesttest"
+        
+        auth.register()
+        auth.login()
+
+        supplier_id = search.insert_supplier()
+        category_id = search.insert_category()
+        product_id = search.insert_product(supplier_id=supplier_id, category_id=category_id)
+        session_cart_id = cart.insert_shopping_cart(session_id=session_id)
+        cart.insert_cart_items(session_cart_id, product_id, 2)
+
+        with client.session_transaction() as sess:
+            sess['session_id'] = session_id
+            sess['user_id'] = user_id
+            sess['next'] = '/cart'
+
+        response = client.get('/cart/assign-user')
+        assert response.status_code == 302
+        assert response.headers['Location'] == '/cart'
