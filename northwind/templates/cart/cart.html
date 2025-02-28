@@ -67,7 +67,11 @@
 </div>
 <div class="d-flex justify-content-end align-items-center mt-3">
     <h4 class="me-3">Cart Total: ${{ "%.2f"|format(cart['TotalCost']) }}</h4>
+    {% if g.user %}
     <a href="{{ url_for('checkout.shipping') }}" class="btn btn-primary">Checkout</a>
+    {% else %}
+    <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Login to Checkout</a>
+    {% endif %}
 </div>
 
 {% else %}
