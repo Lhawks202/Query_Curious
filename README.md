@@ -14,8 +14,8 @@ Our Team members are:
 2. Download the `northwind.sqlite` binary from releases.
 3. Place that binary in `<project-root>/northwind/`
 4. Set up a virtual environment:
-   - Run `python -m venv env` to create a virtual environment.
-   - Run `source env/bin/activate` (Mac/Linux) or `env\Scripts\activate` (Windows) to activate the virtual environment.
+   a. Run `python -m venv env` to create a virtual environment.
+   b. Run `source env/bin/activate` (Mac/Linux) or `env\Scripts\activate` (Windows) to activate the virtual environment.
 5. Run `pip install -r requirements` to install all necessary requirements.
 6. Run `flask --app northwind init-db` to update the Northwind DB schema.
 7.  Run `flask --app northwind run` to start the Flask application.
@@ -51,8 +51,36 @@ The application includes several essential e-commerce features, including custom
 #### 2. **Product Search and Browsing by Category**
    - Users can either search for products by name or browse through product categories. After a user chooses whether to browse by category or search, these functionalities are separated to enhance usability and make it easier for users to find what they’re looking for.
 
-#### 3. **Shopping Cart Management**
-   - If a user attempts to add more items to the cart than are available in stock, the system will add as many items as possible, while displaying an error message to inform the user that not all requested items could be added. This provides a clear and transparent shopping experience.
+#### 3. **Shopping Cart Management and Integration with Checkout**
+   - A structured approach to shopping cart functionality ensures an efficient and user-friendly experience. The system includes:
+     - **Schemas:** Two schemas, `Shopping_Cart` and `Cart_Items`, allow for efficient storage and reassignment of products when merging guest carts with user accounts.
+     - **Session and User Prioritization:** The cart logic prioritizes user sessions and accounts to ensure continuity across browsing sessions.
+     - **Flask WTForms Integration:** Used for input validation and enhanced security when updating cart items.
+
+#### 4. **Key Shopping Cart Functionalities**
+
+##### `view_cart()`
+   - Displays the shopping cart and provides options to modify item quantities using Flask WTForms.
+   - Retrieves cart data based on session ID if the user is not logged in, or user ID if they are logged in.
+
+##### `update_quantity()`
+   - Validates whether an item count modification would exceed stock limits.
+   - Updates `numItems` and `totalPrice` attributes in the `Shopping_Cart` schema accordingly.
+   - Notifies the user if they attempt to exceed stock availability.
+
+##### `remove_item()`
+   - Deletes an item from the `Cart_Items` relation.
+   - Updates `numItems` and `totalPrice` in the `Shopping_Cart` schema after removal.
+
+##### `add_to_cart()`
+   - Integrates product search and browse functionalities with cart management.
+   - Creates a new shopping cart if one does not exist for the session/user.
+   - Either adds a new item or updates an existing one, ensuring quantities do not exceed stock limits.
+   - Updates `numItems` and `totalPrice` accordingly.
+
+##### `assign_user()`
+   - Merges a guest’s cart with their logged-in account’s cart upon authentication.
+   - If a user cart already exists, items from the session cart are either added or updated before deleting the session cart.
 
 ### Testing Methodology
 
