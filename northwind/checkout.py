@@ -51,21 +51,46 @@ def delete_old_items(db, user_id):
     """, (user_id,))
     db.commit()
 
-@bp.route('/', methods=(['POST']))
+def add_to_order(user_id):
+    db = get_db()
+    cart = get_cart(db)
+    cart_items = get_cart_items(db, cart)
+    total_items, total_cost = calc_cost(cart_items)
+    copy_to_orders(db, cart, cart_items, total_cost, total_items)
+    delete_old_items(db, user_id)
+    return total_items, total_cost, cart_items
+
+
+@bp.route('/', methods=('POST', 'GET'))
 def checkout():
     if request.method == 'POST':
+        if not g.user:
+            # reroute to login/register
+            db = get_db()
+            cart = get_cart(db)
+            cart_items = get_cart_items(db, cart)
+            total_items, total_cost = calc_cost(cart_items)
+            shipping = request.form['shipping']
+            return render_template('checkout/checkout.html', num_items=total_items, total_amount=total_cost, cart_items=cart_items, shipping=shipping)
         user_id = g.user["UserID"]
         shipping = request.form['shipping']
-        db = get_db()
-        cart = get_cart(db)
-        cart_items = get_cart_items(db, cart)
-        total_items, total_cost = calc_cost(cart_items)
-        copy_to_orders(db, cart, cart_items, total_cost, total_items)
-        delete_old_items(db, user_id)
+        total_items, total_cost, cart_items = add_to_order(user_id)
         return render_template('checkout/checkout.html', num_items=total_items, total_amount=total_cost, cart_items=cart_items, shipping=shipping)
+    else:
+        user_id = g.user["UserID"]
+        shipping = request.form['shipping']
+        total_items, total_cost, cart_items = add_to_order(user_id)
+        return render_template('checkout/checkout.html', num_items=total_items, total_amount=total_cost, cart_items=cart_items, shipping=shipping)
+
+
+
 
 @bp.route('/shipping/', methods=('GET', 'POST'))
 def shipping():
     if request.method == 'POST':
         pass
-    return render_template('checkout/shipping.html')
+    db = get_db()
+    cart = get_cart(db)
+    cart_items = get_cart_items(db, cart)
+    total_items, total_cost = calc_cost(cart_items)
+    return render_template('checkout/shipping.html', num_items=total_items, total_amount=total_cost)
