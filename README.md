@@ -14,8 +14,8 @@ Our Team members are:
 2. Download the `northwind.sqlite` binary from releases.
 3. Place that binary in `<project-root>/northwind/`
 4. Set up a virtual environment:
-   a. Run `python -m venv env` to create a virtual environment.
-   b. Run `source env/bin/activate` (Mac/Linux) or `env\Scripts\activate` (Windows) to activate the virtual environment.
+   - Run `python -m venv env` to create a virtual environment.
+   - Run `source env/bin/activate` (Mac/Linux) or `env\Scripts\activate` (Windows) to activate the virtual environment.
 5. Run `pip install -r requirements` to install all necessary requirements.
 6. Run `flask --app northwind init-db` to update the Northwind DB schema.
 7.  Run `flask --app northwind run` to start the Flask application.
