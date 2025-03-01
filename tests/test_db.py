@@ -1,7 +1,9 @@
 import pytest
 import sqlite3
-from flask import g
+from flask import g, Flask
+from flask.testing import FlaskClient
 from northwind.db import close_db, get_db
+from click.testing import CliRunner
 
 @pytest.fixture #Ensures a new db connection for each test.
 def db_connection():
@@ -10,14 +12,14 @@ def db_connection():
     conn.close()
 
 
-def test_get_db(app):
+def test_get_db(app: Flask) -> None:
     with app.app_context():
         db = get_db()
         assert db is not None, "Failed to get database connection"
         assert 'db' in g, "Database connection not stored in g"
 
 
-def test_close_db(app):
+def test_close_db(app: Flask) -> None:
     with app.app_context():
         db = get_db()
         assert db is not None, "Failed to get database connection"
@@ -25,7 +27,7 @@ def test_close_db(app):
         assert 'db' not in g, "Database connection not removed from g"
 
 
-def test_init_db(runner, db_connection):
+def test_init_db(runner: CliRunner, db_connection: sqlite3.Connection) -> None:
     result = runner.invoke(args=['init-db'])
     assert result.exit_code == 0
     assert 'Initialized Authentication table.\n' in result.output

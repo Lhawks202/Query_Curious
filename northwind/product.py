@@ -9,7 +9,7 @@ from northwind.db import get_db
 bp = Blueprint('product', __name__)
 
 @bp.route('/product', methods=('GET', 'POST'))
-def product_page():
+def product_page() -> str:
     if request.method == 'POST':
         pass
     form = AddToCart()

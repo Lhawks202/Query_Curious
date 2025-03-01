@@ -1,10 +1,12 @@
 from flask import (Blueprint, render_template, request, g)
+import sqlite3
 from northwind.db import get_db
 from northwind.cart import get_cart, get_cart_items
+from typing import List, Dict, Any, Tuple
 
 bp = Blueprint('checkout', __name__, url_prefix='/checkout')
 
-def calc_cost(cart_items):
+def calc_cost(cart_items: List[Dict[str, Any]]) -> Tuple[int, float]:
     total_cost = 0
     total_items = 0
     for item in cart_items:
@@ -15,21 +17,23 @@ def calc_cost(cart_items):
         total_items += n_items
     return total_items, total_cost
 
-def copy_to_orders(db, cart, cart_items, total_cost, total_items):
-    # create new order
+def copy_to_orders(
+        db: sqlite3.Connection, 
+        cart: Dict[str, Any], 
+        cart_items: List[Dict[str, Any]], 
+        total_cost: float, 
+        total_items: int) -> None:
+    
     order_id = db.execute(
         "INSERT INTO Orders (UserID, TotalCost, NumItems) VALUES (?, ?, ?)", 
         (cart['UserID'], total_cost, total_items,)
     ).lastrowid
-    # copy over all items
     for item in cart_items:
         db.execute("UPDATE Cart_Items SET CartID = NULL, OrderID = ? WHERE CartItemID = ?", (order_id, item['CartItemID'],))
-    # delete entry from shopping cart
     db.execute("DELETE FROM Shopping_Cart WHERE CartID = ?", (cart['CartID'],))
     db.commit()
 
-def delete_old_items(db, user_id):
-    # delete any old items associated with an shopping cart
+def delete_old_items(db: sqlite3.Connection, user_id: int) -> None:
     db.execute("""
         DELETE FROM Cart_Items 
         WHERE CartID IN (
@@ -39,7 +43,6 @@ def delete_old_items(db, user_id):
             WHERE sh.UserID = ? AND it.AddedTimestamp < datetime('now', '-1 month')
         )
     """, (user_id,))
-    # delete any old items associated with an order
     db.execute("""
         DELETE FROM Cart_Items 
         WHERE OrderID IN (
@@ -51,7 +54,7 @@ def delete_old_items(db, user_id):
     """, (user_id,))
     db.commit()
 
-def add_to_order(user_id):
+def add_to_order(user_id: int) -> None:
     db = get_db()
     cart = get_cart(db)
     cart_items = get_cart_items(db, cart)
@@ -62,10 +65,9 @@ def add_to_order(user_id):
 
 
 @bp.route('/', methods=('POST', 'GET'))
-def checkout():
+def checkout() -> str:
     if request.method == 'POST':
         if not g.user:
-            # reroute to login/register
             db = get_db()
             cart = get_cart(db)
             cart_items = get_cart_items(db, cart)
@@ -86,7 +88,7 @@ def checkout():
 
 
 @bp.route('/shipping/', methods=('GET', 'POST'))
-def shipping():
+def shipping() -> str:
     if request.method == 'POST':
         pass
     db = get_db()

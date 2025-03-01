@@ -1,13 +1,15 @@
 from northwind.db import get_db
+from flask.testing import FlaskClient
+from typing import Any
 
-def test_index_get(client):
+def test_index_get(client: FlaskClient) -> None:
     response = client.get('/')
     assert response.status_code == 200
     assert b'Search' in response.data
     assert b'Select Category:' in response.data
 
 
-def test_index_post_search(client, search):
+def test_index_post_search(client: FlaskClient, search: Any) -> None:
     search.insert_supplier()
     search.insert_category()
     search.insert_product()
@@ -16,7 +18,7 @@ def test_index_post_search(client, search):
     assert response.headers['Location'] == '/search/?item=TestProduct'
 
 
-def test_index_post_category(client, search):
+def test_index_post_category(client: FlaskClient, search: Any) -> None:
     search.insert_supplier()
     search.insert_category()
     search.insert_product()
@@ -25,7 +27,7 @@ def test_index_post_category(client, search):
     assert response.headers['Location'] == '/categories/?selected_category=TestCategory'
 
 
-def test_display_categories_get(client, search):
+def test_display_categories_get(client: FlaskClient, search: Any) -> None:
     search.insert_supplier()
     search.insert_category()
     search.insert_product()
@@ -34,7 +36,7 @@ def test_display_categories_get(client, search):
     assert b'Products in \"TestCategory\"' in response.data
 
 
-def test_display_categories_post(client, search):
+def test_display_categories_post(client: FlaskClient, search: Any) -> None:
     search.insert_supplier()
     search.insert_category()
     search.insert_product()
@@ -46,7 +48,7 @@ def test_display_categories_post(client, search):
     assert b'All Products' in response.data
 
 
-def test_display_search_get(client, search):
+def test_display_search_get(client: FlaskClient, search: Any) -> None:
     search.insert_supplier()
     search.insert_category()
     search.insert_product()
@@ -55,7 +57,7 @@ def test_display_search_get(client, search):
     assert b'TestProduct' in response.data
 
 
-def test_display_search_post(client, search):
+def test_display_search_post(client: FlaskClient, search: Any) -> None:
     search.insert_supplier()
     search.insert_category()
     search.insert_product()
@@ -67,7 +69,7 @@ def test_display_search_post(client, search):
     assert response.headers['Location'] == '/search/?item=TestCategory'
 
 
-def test_search_no_results(client):
+def test_search_no_results(client: FlaskClient) -> None:
     response = client.post('/search/', data={'search': 'NonExistent'})
     assert response.status_code == 302
     response = client.get('/search/?item=NonExistent')

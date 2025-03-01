@@ -2,11 +2,12 @@ from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for, render_template_string
 )
 from northwind.db import get_db
+from typing import Optional, List, Tuple, Any, Response
 
 bp = Blueprint('browse', __name__)
 
 @bp.route('/', methods=['GET', 'POST'])
-def index():
+def index() -> Response:
     db = get_db()
     selected_category = None
     search_query = None
@@ -39,7 +40,7 @@ def index():
 
     return render_template('index.html', items=items, categories=categories, selected_category=selected_category, search_query=search_query)
 
-def browse_category(selected_category):
+def browse_category(selected_category: Optional[str]) -> Tuple[List[Tuple[Any, ...]], List[Tuple[str]]]:
     db = get_db()
     if not selected_category or selected_category == 'All':
         items = db.execute(
@@ -60,7 +61,7 @@ def browse_category(selected_category):
     categories = db.execute('SELECT DISTINCT CategoryName FROM Category').fetchall()
     return items, categories
 
-def search_product(item):
+def search_product(item: str) -> Optional[List[Tuple[Any, ...]]]:
     db = get_db()
     product = db.execute(
             'SELECT ProductName, UnitPrice'
@@ -82,7 +83,7 @@ def search_product(item):
     return product_type
 
 @bp.route('/categories/', methods=('GET', 'POST'))
-def display_categories():
+def display_categories() -> Response:
     if request.method == 'POST':
         form_type = request.form.get('form_type')
         if form_type == 'category':
@@ -95,7 +96,7 @@ def display_categories():
     return render_template('categories-display.html', products=products, selected_category=selected_category, categories=categories)
 
 @bp.route('/search/', methods=('GET', 'POST'))
-def display_search():
+def display_search() -> Response:
     if request.method == 'POST':
         item = request.form['search']
         if item:

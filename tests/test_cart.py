@@ -1,10 +1,12 @@
 import re
-from flask import session
+from flask import session, Flask
 from northwind.cart import get_cart, get_cart_items, get_units_in_stock_cart_item_id, create_cart
 from northwind.db import get_db
+from flask.testing import FlaskClient
+from typing import Any
 
 
-def test_create_cart_session_id(client, app):
+def test_create_cart_session_id(client: FlaskClient, app: Flask) -> None:
     with app.app_context():
         db = get_db()
         session_id = "testtesttesttesttesttesttesttest"
@@ -19,7 +21,7 @@ def test_create_cart_session_id(client, app):
             assert cart['UserID'] is None
 
 
-def test_create_cart_user_id(client, app, auth):
+def test_create_cart_user_id(client: FlaskClient, app: Flask, auth: Any) -> None:
     with app.app_context():
         db = get_db()
         auth.register()
@@ -41,7 +43,7 @@ def test_create_cart_user_id(client, app, auth):
             assert cart['UserID'] == user_id
 
 
-def test_get_session_id(client):
+def test_get_session_id(client: FlaskClient) -> None:
     with client:
         client.get('/cart/')
         assert 'session_id' in session
@@ -49,7 +51,7 @@ def test_get_session_id(client):
         assert len(session_id) == 32
 
 
-def test_get_cart_user_id(client, app, auth, cart):
+def test_get_cart_user_id(client: FlaskClient, app: Flask, auth: Any, cart: Any) -> None:
     with app.app_context():
         db = get_db()
         auth.register()
@@ -64,7 +66,7 @@ def test_get_cart_user_id(client, app, auth, cart):
             assert cart is not None
 
 
-def test_get_cart_session_id(client, app, cart):
+def test_get_cart_session_id(client: FlaskClient, app: Flask, cart: Any) -> None:
     with app.app_context():
         db = get_db()
         session_id = "testtesttesttesttesttesttesttest"
@@ -77,7 +79,7 @@ def test_get_cart_session_id(client, app, cart):
             assert cart is not None  
         
 
-def test_get_cart_items(app, search, cart):
+def test_get_cart_items(app: Flask, search: Any, cart: Any) -> None:
     with app.app_context():
         db = get_db()
         supplier_id = search.insert_supplier()
@@ -93,7 +95,7 @@ def test_get_cart_items(app, search, cart):
         assert cart_items[0]['Quantity'] == 2
 
 
-def test_get_units_in_stock(app, search, cart):
+def test_get_units_in_stock(app: Flask, search: Any, cart: Any) -> None:
     with app.app_context():
         db = get_db()
         supplier_id = search.insert_supplier()
@@ -106,7 +108,7 @@ def test_get_units_in_stock(app, search, cart):
         assert units_in_stock == 999
 
 
-def test_view_cart(client, app, search, cart):
+def test_view_cart(client: FlaskClient, app: Flask, search: Any, cart: Any) -> None:
     with app.app_context():
         session_id = "testtesttesttesttesttesttesttest"
         supplier_id = search.insert_supplier()
@@ -123,7 +125,7 @@ def test_view_cart(client, app, search, cart):
             assert not re.search(r'Shopping Cart is empty.', response_text)
 
 
-def test_update_quantity(client, app, search, cart):
+def test_update_quantity(client: FlaskClient, app: Flask, search: Any, cart: Any) -> None:
     with app.app_context():
         db = get_db()
         session_id = "testtesttesttesttesttesttesttest"
@@ -164,7 +166,7 @@ def test_update_quantity(client, app, search, cart):
                 assert updated_quantity == 2
 
 
-def test_update_quantity_item_out_of_stock(client, app, search, cart):
+def test_update_quantity_item_out_of_stock(client: FlaskClient, app: Flask, search: Any, cart: Any) -> None:
     with app.app_context():
         db = get_db()
         session_id = "testtesttesttesttesttesttesttest"
@@ -192,7 +194,7 @@ def test_update_quantity_item_out_of_stock(client, app, search, cart):
                 assert updated_quantity == 999
 
 
-def test_update_quantity_errors(client, app, search, cart):
+def test_update_quantity_errors(client: FlaskClient, app: Flask, search: Any, cart: Any) -> None:
     with app.app_context():
         db = get_db()
         session_id = "testtesttesttesttesttesttesttest"
@@ -215,7 +217,7 @@ def test_update_quantity_errors(client, app, search, cart):
                 assert "Error updating item quantity." in [msg for category, msg in flashed_messages]
 
 
-def test_update_quantity_zero_items(client, app, search, cart):
+def test_update_quantity_zero_items(client: FlaskClient, app: Flask, search: Any, cart: Any) -> None:
     with app.app_context():
         db = get_db()
         session_id = "testtesttesttesttesttesttesttest"
@@ -242,7 +244,7 @@ def test_update_quantity_zero_items(client, app, search, cart):
                 assert updated_quantity == 1, "Quantity should not be decremented below 1"
 
 
-def test_remove_item(client, app, search, cart):
+def test_remove_item(client: FlaskClient, app: Flask, search: Any, cart: Any) -> None:
     with app.app_context():
         db = get_db()
         session_id = "testtesttesttesttesttesttesttest"
@@ -264,7 +266,7 @@ def test_remove_item(client, app, search, cart):
             assert len(cart_items) == 0
 
 
-def test_remove_item_errors(client, app, search, cart):
+def test_remove_item_errors(client: FlaskClient, app: Flask, search: Any, cart: Any) -> None:
     with app.app_context():
         db = get_db()
         session_id = "testtesttesttesttesttesttesttest"
@@ -283,7 +285,7 @@ def test_remove_item_errors(client, app, search, cart):
                 assert "Error removing item." in [msg for category, msg in flashed_messages]
 
 
-def test_add_to_cart_no_cart(client, app, search):
+def test_add_to_cart_no_cart(client: FlaskClient, app: Flask, search: Any) -> None:
     with app.app_context():
         db = get_db()
         session_id = "testtesttesttesttesttesttesttest"
@@ -306,7 +308,7 @@ def test_add_to_cart_no_cart(client, app, search):
             assert cart_item['Quantity'] == 2
 
 
-def test_add_to_cart_with_cart(client, app, search):
+def test_add_to_cart_with_cart(client: FlaskClient, app: Flask, search: Any) -> None:
     with app.app_context():
         db = get_db()
         session_id = "testtesttesttesttesttesttesttest"
@@ -331,7 +333,7 @@ def test_add_to_cart_with_cart(client, app, search):
             assert cart_item['Quantity'] == 2
 
 
-def test_add_to_cart_invalid_form(client, app):
+def test_add_to_cart_invalid_form(client: FlaskClient, app: Flask) -> None:
     with app.app_context():
         session_id = "testtesttesttesttesttesttesttest"
         with client:
@@ -348,7 +350,7 @@ def test_add_to_cart_invalid_form(client, app):
                 assert "Error adding item to cart." in [msg for category, msg in flashed_messages]
 
 
-def test_add_to_cart_existing_item(client, app, search, cart):
+def test_add_to_cart_existing_item(client: FlaskClient, app: Flask, search: Any, cart: Any) -> None:
     with app.app_context():
         db = get_db()
         session_id = "testtesttesttesttesttesttesttest"
@@ -378,7 +380,7 @@ def test_add_to_cart_existing_item(client, app, search, cart):
             assert f"Only {units_in_stock} units in stock" in [msg for category, msg in flashed_messages]
 
 
-def test_add_to_cart_existing_item_within_stock(client, app, search, cart):
+def test_add_to_cart_existing_item_within_stock(client: FlaskClient, app: Flask, search: Any, cart: Any) -> None:
     with app.app_context():
         db = get_db()
         session_id = "testtesttesttesttesttesttesttest"
@@ -406,7 +408,7 @@ def test_add_to_cart_existing_item_within_stock(client, app, search, cart):
             assert f"Only {units_in_stock} units in stock" not in [msg for category, msg in flashed_messages]
 
 
-def test_assign_user_merge_carts(client, app, auth, cart, search):
+def test_assign_user_merge_carts(client: FlaskClient, app: Flask, auth: Any, search: Any, cart: Any) -> None:
     with app.app_context():
         db = get_db()
         user_id = "testtestingauth"
@@ -442,7 +444,7 @@ def test_assign_user_merge_carts(client, app, auth, cart, search):
         assert session_cart is None
 
 
-def test_assign_user_no_user_cart(client, app, auth, cart, search):
+def test_assign_user_no_user_cart(client: FlaskClient, app: Flask, auth: Any, search: Any, cart: Any) -> None:
     with app.app_context():
         db = get_db()
         user_id = "testtestingauth"
@@ -470,7 +472,7 @@ def test_assign_user_no_user_cart(client, app, auth, cart, search):
         assert user_cart['UserID'] == user_id
 
 
-def test_assign_user_redirect(client, app, auth, cart, search):
+def test_assign_user_redirect(client: FlaskClient, app: Flask, auth: Any, search: Any, cart: Any) -> None:
     with app.app_context():
         db = get_db()
         user_id = "testtestingauth"

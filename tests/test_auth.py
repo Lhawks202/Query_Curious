@@ -1,8 +1,10 @@
-from flask import g, session, Blueprint
+from flask import g, session, Blueprint, Flask
 from northwind.db import get_db
 from northwind.auth import login_required
+from flask.testing import FlaskClient
+from typing import Any
 
-def test_register(client, app, auth):
+def test_register(client: FlaskClient, app: Flask, auth: Any) -> None:
     client.get('/')
     assert client.get('/auth/register').status_code == 200
     # Test invalid registration attempts
@@ -36,21 +38,21 @@ def test_register(client, app, auth):
     assert response.headers['Location'] == '/auth/login', "Post registration redirect location is incorrect."
 
 
-def test_register_existing_user(auth):
+def test_register_existing_user(auth: Any) -> None:
     auth.register()
     response = auth.register()
     response_text = response.data.decode('utf-8')
     assert 'Customer already exists—try logging in!' in response_text
 
 
-def test_register_strange_characters(auth):
+def test_register_strange_characters(auth: Any) -> None:
     response = auth.register(username='test_!@#$%^*&()`\'', password='test_!@#$%^*&()`\'')
     assert response.headers['Location'] == '/auth/login',  "Doesn't accept strange characters in username and password."
     response = auth.register(username='éñçøßΩ中あ😊€', password='éñçøßΩ中あ😊€')
     assert response.headers['Location'] == '/auth/login',  "Doesn't accept strange characters in username and password."
 
 
-def test_sql_injection_drop_table_register(auth):
+def test_sql_injection_drop_table_register(auth: Any) -> None:
     # Attempt to register with SQL injection in the user_id to drop the Customer table
     response = auth.register(username="'; DROP TABLE Customer; --", password='password')
     assert response.status_code == 302
@@ -63,7 +65,7 @@ def test_sql_injection_drop_table_register(auth):
         assert False, f"Customer table was dropped: {e}"
 
 
-def test_login(client, auth):
+def test_login(client: FlaskClient, auth: Any) -> None:
     auth.register()
 
     # Test invalid login attempts
@@ -83,7 +85,7 @@ def test_login(client, auth):
         assert session['user_id'] == 'testtestingauth'
 
 
-def test_sql_injection_drop_table_login(auth):
+def test_sql_injection_drop_table_login(auth: Any) -> None:
     auth.register()
     # Attempt to login with SQL injection in the user_id to drop the Authentication table
     response = auth.login(username="'; DROP TABLE Authentication; --", password='password')
@@ -99,7 +101,7 @@ def test_sql_injection_drop_table_login(auth):
         assert False, f"Authentication table was dropped: {e}"
 
 
-def test_logout(client, auth):
+def test_logout(client: FlaskClient, auth: Any) -> None:
     auth.register()
     auth.login()
     with client:
@@ -109,7 +111,7 @@ def test_logout(client, auth):
         assert 'test' not in session
 
 
-def test_load_logged_in_user(client, auth):
+def test_load_logged_in_user(client: FlaskClient, auth: Any) -> None:
     auth.register()
     auth.login()
     with client:
@@ -117,7 +119,7 @@ def test_load_logged_in_user(client, auth):
         assert g.user['UserID'] == 'testtestingauth'
 
 
-def test_login_required(client, auth, app):
+def test_login_required(client: FlaskClient, app: Flask, auth: Any) -> None:
     # Create a temporary blueprint for testing
     test_bp = Blueprint('test_bp', __name__)
 

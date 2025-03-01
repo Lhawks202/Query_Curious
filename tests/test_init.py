@@ -1,6 +1,6 @@
 from northwind import create_app
 
-def test_create_app_with_test_config():
+def test_create_app_with_test_config() -> None:
     test_config = {
         'TESTING': True,
         'SECRET_KEY': 'test',

@@ -1,8 +1,10 @@
-from flask import g, session
+from flask import g, session, Flask
+from flask.testing import FlaskClient
 from northwind.db import get_db
 from northwind.checkout import calc_cost
+from typing import Any
 
-def test_calc_cost():
+def test_calc_cost() -> None:
     cart_items = [
         {'UnitPrice': 10.00, 'Quantity': 2},
         {'UnitPrice': 5.00, 'Quantity': 3},
@@ -12,7 +14,7 @@ def test_calc_cost():
     assert total_cost == 35.00
 
 
-def test_checkout_get(client, app, search, cart, auth):
+def test_checkout_get(client: FlaskClient, app: Flask, auth: Any, search: Any, cart: Any) -> None:
     with app.app_context():
         auth.register()
         auth.login()
@@ -33,7 +35,7 @@ def test_checkout_get(client, app, search, cart, auth):
         assert 'Cart Total: $20.00' in response_text
 
 
-def test_checkout_post(client, app, search, cart, auth):
+def test_checkout_post(client: FlaskClient, app: Flask, auth: Any, search: Any, cart: Any) -> None:
     with app.app_context():
         auth.register()
         auth.login()
@@ -56,7 +58,7 @@ def test_checkout_post(client, app, search, cart, auth):
         assert 'Shipping: United Package' in response_text
 
 
-def test_checkout_post_not_logged_then_logged(client, app, search, cart, auth):
+def test_checkout_post_not_logged_then_logged(client: FlaskClient, app: Flask, auth: Any, search: Any, cart: Any) -> None:
     with app.app_context():
         session_id = "testtesttesttesttesttesttesttest"
         supplier_id = search.insert_supplier()
@@ -83,14 +85,14 @@ def test_checkout_post_not_logged_then_logged(client, app, search, cart, auth):
         assert 'Shipping: United Package' in response_text, 'Shipping not saved on login'
 
 
-def test_shipping_get(client):
+def test_shipping_get(client: FlaskClient) -> None:
     response = client.get('/checkout/shipping/')
     assert response.status_code == 200
     response_text = response.data.decode('utf-8')
     assert 'Shipping' in response_text
 
 
-def test_shipping_post(client):
+def test_shipping_post(client: FlaskClient) -> None:
     response = client.post('/checkout/shipping/', data={'shipping_method': 'United Package'})
     assert response.status_code == 200
     response_text = response.data.decode('utf-8')
