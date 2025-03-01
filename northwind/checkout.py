@@ -51,7 +51,7 @@ def delete_old_items(db, user_id):
     """, (user_id,))
     db.commit()
 
-def add_to_order(user_id, shipping):
+def add_to_order(user_id):
     db = get_db()
     cart = get_cart(db)
     cart_items = get_cart_items(db, cart)
@@ -74,12 +74,12 @@ def checkout():
             return render_template('checkout/checkout.html', num_items=total_items, total_amount=total_cost, cart_items=cart_items, shipping=shipping)
         user_id = g.user["UserID"]
         shipping = request.form['shipping']
-        total_items, total_cost, cart_items = add_to_order(user_id, shipping)
+        total_items, total_cost, cart_items = add_to_order(user_id)
         return render_template('checkout/checkout.html', num_items=total_items, total_amount=total_cost, cart_items=cart_items, shipping=shipping)
     else:
         user_id = g.user["UserID"]
         shipping = request.form['shipping']
-        total_items, total_cost, cart_items = add_to_order(user_id, shipping)
+        total_items, total_cost, cart_items = add_to_order(user_id)
         return render_template('checkout/checkout.html', num_items=total_items, total_amount=total_cost, cart_items=cart_items, shipping=shipping)
 
 
