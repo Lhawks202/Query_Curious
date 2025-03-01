@@ -2,7 +2,7 @@ from flask import (Blueprint, render_template, session, redirect, url_for, flash
 from northwind.db import get_db
 import secrets
 from .forms import (UpdateItemQuantity, RemoveItem, AddToCart)
-from typing import Optional, List, Tuple, Dict, Any, Response
+from typing import Optional, List, Tuple, Dict, Any
 from sqlite3 import Connection, Row
 
 bp = Blueprint('cart', __name__, url_prefix='/cart')
@@ -119,7 +119,7 @@ def update_cart_totals(db: Connection, cart_id: int) -> None:
     db.commit()
 
 @bp.route('/')
-def view_cart() -> Response:
+def view_cart() -> str:
     db = get_db()
     cart = get_cart(db)
     cart_items = get_cart_items(db, cart)
@@ -137,7 +137,7 @@ def view_cart() -> Response:
     return render_template('cart/cart.html', cart=cart, cart_item_forms=cart_item_forms)
 
 @bp.route('/update-quantity', methods=['POST'])
-def update_quantity() -> Response:
+def update_quantity() -> str:
     form = UpdateItemQuantity()
     if not form.validate_on_submit():
         flash("Error updating item quantity.")
@@ -170,7 +170,7 @@ def update_quantity() -> Response:
     return redirect(url_for('cart.view_cart'))
 
 @bp.route('/remove-item', methods=['POST'])
-def remove_item() -> Response:
+def remove_item() -> str:
     form = RemoveItem()
     if not form.validate_on_submit():
         flash("Error removing item.")
@@ -194,7 +194,7 @@ def remove_item() -> Response:
     return redirect(url_for('cart.view_cart'))
 
 @bp.route('/add-to-cart', methods=['POST'])
-def add_to_cart() -> Response:
+def add_to_cart() -> str:
     form = AddToCart()
     if not form.validate_on_submit():
         flash("Error adding item to cart.")
@@ -240,7 +240,7 @@ def add_to_cart() -> Response:
     return redirect(url_for('cart.view_cart'))
 
 @bp.route('/assign-user', methods=['GET', 'POST'])
-def assign_user() -> Response:
+def assign_user() -> str:
     db = get_db()
     session_cart = get_cart_via_session_id(db)
     user_cart = get_cart_via_user_id(db)

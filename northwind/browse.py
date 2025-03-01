@@ -2,12 +2,12 @@ from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for, render_template_string
 )
 from northwind.db import get_db
-from typing import Optional, List, Tuple, Any, Response
+from typing import Optional, List, Tuple, Any
 
 bp = Blueprint('browse', __name__)
 
 @bp.route('/', methods=['GET', 'POST'])
-def index() -> Response:
+def index() -> str:
     db = get_db()
     selected_category = None
     search_query = None
@@ -83,7 +83,7 @@ def search_product(item: str) -> Optional[List[Tuple[Any, ...]]]:
     return product_type
 
 @bp.route('/categories/', methods=('GET', 'POST'))
-def display_categories() -> Response:
+def display_categories() -> str:
     if request.method == 'POST':
         form_type = request.form.get('form_type')
         if form_type == 'category':
@@ -96,7 +96,7 @@ def display_categories() -> Response:
     return render_template('categories-display.html', products=products, selected_category=selected_category, categories=categories)
 
 @bp.route('/search/', methods=('GET', 'POST'))
-def display_search() -> Response:
+def display_search() -> str:
     if request.method == 'POST':
         item = request.form['search']
         if item:
