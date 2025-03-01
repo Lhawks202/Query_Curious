@@ -10,10 +10,16 @@ Our Team members are:
 - Sofia Utoft :: Development Engineer - Browsing & Documentation
 
 ## Setting up your environment
-1. Clone the repo
-2. Download the `northwind.sqlite` binary from releases
+1. Clone the repository. 
+2. Download the `northwind.sqlite` binary from releases.
 3. Place that binary in `<project-root>/northwind/`
-4. Run `flask --app northwind init-db` to update the Northwind DB schema
+4. Set up a virtual environment:
+   a. Run `python -m venv env` to create a virtual environment.
+   b. Run `source env/bin/activate` (Mac/Linux) or `env\Scripts\activate` (Windows) to activate the virtual environment.
+5. Run `pip install -r requirements` to install all necessary requirements.
+6. Run `flask --app northwind init-db` to update the Northwind DB schema.
+7.  Run `flask --app northwind run` to start the Flask application.
+8. Navigate to the local URL provided in the terminal to access the app.
 
 ## Testing
 To generate a full interactable testing report on coverage you can view in a web browser:
