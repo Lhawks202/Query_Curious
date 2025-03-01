@@ -63,3 +63,11 @@ def test_init_db(runner, db_connection):
     """)
     table = cursor.fetchone()
     assert table is not None, "Cart_Items table was not created"
+
+    # Check if the Orders table exists
+    cursor.execute("""
+        SELECT name FROM sqlite_master 
+        WHERE type='table' AND name='Orders';
+    """)
+    table = cursor.fetchone()
+    assert table is not None, "Orders table was not created"
