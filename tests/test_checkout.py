@@ -23,15 +23,6 @@ def test_shipping_get(client: FlaskClient, auth: Any, app: Flask) -> None:
         response_text = response.data.decode('utf-8')
         assert 'Shipping Method' in response_text
 
-def test_shipping_get(client: FlaskClient, auth: Any, app: Flask) -> None:
-    with app.app_context():
-        auth.register()
-        auth.login()
-        response = client.get('/checkout/shipping/')
-        assert response.status_code == 200
-        response_text = response.data.decode('utf-8')
-        assert 'Shipping Method' in response_text
-
 
 def test_shipping_post(client: FlaskClient, auth: Any, app: Flask) -> None:
     with app.app_context():
