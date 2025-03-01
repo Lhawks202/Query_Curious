@@ -60,7 +60,7 @@ def register():
             else:
                 # TODO: redirect to correct page
                 next = request.form['next']
-                if next and next in ['/cart/', '/checkout/'] :
+                if next and next in ['/checkout/shipping/'] :
                     return redirect(url_for("auth.login", next=next))
                 return redirect(url_for("auth.login"))
 
@@ -86,8 +86,9 @@ def login():
         if error is None:
             session['user_id'] = user['UserID']
             next = request.form['next']
-            if next and next in ['/cart/', '/checkout/'] :
+            if next and next in ['/checkout/shipping/'] :
                 session['next'] = next
+                print(next)
             return redirect(url_for('cart.assign_user'))
 
         flash(error)
