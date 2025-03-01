@@ -2,10 +2,11 @@ import sqlite3
 from datetime import datetime
 
 import click
-from flask import current_app, g
+from flask import current_app, g, Flask
+from typing import Optional
 
 
-def get_db():
+def get_db() -> sqlite3.Connection:
     if 'db' not in g:
         g.db = sqlite3.connect(
             current_app.config['DATABASE'],
@@ -16,13 +17,13 @@ def get_db():
     return g.db
 
 
-def close_db(e=None):
+def close_db(e: Optional[Exception] = None) -> None:
     db = g.pop('db', None)
 
     if db is not None:
         db.close()
 
-def init_db():
+def init_db() -> None:
     db = get_db()
 
     with current_app.open_resource('added_schema.sql') as f:
@@ -30,11 +31,11 @@ def init_db():
 
 
 @click.command('init-db')
-def init_db_command():
+def init_db_command() -> None:
     """Create new table(s)."""
     init_db()
     click.echo('Initialized Authentication table.')
 
-def init_app(app):
+def init_app(app: Flask) -> None:
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_command)

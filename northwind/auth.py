@@ -1,30 +1,29 @@
 import functools
-
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
 from werkzeug.security import check_password_hash, generate_password_hash
-
 from northwind.db import get_db
+from typing import Optional, Callable, Any, Dict
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 # fetches customer from Customer by Id
-def fetch_customer(customer_id):
+def fetch_customer(customer_id: str) -> Optional[Dict[str, Any]]:
     db = get_db()
     return db.execute(
         'SELECT * FROM Customer WHERE Id = ?', (customer_id,)
     ).fetchone()
 
 # fetches user from Authentication by UserID
-def fetch_user(user_id):
+def fetch_user(user_id: str) -> Optional[Dict[str, Any]]:
     db = get_db()
     return db.execute(
         'SELECT * FROM Authentication WHERE UserID = ?', (user_id,)
     ).fetchone()
 
 @bp.route('/register', methods=('GET', 'POST'))
-def register():
+def register() -> str:
     if request.method == 'POST':
         user_id = request.form['user_id'].lower()
         password = request.form['password']
@@ -70,7 +69,7 @@ def register():
     return render_template('auth/register.html', next=next)
 
 @bp.route('/login', methods=('GET', 'POST'))
-def login():
+def login() -> str:
     if request.method == 'POST':
         user_id = request.form['user_id'].lower() # treat user_id as case insensitive
         password = request.form['password']
@@ -97,7 +96,7 @@ def login():
     return render_template('auth/login.html', next=next)
 
 @bp.before_app_request
-def load_logged_in_user():
+def load_logged_in_user() -> None:
     user_id = session.get('user_id')
 
     if user_id is None:
@@ -106,7 +105,7 @@ def load_logged_in_user():
         g.user = fetch_user(user_id)
 
 @bp.route('/logout')
-def logout():
+def logout() -> str:
     session.clear()
     return redirect(url_for('index'))
 

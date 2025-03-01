@@ -2,17 +2,19 @@ from flask import (Blueprint, render_template, session, redirect, url_for, flash
 from northwind.db import get_db
 import secrets
 from .forms import (UpdateItemQuantity, RemoveItem, AddToCart)
+from typing import Optional, List, Tuple, Dict, Any
+from sqlite3 import Connection, Row
 
 bp = Blueprint('cart', __name__, url_prefix='/cart')
 
-def get_session_id():
+def get_session_id() -> str:
     """Ensure a session_id exists in the session and return it."""
     if 'session_id' not in session:
         session['session_id'] = secrets.token_hex(16)
     print(session['session_id'])
     return session['session_id']
 
-def create_cart(db):
+def create_cart(db: Connection) -> int:
     """Create a cart for the current session/user if it exists."""
     session_id = get_session_id()
     if 'user_id' in session:
@@ -29,14 +31,14 @@ def create_cart(db):
     cart_id = db.execute("SELECT last_insert_rowid()").fetchone()[0]
     return cart_id
 
-def get_cart_via_cart_item_id(db, item_id):
+def get_cart_via_cart_item_id(db: Connection, item_id: int) -> Optional[Row]:
     """Return the cart given an item belonging to that cart."""
     return db.execute(
         "SELECT CartID FROM Cart_Items WHERE CartItemID = ?",
         (item_id,)
     ).fetchone()
 
-def get_cart_via_session_id(db):
+def get_cart_via_session_id(db: Connection) -> Optional[Row]:
     """Return the cart for the current session if it exists."""
     session_id = get_session_id()
     return db.execute(
@@ -44,7 +46,7 @@ def get_cart_via_session_id(db):
         (session_id,)
     ).fetchone()
 
-def get_cart_via_user_id(db):
+def get_cart_via_user_id(db: Connection) -> Optional[Row]:
     """Return the cart for the current user if it exists"""
     return db.execute(
         "SELECT * FROM Shopping_Cart WHERE UserID = ?",
@@ -52,7 +54,7 @@ def get_cart_via_user_id(db):
     ).fetchone()
 
 
-def get_cart(db):
+def get_cart(db: Connection) -> Optional[Row]:
     """Return the cart for the current session/user if it exists."""
     cart = None
     if 'user_id' in session:
@@ -61,7 +63,7 @@ def get_cart(db):
         cart = get_cart_via_session_id(db)
     return cart
 
-def get_cart_items(db, cart):
+def get_cart_items(db: Connection, cart: Optional[Row]) -> List[Row]:
     """Return all items for a given cart."""
     cart_items = []
     if cart is not None:
@@ -76,7 +78,7 @@ def get_cart_items(db, cart):
         ).fetchall()
     return cart_items
 
-def get_units_in_stock_cart_item_id(db, item_id):
+def get_units_in_stock_cart_item_id(db: Connection, item_id: int) -> int:
     """Return units in stock for a given item"""
     units_in_stock = db.execute(
         """
@@ -89,13 +91,13 @@ def get_units_in_stock_cart_item_id(db, item_id):
     ).fetchone()['UnitsInStock']
     return units_in_stock
 
-def get_units_in_stock_product_id(db, product_id):
+def get_units_in_stock_product_id(db: Connection, product_id: int) -> int:
     return db.execute(
         "SELECT UnitsInStock FROM Product WHERE Id = ?",
         (product_id,)
     ).fetchone()['UnitsInStock']
 
-def update_cart_totals(db, cart_id):
+def update_cart_totals(db: Connection, cart_id: int) -> None:
     """Recalculate NumItems and TotalCost for a Given Cart; Called when Merging session_cart with user_cart"""
     totals = db.execute(
         """
@@ -117,7 +119,7 @@ def update_cart_totals(db, cart_id):
     db.commit()
 
 @bp.route('/')
-def view_cart():
+def view_cart() -> str:
     db = get_db()
     cart = get_cart(db)
     cart_items = get_cart_items(db, cart)
@@ -135,7 +137,7 @@ def view_cart():
     return render_template('cart/cart.html', cart=cart, cart_item_forms=cart_item_forms)
 
 @bp.route('/update-quantity', methods=['POST'])
-def update_quantity():
+def update_quantity() -> str:
     form = UpdateItemQuantity()
     if not form.validate_on_submit():
         flash("Error updating item quantity.")
@@ -168,7 +170,7 @@ def update_quantity():
     return redirect(url_for('cart.view_cart'))
 
 @bp.route('/remove-item', methods=['POST'])
-def remove_item():
+def remove_item() -> str:
     form = RemoveItem()
     if not form.validate_on_submit():
         flash("Error removing item.")
@@ -192,7 +194,7 @@ def remove_item():
     return redirect(url_for('cart.view_cart'))
 
 @bp.route('/add-to-cart', methods=['POST'])
-def add_to_cart():
+def add_to_cart() -> str:
     form = AddToCart()
     if not form.validate_on_submit():
         flash("Error adding item to cart.")
@@ -238,7 +240,7 @@ def add_to_cart():
     return redirect(url_for('cart.view_cart'))
 
 @bp.route('/assign-user', methods=['GET', 'POST'])
-def assign_user():
+def assign_user() -> str:
     db = get_db()
     session_cart = get_cart_via_session_id(db)
     user_cart = get_cart_via_user_id(db)

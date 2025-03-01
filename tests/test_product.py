@@ -1,4 +1,8 @@
-def test_product_page_get(client, app, search):
+from flask import Flask
+from flask.testing import FlaskClient
+from typing import Any
+
+def test_product_page_get(client: FlaskClient, app: Flask, search: Any) -> None:
     with app.app_context():
         supplier_id = search.insert_supplier()
         category_id = search.insert_category()
@@ -12,7 +16,7 @@ def test_product_page_get(client, app, search):
         assert '999' in response_text  
 
 
-def test_product_page_post(client, app, search):
+def test_product_page_post(client: FlaskClient, app: Flask, search: Any) -> None:
     with app.app_context():
         supplier_id = search.insert_supplier()
         category_id = search.insert_category()
@@ -30,7 +34,7 @@ def test_product_page_post(client, app, search):
         assert '999' in response_text  
 
 
-def test_product_page_not_found(client, app):
+def test_product_page_not_found(client: FlaskClient, app: Flask) -> None:
     with app.app_context():
         response = client.get(f'/product?product=NonExistentProduct')
         assert response.status_code == 200, "Missing Checks for non-existent product"
