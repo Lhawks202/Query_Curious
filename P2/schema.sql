@@ -54,6 +54,6 @@ CREATE TABLE Favorites (
 CREATE TABLE FigureStep (
 	StepsId INTEGER,
 	FigureId INTEGER,
-	Place TEXT,
+	Place INTEGER,
 	PRIMARY KEY (StepId, FigureId),
 );
