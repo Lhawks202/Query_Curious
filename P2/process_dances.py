@@ -5,7 +5,8 @@ from openai import OpenAI
 from dotenv import load_dotenv
 
 # === Config ===
-MAX_FILES = 3
+MAX_FILES = float('inf')
+INCREMENTAL_THRESHOLD = 20
 DANCE_DIR = "dances"
 OUTPUT_DIR = "output"
 MODEL = "gpt-4o-mini"
@@ -214,6 +215,13 @@ def run_openai_prompt(prompt):
   )
   return json.loads(response.choices[0].message.content)
 
+def save_figure_dict():
+  """Incrementally offload figure dictionary to a file"""
+  figure_dict_path = os.path.join(OUTPUT_DIR, "figure_library.json")
+  with open(figure_dict_path, "w", encoding="utf-8") as f:
+    json.dump(local_figure_dict, f, indent=2)
+  print(f"Figure library saved to {figure_dict_path}")
+
 # === First Pass: Extract and Update Figures ===
 def extract_figures():
   """Extract figures and dynamically update the local figure dictionary"""
@@ -235,6 +243,9 @@ def extract_figures():
     print(f"Extracted {len(new_figures)} figures from {filename}")
     update_figure_dict(new_figures)
     processed += 1
+    if processed % INCREMENTAL_THRESHOLD == 0:
+      print(f"INCREMENT: {processed // INCREMENTAL_THRESHOLD}")
+      save_figure_dict()
   print(f"Figure Dictionary Generated. {len(local_figure_dict)} unique figures identified.")
 
 def update_figure_dict(new_figures):
@@ -247,6 +258,11 @@ def update_figure_dict(new_figures):
 # === Second Pass: Convert Dances using Extracted Figures ===
 def generate_dances():
   """Convert dances using known figures in the local dictionary"""
+  figure_library_path = os.path.join(OUTPUT_DIR, "figure_library.json")
+  with open(figure_library_path, "r", encoding="utf-8") as f:
+    figure_library = json.load(f)
+  print(figure_library)
+
   processed = 0
   for filename in os.listdir(DANCE_DIR):
     if not filename.endswith(".txt") or processed >= MAX_FILES:
@@ -261,7 +277,7 @@ def generate_dances():
       continue
 
     print(f"Generating dance definitions for: {filename}.")
-    prompt = build_prompt_for_dance(code_block, local_figure_dict)
+    prompt = build_prompt_for_dance(code_block, figure_library)
     result = run_openai_prompt(prompt)
     dance_definition = result.get("dance_definition", {})
 
@@ -273,14 +289,15 @@ def generate_dances():
     print(f"Saved dance definition to {output_path}")
     processed += 1
 
+    # if filename == "ins_heydaze.txt":
+    #   print("Stopping after processing ins_heydaze.txt")
+    #   break
+
 # === Main ===
 def main():
   extract_figures()
   print("Storing figure dictionary...")
-  figure_dict_path = os.path.join(OUTPUT_DIR, "figure_library.json")
-  with open(figure_dict_path, "w", encoding="utf-8") as f:
-    json.dump(local_figure_dict, f, indent=2)
-  print(f"Figure library saved to {figure_dict_path}")
+  save_figure_dict()
   print("Convert dances using extracted figures...")
   generate_dances()
     
