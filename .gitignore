@@ -24,3 +24,6 @@ build/
 .vscode/
 
 *.env
+
+dances
+output
