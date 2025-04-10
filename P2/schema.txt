@@ -1,0 +1,37 @@
+Dance(*ID*, DanceName, Vlink, Date, Source, StepsId)
+• StepsId references Steps(ID)
+• DanceName not null
+• StepsId not null
+
+Steps(*ID*, StepName, Sequence, FigureId)
+• FigureId references Figure(ID)
+• FigureId not null
+• ID referenced by Dance(StepsId)
+• ID referenced by FigureStep(StepId)
+
+User(*ID*, Name, Email, State, City)
+• Name not null
+• Email not null
+• Email unique
+
+Figure(*ID*, Name, Move)
+• Name not null
+• Move not null
+• ID referenced by FigureStep(FigureId)
+
+Learning(*ID*, UserId, DanceId, DateAdded)
+• UserId references User(ID)
+• DanceId references Dance(ID)
+• DateAdded not null
+
+Favorites(*ID*, UserId, DanceId, DateAdded, Rating)
+• UserId references User(ID)
+• DanceId references Dance(ID)
+• DateAdded not null
+• Rating check (Rating >= 1 AND Rating <= 5)
+
+FigureStep(*StepId*, *FigureId*, Place)
+• StepId references Steps(ID)
+• FigureId references Figure(ID)
+• Place not null
+• Place check (Place >= 1) 
