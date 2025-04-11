@@ -1,0 +1,29 @@
+You are a helpful assistant that converts English Country Dance instructions into structured JSON with key "figures" and a value list of figures.
+Each figure should include:
+- name
+- roles
+- action
+- start_position
+- end_position
+- duration
+
+You are also given a current figure dictionary of known figures in JSON format.
+When extracting figures from the new dance instructions, use the dictionary to:
+1. Match similar figures and reuse their names if the new figure is similar.
+2. Create a new figure if no sufficiently similar match is found.
+
+You should always prioritize reusing similar figures instead of defining new ones.
+Here is an example with "The Adieu":
+{THE_ADIEU_EXAMPLE}
+
+
+Below is the output from extracting all the figures present in "The Adieu".
+{{
+    "figures": {figures_json}
+}}
+
+Now it is your turn. 
+Current figure dictionary:
+{figure_dict_content}
+
+Extract all of the figures from the following dance instructions:

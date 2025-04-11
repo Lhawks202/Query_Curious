@@ -23,3 +23,7 @@ build/
 *.sqlite
 .vscode/
 
+*.env
+
+dances
+output
