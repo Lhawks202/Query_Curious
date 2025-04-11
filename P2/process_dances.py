@@ -9,6 +9,7 @@ MAX_FILES = float('inf')
 INCREMENTAL_THRESHOLD = 20
 DANCE_DIR = "dances"
 OUTPUT_DIR = "output"
+PROMPT_DIR = "prompts"
 MODEL = "gpt-4o-mini"
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -21,7 +22,7 @@ client = OpenAI(api_key=api_key)
 # === Local Figure Dictionary ===
 local_figure_dict = []
 
-# === Few Shot Example ===
+# === Few-Shot Example Data and Expected Output ===
 THE_ADIEU_EXAMPLE = """
 Dance Name: The Adieu
 <code>
@@ -59,62 +60,7 @@ EXPECTED_JSON_OUTPUT = {
       "end_position": "Returned to original side",
       "duration": 4
     },
-    {
-      "name": "Face Down and Take Right Hands",
-      "roles": "All",
-      "start_position": "Facing across the set",
-      "action": "Turn to face down set; take right hands with partner",
-      "end_position": "Ready to lead down",
-      "duration": 2
-    },
-    {
-      "name": "Lead Down and Up with Turn Under",
-      "roles": "All",
-      "start_position": "Facing down, right hands joined",
-      "action": "Lead down the set; women turn under joined hands; lead back up",
-      "end_position": "Back at starting place",
-      "duration": 8
-    },
-    {
-      "name": "Cast and Form Center Line",
-      "roles": "1st and 3rd couples",
-      "start_position": "Top and bottom of set",
-      "action": "Cast one place; men end back to back with partner on center line",
-      "end_position": "1st and 3rd couples centered, men below women",
-      "duration": 4
-    },
-    {
-      "name": "Take Hands in Groups",
-      "roles": "All",
-      "start_position": "Varies",
-      "action": "Take hands 3 at top & bottom; hands 4 in the middle",
-      "end_position": "Ready to set",
-      "duration": 2
-    },
-    {
-      "name": "Set and Circle Left",
-      "roles": "All",
-      "start_position": "In groups from previous figure",
-      "action": "Set right and left; circle left; break to original partner",
-      "end_position": "Facing partner in progressed place",
-      "duration": 8
-    },
-    {
-      "name": "Overhead Allemande Right",
-      "roles": "Partners",
-      "start_position": "Facing partner",
-      "action": "Take right hands; woman moves forward and back while man gypsies clockwise, she passes under",
-      "end_position": "Partners on original sides",
-      "duration": 8
-    },
-    {
-      "name": "Final Cast and Left-Hand Allemande",
-      "roles": "1st and 3rd couples cast; others allemande",
-      "start_position": "After previous allemande",
-      "action": "1st and 3rd couples cast out; others do left-hand overhead allemande moving up",
-      "end_position": "All progressed, back to longways formation",
-      "duration": 8
-    }
+    # ... other figures
   ],
   "dance_definition": {
     "title": "The Adieu",
@@ -143,163 +89,137 @@ EXPECTED_JSON_OUTPUT = {
   }
 }
 
-# === Functions ===
-def extract_code_block(text):
-  """Extracts all content between <code>...</code> tags."""
-  match = re.search(r"<code>(.*?)</code>", text, re.DOTALL)
-  if match:
-    return match.group(1)
-  return None
+# === Helper Function to Load a Prompt Template ===
+def load_prompt_template(template_filename):
+    """Read the prompt template from a file in the prompt directory."""
+    template_path = os.path.join(PROMPT_DIR, template_filename)
+    with open(template_path, "r", encoding="utf-8") as f:
+        return f.read()
 
+# === Updated Functions for Building Prompts ===
 def build_prompt_for_figures(code_block, figure_dict):
-  """Create a few-shot prompt to extract figures or match them with the existing dictionary"""
-  figure_dict_content = json.dumps(figure_dict, indent=2)
-
-  return [
-    {
-      "role": "system",
-      "content": (
-        "You are a helpful assistant that converts English Country Dance instructions into structured JSON with key \"figures\" and a value list of figures.\n"
-        "Each figure should include:\n"
-        "- name\n"
-        "- roles\n"
-        "- action\n"
-        "- start_position\n"
-        "- end_position\n"
-        "- duration\n\n"
-        "You are also given an updated dictionary of known figures in JSON format.\n"
-        "When extracting figures from the new dance instructions, use the dictionary to:\n"
-        "1. Match similar figures and reuse their names if the new figure is similar.\n"
-        "2. Create a new figure if no sufficiently similar match is found.\n\n"
-        "You should always prioritize reusing similar figures instead of defining new ones."
-        f"Here is an example with 'The Adieu':\n{THE_ADIEU_EXAMPLE}\n\n\"figures\": {json.dumps(EXPECTED_JSON_OUTPUT['figures'], indent=2)}\n\n"
-        f"Current figure dictionary:\n{figure_dict_content}"
-      )
-    },
-    {
-      "role": "user",
-      "content": f"Extract and match figures from this dance:\n<code>{code_block}</code>"
-    }
-  ]
+    """Build a prompt from a template to extract or update figures."""
+    template = load_prompt_template("extract_figures.txt")
+    prompt_str = template.format(
+        THE_ADIEU_EXAMPLE=THE_ADIEU_EXAMPLE,
+        figures_json=json.dumps(EXPECTED_JSON_OUTPUT["figures"], indent=2),
+        figure_dict_content=json.dumps(figure_dict, indent=2)
+    )
+    return [
+        {"role": "system", "content": prompt_str},
+        {"role": "user", "content": f"Extract and match figures from this dance:\n<code>{code_block}</code>"}
+    ]
 
 def build_prompt_for_dance(code_block, figure_dict):
-  """Create a few-shot prompt to map a dance to known figures."""
-  figure_dict_content = json.dumps(figure_dict, indent=2)
+    """Build a prompt from a template to convert a dance using known figures."""
+    template = load_prompt_template("define_dances.txt")
+    prompt_str = template.format(
+        THE_ADIEU_EXAMPLE=THE_ADIEU_EXAMPLE,
+        figures_json=json.dumps(EXPECTED_JSON_OUTPUT["figures"], indent=2),
+        dance_definition_json=json.dumps(EXPECTED_JSON_OUTPUT["dance_definition"], indent=2),
+        figure_dict_content=json.dumps(figure_dict, indent=2)
+    )
+    return [
+        {"role": "system", "content": prompt_str},
+        {"role": "user", "content": f"Convert this dance into a definition using only known figures:\n<code>{code_block}</code>"}
+    ]
 
-  return [
-    {
-      "role": "system",
-      "content": (
-        "You are a helpful assistant that converts English Country Dance instructions into structured JSON.\n"
-        "Given a dance and a dictionary of known figures, respond ONLY with a JSON object that has key \"dance_definition\" and value list:\n"
-        "title, formation, music_structure, and a phrases section (A, B, C, etc.) listing figure names.\n"
-        "Use only the provided figure names to map the dance.\n\n"
-        f"Here is an example with 'The Adieu':\n{THE_ADIEU_EXAMPLE}\n"
-        f"For this example, the available dictionary of known figures was:\n{json.dumps(EXPECTED_JSON_OUTPUT['figures'], indent=2)}\n\n"
-        f"The output was \"dance_definition\": {json.dumps(EXPECTED_JSON_OUTPUT['dance_definition'], indent=2)}\n\n"
-        f"The current known figures:\n{figure_dict_content}"
-      )
-    },
-    {
-      "role": "user",
-      "content": f"Convert this dance into a definition using only known figures:\n<code>{code_block}</code>"
-    }
-  ]
+def extract_code_block(text):
+    """Extracts all content between <code>...</code> tags."""
+    match = re.search(r"<code>(.*?)</code>", text, re.DOTALL)
+    if match:
+        return match.group(1)
+    return None
 
 def run_openai_prompt(prompt):
-  """Send a prompt to OpenAI and return the JSON response."""
-  response = client.chat.completions.create(
-    model=MODEL,
-    messages=prompt,
-    response_format={"type": "json_object"}
-  )
-  return json.loads(response.choices[0].message.content)
+    """Send a prompt to OpenAI and return the JSON response."""
+    response = client.chat.completions.create(
+        model=MODEL,
+        messages=prompt,
+        response_format={"type": "json_object"}
+    )
+    return json.loads(response.choices[0].message.content)
 
 def save_figure_dict():
-  """Incrementally offload figure dictionary to a file"""
-  figure_dict_path = os.path.join(OUTPUT_DIR, "figure_library.json")
-  with open(figure_dict_path, "w", encoding="utf-8") as f:
-    json.dump(local_figure_dict, f, indent=2)
-  print(f"Figure library saved to {figure_dict_path}")
+    """Incrementally offload the figure dictionary to a file."""
+    figure_dict_path = os.path.join(OUTPUT_DIR, "figure_library.json")
+    with open(figure_dict_path, "w", encoding="utf-8") as f:
+        json.dump(local_figure_dict, f, indent=2)
+    print(f"Figure library saved to {figure_dict_path}")
 
 # === First Pass: Extract and Update Figures ===
 def extract_figures():
-  """Extract figures and dynamically update the local figure dictionary"""
-  processed = 0
-  for filename in os.listdir(DANCE_DIR):
-    if not filename.endswith(".txt") or processed >= MAX_FILES:
-      continue
-    path = os.path.join(DANCE_DIR, filename)
-    with open(path, "r", encoding="utf-8") as f:
-      content = f.read()
-    code_block = extract_code_block(content)
-    if not code_block:
-      continue
-    print(f"Extracting and matching figures from: {filename}")
-    prompt = build_prompt_for_figures(code_block, local_figure_dict)
-    result = run_openai_prompt(prompt)
+    """Extract figures and update the local figure dictionary dynamically."""
+    processed = 0
+    for filename in os.listdir(DANCE_DIR):
+        if not filename.endswith(".txt") or processed >= MAX_FILES:
+            continue
+        path = os.path.join(DANCE_DIR, filename)
+        with open(path, "r", encoding="utf-8") as f:
+            content = f.read()
+        code_block = extract_code_block(content)
+        if not code_block:
+            continue
+        print(f"Extracting and matching figures from: {filename}")
+        prompt = build_prompt_for_figures(code_block, local_figure_dict)
+        result = run_openai_prompt(prompt)
 
-    new_figures = result.get("figures", [])
-    print(f"Extracted {len(new_figures)} figures from {filename}")
-    update_figure_dict(new_figures)
-    processed += 1
-    if processed % INCREMENTAL_THRESHOLD == 0:
-      print(f"INCREMENT: {processed // INCREMENTAL_THRESHOLD}")
-      save_figure_dict()
-  print(f"Figure Dictionary Generated. {len(local_figure_dict)} unique figures identified.")
+        new_figures = result.get("figures", [])
+        print(f"Extracted {len(new_figures)} figures from {filename}")
+        update_figure_dict(new_figures)
+        processed += 1
+        if processed % INCREMENTAL_THRESHOLD == 0:
+            print(f"INCREMENT: {processed // INCREMENTAL_THRESHOLD}")
+            save_figure_dict()
+    print(f"Figure Dictionary Generated. {len(local_figure_dict)} unique figures identified.")
 
 def update_figure_dict(new_figures):
-  """Update the local figure dictionary with new or matched figures."""
-  for new_figure in new_figures:
-    existing_names = [figure["name"] for figure in local_figure_dict]
-    if new_figure['name'] not in existing_names:
-      local_figure_dict.append(new_figure)
+    """Update the local figure dictionary with new or matched figures."""
+    for new_figure in new_figures:
+        if new_figure['name'] not in {figure["name"] for figure in local_figure_dict}:
+            local_figure_dict.append(new_figure)
 
-# === Second Pass: Convert Dances using Extracted Figures ===
+# === Second Pass: Convert Dances Using Extracted Figures ===
 def generate_dances():
-  """Convert dances using known figures in the local dictionary"""
-  figure_library_path = os.path.join(OUTPUT_DIR, "figure_library.json")
-  with open(figure_library_path, "r", encoding="utf-8") as f:
-    figure_library = json.load(f)
-  print(figure_library)
+    """Convert dances into definitions using the known figures from the local dictionary."""
+    figure_library_path = os.path.join(OUTPUT_DIR, "figure_library.json")
+    with open(figure_library_path, "r", encoding="utf-8") as f:
+        figure_library = json.load(f)
+    print("Loaded figure library:", figure_library)
 
-  processed = 0
-  for filename in os.listdir(DANCE_DIR):
-    if not filename.endswith(".txt") or processed >= MAX_FILES:
-      continue
-    
-    path = os.path.join(DANCE_DIR, filename)
-    with open(path, "r", encoding="utf-8") as f:
-      content = f.read()
+    processed = 0
+    for filename in os.listdir(DANCE_DIR):
+        if not filename.endswith(".txt") or processed >= MAX_FILES:
+            continue
+        
+        path = os.path.join(DANCE_DIR, filename)
+        with open(path, "r", encoding="utf-8") as f:
+            content = f.read()
 
-    code_block = extract_code_block(content)
-    if not code_block:
-      continue
+        code_block = extract_code_block(content)
+        if not code_block:
+            continue
 
-    print(f"Generating dance definitions for: {filename}.")
-    prompt = build_prompt_for_dance(code_block, figure_library)
-    result = run_openai_prompt(prompt)
-    dance_definition = result.get("dance_definition", {})
+        print(f"Generating dance definition for: {filename}")
+        prompt = build_prompt_for_dance(code_block, figure_library)
+        result = run_openai_prompt(prompt)
+        dance_definition = result.get("dance_definition", {})
 
-    output_filename = f"{os.path.splitext(filename)[0]}.json"
-    output_path = os.path.join(OUTPUT_DIR, output_filename)
-    with open(output_path, "w", encoding="utf-8") as out:
-      json.dump(dance_definition, out, indent=2)
+        output_filename = f"{os.path.splitext(filename)[0]}.json"
+        output_path = os.path.join(OUTPUT_DIR, output_filename)
+        with open(output_path, "w", encoding="utf-8") as out:
+            json.dump(dance_definition, out, indent=2)
 
-    print(f"Saved dance definition to {output_path}")
-    processed += 1
-
-    # if filename == "ins_heydaze.txt":
-    #   print("Stopping after processing ins_heydaze.txt")
-    #   break
+        print(f"Saved dance definition to {output_path}")
+        processed += 1
 
 # === Main ===
 def main():
-  extract_figures()
-  print("Storing figure dictionary...")
-  save_figure_dict()
-  print("Convert dances using extracted figures...")
-  generate_dances()
+    extract_figures()
+    print("Storing figure dictionary...")
+    save_figure_dict()
+    print("Converting dances using extracted figures...")
+    generate_dances()
     
 if __name__ == "__main__":
     main()
