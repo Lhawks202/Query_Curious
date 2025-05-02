@@ -14,7 +14,19 @@ D        ...
 Known figures (example library):
 {
   "figures": [
-    { /* as above */ }
+    {
+      "name": "Balance and Cross Right Shoulder".
+      ...
+    },
+    {
+      "name": "Balance and Cross Left Shoulder",
+      ...
+    },
+    {
+      "name": "Face Down and Take Right Hands",
+      ...
+    },
+    ...
   ]
 }
 
@@ -36,4 +48,5 @@ Example output:
   }
 }
 
+Note that each figure in the dance definition matches exactly with a "name" value from the figure library.
 Now use these known figures to convert the following dance into a JSON "dance_definition":
