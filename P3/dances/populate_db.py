@@ -1,12 +1,18 @@
 import sqlite3
+import click
 import json
 import glob
 import os
+from flask import current_app
 
 DANCE_DIR = './output'
 FIGURE_FILE = os.path.join(DANCE_DIR, 'figure_library.json')
 DANCE_GLOB = os.path.join(DANCE_DIR, 'ins_*.json')
-DB_FILE = './dances/dances.sqlite'
+
+def get_db_file():
+    app = current_app
+    db_file = app.config['DATABASE']
+    return db_file
 
 def insert_figures(cursor, figure_data):
     for fig in figure_data:
@@ -56,43 +62,42 @@ def insert_dance_and_steps(cursor, dance_data, source_filename):
                 except sqlite3.IntegrityError as e:
                     print(f"[UNIQUE FAIL] {e} — File: {source_filename}, Step: {step_name}, Figure: {fig_name}")
             else:
-                print(f"Figure not found in DB: \"{fig_name}\" (from {source_filename})")
+                #print(f"Figure not found in DB: \"{fig_name}\" (from {source_filename})")
                 missing_sum += 1
     return missing_sum
 
-def main():
-    with open(FIGURE_FILE, 'r') as f:
-        figures = json.load(f)
+def populate_db():
+    with current_app.app_context():
+        db_file = get_db_file()
+        with open(FIGURE_FILE, 'r') as f:
+            figures = json.load(f)
 
-    conn = sqlite3.connect(DB_FILE)
-    conn.execute('PRAGMA foreign_keys = ON')
-    cursor = conn.cursor()
-    try:
-        insert_figures(cursor, figures)
-        conn.commit()
-        total_missing_figures = 0
-        total_added_dances = 0
-        total_missing_dances = 0
-        for dance_path in glob.glob(DANCE_GLOB):
-            with open(dance_path, 'r') as f:
-                dance_data = json.load(f)
-            print(f"Importing {dance_path}...")
-            current_missing = insert_dance_and_steps(cursor, dance_data, os.path.basename(dance_path))
-            if current_missing == 0:
-                total_added_dances += 1
-                conn.commit()
-            else:
-                total_missing_dances += 1
-                conn.rollback()
-            total_missing_figures += current_missing
-        print(total_missing_figures, "Missing figures in total.")
-        print(total_added_dances, "Dances imported successfully.")
-        print(total_missing_dances, "Dances with missing figures, thus skipped.")
-    except Exception as e:
-        conn.rollback()
-        print(f"Error: {e}")
-    finally:
-        conn.close()
-
-if __name__ == '__main__':
-    main()
+        conn = sqlite3.connect(db_file)
+        conn.execute('PRAGMA foreign_keys = ON')
+        cursor = conn.cursor()
+        try:
+            insert_figures(cursor, figures)
+            conn.commit()
+            total_missing_figures = 0
+            total_added_dances = 0
+            total_missing_dances = 0
+            for dance_path in glob.glob(DANCE_GLOB):
+                with open(dance_path, 'r') as f:
+                    dance_data = json.load(f)
+                #print(f"Importing {dance_path}...")
+                current_missing = insert_dance_and_steps(cursor, dance_data, os.path.basename(dance_path))
+                if current_missing == 0:
+                    total_added_dances += 1
+                    conn.commit()
+                else:
+                    total_missing_dances += 1
+                    conn.rollback()
+                total_missing_figures += current_missing
+            print(total_missing_figures, "Missing figures in total.")
+            print(total_added_dances, "Dances imported successfully.")
+            print(total_missing_dances, "Dances with missing figures, thus skipped.")
+        except Exception as e:
+            conn.rollback()
+            print(f"Error: {e}")
+        finally:
+            conn.close()
