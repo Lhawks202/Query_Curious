@@ -83,33 +83,6 @@ def chunk_list(figures, size=CHUNK_THRESHOLD):
     """Split a list into sublists of at most `size` items each."""
     return [figures[i : i + size] for i in range(0, len(figures), size)]
 
-# def merge_pass(chunks):
-#     """
-#     Perform one pass of pairwise merges over `chunks`.
-#     Returns (new_chunks, found_duplicates).
-#     """
-#     new_chunks = []
-#     found_duplicates = False
-#     i = 0
-#     while i < len(chunks):
-#         if i + 1 < len(chunks):
-#             a, b = chunks[i], chunks[i+1]
-#             merged = merge_two_figure_lists(a, b)
-#             # If merge shrank the total size, we found duplicates
-#             if len(merged) < len(a) + len(b):
-#                 found_duplicates = True
-#             # Re-chunk if merged is too big
-#             if len(merged) > CHUNK_THRESHOLD:
-#                 new_chunks.extend(chunk_list(merged, CHUNK_THRESHOLD))
-#             else:
-#                 new_chunks.append(merged)
-#             i += 2
-#         else:
-#             # Odd one out, carry forward
-#             new_chunks.append(chunks[i])
-#             i += 1
-#     return new_chunks, found_duplicates
-
 def dedupe_figures():
     raw_path = os.path.join(OUTPUT_DIR, "all_raw_figures.json")
     all_raw = json.load(open(raw_path, encoding="utf-8"))
