@@ -1,12 +1,129 @@
 {% extends 'base.html' %}
 
+{% block title %}Home{% endblock %}
+
 {% block header %}
-  <h1>{% block title %}Home{% endblock %}</h1>
+  <h1 class="display-4 mb-3">Dance Collection</h1>
+  <p class="lead">Explore our collection of dances</p>
 {% endblock %}
 
 {% block content %}
-  <h2>Welcome to the Home Page</h2>
-  <p>This is the main content of the home page.</p>
-  <p><a href="{{ url_for('auth.login') }}">Login</a></p>
-  <p><a href="{{ url_for('auth.register') }}">Register</a></p>
+  {% if request.args.get('search') %}
+    <div class="mb-4 p-3 bg-primary bg-opacity-10 rounded">
+      <h3><i class="bi bi-search me-2"></i>Search Results for: "{{ request.args.get('search') }}"</h3>
+      <a href="{{ url_for('index') }}" class="btn btn-outline-primary btn-sm mt-2">
+        <i class="bi bi-x-circle me-1"></i>Clear Search
+      </a>
+    </div>
+  {% endif %}
+
+  {% if dances %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+      {% for dance in dances %}
+        <div class="col">
+          <div class="card h-100 border-0 shadow-sm">
+            {% if dance.Vlink %}
+              <div class="ratio ratio-16x9">
+                <iframe src="{{ dance.Vlink|replace('watch?v=', 'embed/') if 'youtube' in dance.Vlink else dance.Vlink }}" allowfullscreen></iframe>
+              </div>
+            {% else %}
+              <div class="bg-primary bg-opacity-10 text-center p-5">
+                <i class="bi bi-music-note-beamed" style="font-size: 4rem;"></i>
+                <p class="mt-2">No Preview Available</p>
+              </div>
+            {% endif %}
+            <div class="card-body">
+              <h5 class="card-title">{{ dance.DanceName }}</h5>
+              <p class="card-text"><i class="bi bi-music-note me-1"></i>{{ dance.StepName }}</p>
+              {% if dance.Date %}
+                <p class="card-text"><small class="text-muted"><i class="bi bi-calendar3 me-1"></i>Date: {{ dance.Date }}</small></p>
+              {% endif %}
+              {% if dance.Source %}
+                <p class="card-text"><small class="text-muted"><i class="bi bi-book me-1"></i>Source: {{ dance.Source }}</small></p>
+              {% endif %}
+            </div>
+            <div class="card-footer border-0 bg-transparent">
+              <div class="btn-group w-100" role="group">
+                <a href="{{ url_for('home.dance_details', dance_id=dance.ID) }}" class="btn btn-outline-primary btn-sm">
+                  <i class="bi bi-eye me-1"></i>View Details
+                </a>
+                {% if g.user %}
+                  <button type="button" 
+                          class="btn btn-sm {% if dance.ID|string in user_learning %}btn-warning{% else %}btn-outline-warning{% endif %}"
+                          data-dance-id="{{ dance.ID }}"
+                          onclick=`toggleLearning({{ dance.ID }})`>
+                    <i class="bi {% if dance.ID|string in user_learning %}bi-bookmark-check-fill{% else %}bi-bookmark-plus{% endif %} me-1"></i>
+                    {% if dance.ID|string in user_learning %}Learning{% else %}Learn{% endif %}
+                  </button>
+                  <button type="button" 
+                          class="btn btn-sm {% if dance.ID|string in user_favorites %}btn-danger{% else %}btn-outline-danger{% endif %}"
+                          data-dance-id="{{ dance.ID }}"
+                          onclick=`toggleFavorite({{ dance.ID }})`>
+                    <i class="bi {% if dance.ID|string in user_favorites %}bi-heart-fill{% else %}bi-heart{% endif %} me-1"></i>
+                    {% if dance.ID|string in user_favorites %}Favorited{% else %}Favorite{% endif %}
+                  </button>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+  <div class="alert alert-info">
+    <i class="bi bi-info-circle-fill me-2"></i>
+    {% if request.args.get('search') %}
+      No dances found matching "{{ request.args.get('search') }}".
+    {% else %}
+      No dances available. Check back later!
+    {% endif %}
+  {% endif %}
 {% endblock %}
+
+{% block scripts %}
+<script>
+  function toggleFavorite(danceId) {
+    fetch(`/favorite/${danceId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      const button = document.querySelector(`button[data-dance-id="${danceId}"][onclick^="toggleFavorite"]`);
+      if (data.status === 'added') {
+        button.classList.remove('btn-outline-danger');
+        button.classList.add('btn-danger');
+        button.innerHTML = `<i class="bi bi-heart-fill me-1"></i>Favorited`;
+      } else {
+        button.classList.remove('btn-danger');
+        button.classList.add('btn-outline-danger');
+        button.innerHTML = `<i class="bi bi-heart me-1"></i>Favorite`;
+      }
+    });
+  }
+
+  function toggleLearning(danceId) {
+    fetch(`/learning/${danceId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      const button = document.querySelector(`button[data-dance-id="${danceId}"][onclick^="toggleLearning"]`);
+      if (data.status === 'added') {
+        button.classList.remove('btn-outline-warning');
+        button.classList.add('btn-warning');
+        button.innerHTML = `<i class="bi bi-bookmark-check-fill me-1"></i>Learning`;
+      } else {
+        button.classList.remove('btn-warning');
+        button.classList.add('btn-outline-warning');
+        button.innerHTML = `<i class="bi bi-bookmark-plus me-1"></i>Learn`;
+      }
+    });
+  }
+</script>
+{% endblock %} 
