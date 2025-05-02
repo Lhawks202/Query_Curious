@@ -4,6 +4,7 @@ import sqlite3
 import os
 from flask import current_app, g, Flask
 from typing import Optional
+from dances.populate_db import populate_db
 
 def get_db() -> sqlite3.Connection:
     if 'db' not in g:
@@ -46,29 +47,30 @@ def is_db_empty(database_path: str) -> bool:
 @click.option('--populate', is_flag=True, help='Populate the database (without resetting) if empty.')
 @click.option('--force', is_flag=True, help='Force reinitialization of the database before population.')
 def init_db_command(populate: bool, force: bool) -> None:
-    db_path = current_app.config['DATABASE']
-    if force: # Deletes database and reinitializes
-        click.echo('Forcing database reinitialization...')
-        try:
-            if os.path.exists(db_path):
-                os.remove(db_path)
-                click.echo('Existing database deleted.')
-        except OSError as e:
-            click.echo(f'Error deleting database: {e}')
-            return
-    if not os.path.exists(db_path):
-        init_db()
-        click.echo('Initialized tables.')
-    if populate:
-        if is_db_empty(db_path):
-            click.echo('Database is empty. Running populate_db.py...')
+    with current_app.app_context():
+        db_path = current_app.config['DATABASE']
+        if force: # Deletes database and reinitializes
+            click.echo('Forcing database reinitialization...')
             try:
-                subprocess.run(["python", "./dances/populate_db.py"], check=True)
-                click.echo('Database populated.')
-            except subprocess.CalledProcessError as e:
-                click.echo(f'Failed to populate DB: {e}')
-        else:
-            click.echo('Database already populated. Skipping populate_db.py.')
+                if os.path.exists(db_path):
+                    os.remove(db_path)
+                    click.echo('Existing database deleted.')
+            except OSError as e:
+                click.echo(f'Error deleting database: {e}')
+                return
+        if not os.path.exists(db_path):
+            init_db()
+            click.echo('Initialized tables.')
+        if populate:
+            if is_db_empty(db_path):
+                click.echo('Database is empty. Running populate_db.py...')
+                try:
+                    populate_db()
+                    click.echo('Database populated.')
+                except subprocess.CalledProcessError as e:
+                    click.echo(f'Failed to populate DB: {e}')
+            else:
+                click.echo('Database already populated. Skipping populate_db.py.')
 
 def init_app(app: Flask) -> None:
     app.teardown_appcontext(close_db)
