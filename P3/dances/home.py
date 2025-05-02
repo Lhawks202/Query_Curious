@@ -14,18 +14,15 @@ def index():
     if search_query:
         # Search in dance name, step name, and source
         dances = database.execute(
-            'SELECT d.ID, d.DanceName, d.Video, d.Date, d.Source, '
-            's.StepName, s.Sequence '
-            'FROM Dance d JOIN Steps s ON d.StepsId = s.ID '
-            'WHERE d.DanceName LIKE ? OR s.StepName LIKE ? OR d.Source LIKE ?',
+            'SELECT d.ID, d.DanceName, d.Video, d.Source, '
+            'FROM Dance d '
+            'WHERE d.DanceName LIKE ? OR d.Source LIKE ?',
             (f'%{search_query}%', f'%{search_query}%', f'%{search_query}%')
         ).fetchall()
     else:
         # Get all dances
         dances = database.execute(
-            'SELECT d.ID, d.DanceName, d.Video, d.Date, d.Source, '
-            's.StepName, s.Sequence '
-            'FROM Dance d JOIN Steps s ON d.StepsId = s.ID'
+            'SELECT d.ID, d.DanceName, d.Video, d.Source FROM Dance d'
         ).fetchall()
     
     # If user is logged in, get their favorites and learning dances
