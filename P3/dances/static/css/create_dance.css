@@ -1,4 +1,5 @@
 body {
+    font-family: 'Montserrat', sans-serif;
     background-color: #121212;
     color: #fff;
     overflow-y: hidden;
@@ -6,14 +7,11 @@ body {
 
 .content {
     overflow-y: auto;
-    max-height: 82.5vh;
-
-    /* Firefox */
+    max-height: 75vh;
     scrollbar-width: thin;
-    scrollbar-color: rgba(255,255,255,0.3) transparent;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
 }
 
-/* Chrome, Edge, Safari */
 .content::-webkit-scrollbar {
     width: 8px;
 }
@@ -23,23 +21,37 @@ body {
 }
 
 .content::-webkit-scrollbar-thumb {
-    background-color: rgba(255,255,255,0.3);
+    background-color: rgba(255, 255, 255, 0.3);
     border-radius: 4px;
     border: none;
 }
 
 .step-card {
-    background-color: #1e1e1e;
+    background-color: #2f2f2f;
     border: none;
     border-radius: .5rem;
+    position: relative;
 }
+
+/* Tremble animation: slight rotate side to side */
+@keyframes tremble {
+    0%   { transform: rotate(-0.15deg); }
+    25%  { transform: rotate( 0.15deg); }
+    50%  { transform: rotate(-0.15deg); }
+    75%  { transform: rotate( 0.15deg); }
+    100% { transform: rotate( 0deg); }
+  }
+  
+  .step-card.shake {
+    animation: tremble 0.4s infinite ease-in-out;
+  }
+  
 
 .step-card-header {
     padding: 1rem;
     cursor: pointer;
-    border-bottom: 1px solid #fff;
     color: #f2f0ef;
-    font-size: 1.25rem;
+    font-size: 1.5rem;
 }
 
 .figure-card {
@@ -50,7 +62,41 @@ body {
 }
 
 .add-btn {
-    height: 3rem;
-    font-size: 1.5rem;
+    height: 7.5vh;
     border-radius: .5rem;
+    background: #29ae72;
+}
+
+.add-btn-step {
+    font-size: 4rem;
+}
+
+.add-btn-figure {
+    font-size: 2.5rem;
+}
+
+.add-btn:hover {
+    background: #29ae72;
+}
+
+.figure-dropdown {
+    gap: 0.5rem;
+    color: #121212;
+}
+
+/* Optional: highlight cards on hover in delete mode */
+.step-card.shake:hover {
+    box-shadow: 0 0 0 2px rgba(255, 10, 67, 0.9) !important;
+}
+
+.step-label-input {
+    background: transparent;
+    border: none;
+    color: #f2f0ef;
+    font-size: 1.5rem;
+    outline: none;
+}
+
+.step-label-input:focus {
+    box-shadow: none;
 }
