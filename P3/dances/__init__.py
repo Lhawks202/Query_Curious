@@ -29,7 +29,6 @@ def create_app(test_config: Optional[Dict[str, Any]] = None) -> Flask:
     from . import create_dance
     app.register_blueprint(create_dance.bp)
 
-    return app
     @app.route('/')
     def index():
         return render_template('index.html')
