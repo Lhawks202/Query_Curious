@@ -69,16 +69,24 @@ def main():
     cursor = conn.cursor()
     try:
         insert_figures(cursor, figures)
-        total_missing = 0
+        total_missing_figures = 0
+        total_added_dances = 0
+        total_missing_dances = 0
         for dance_path in glob.glob(DANCE_GLOB):
             with open(dance_path, 'r') as f:
                 dance_data = json.load(f)
             print(f"Importing {dance_path}...")
-            total_missing += insert_dance_and_steps(cursor, dance_data, os.path.basename(dance_path))
-        print(total_missing, "missing figures in total.")
-        conn.commit()
-
-        print("All dances imported successfully.")
+            current_missing = insert_dance_and_steps(cursor, dance_data, os.path.basename(dance_path))
+            if current_missing == 0:
+                total_added_dances += 1
+                conn.commit()
+            else:
+                total_missing_dances += 1
+                conn.rollback()
+            total_missing_figures += current_missing
+        print(total_missing_figures, "Missing figures in total.")
+        print(total_added_dances, "Dances imported successfully.")
+        print(total_missing_dances, "Dances with missing figures, thus skipped.")
     except Exception as e:
         conn.rollback()
         print(f"Error: {e}")
