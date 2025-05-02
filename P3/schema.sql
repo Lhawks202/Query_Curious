@@ -5,8 +5,6 @@ CREATE TABLE Dance (
 	Vlink TEXT,
 	Date TEXT,
 	Source TEXT,
-	StepsId INTEGER NOT NULL,
-	FOREIGN KEY (StepsId) REFERENCES Steps (ID)
 );
 
 CREATE TABLE Steps (
@@ -14,6 +12,7 @@ CREATE TABLE Steps (
 	StepName TEXT,
 	Sequence TEXT,
 	FOREIGN KEY (ID) REFERENCES FigureStep (StepId)
+	FOREIGN KEY (ID) REFERENCES Dance (ID)
 );
 
 CREATE TABLE User (
