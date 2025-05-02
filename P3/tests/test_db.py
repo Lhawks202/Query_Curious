@@ -71,4 +71,3 @@ def test_populate_db(app: Flask, runner: CliRunner, db_connection: sqlite3.Conne
             cursor.execute(f'SELECT COUNT(*) FROM {table_name}')
             count = cursor.fetchone()[0]
             assert count > 0, f"No {table_name}s were populated"
-  
