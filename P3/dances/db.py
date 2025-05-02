@@ -43,16 +43,27 @@ def is_db_empty(database_path: str) -> bool:
         conn.close()
 
 @click.command('init-db')
-@click.option('--populate', is_flag=True, help='Populate the database after initializing if empty.')
-def init_db_command(populate: bool) -> None:
-    init_db()
-    click.echo('Initialized Tables.')
+@click.option('--populate', is_flag=True, help='Populate the database (without resetting) if empty.')
+@click.option('--force', is_flag=True, help='Force reinitialization of the database before population.')
+def init_db_command(populate: bool, force: bool) -> None:
+    db_path = current_app.config['DATABASE']
+    if force: # Deletes database and reinitializes
+        click.echo('Forcing database reinitialization...')
+        try:
+            if os.path.exists(db_path):
+                os.remove(db_path)
+                click.echo('Existing database deleted.')
+        except OSError as e:
+            click.echo(f'Error deleting database: {e}')
+            return
+    if not os.path.exists(db_path):
+        init_db()
+        click.echo('Initialized tables.')
     if populate:
-        db_path = current_app.config['DATABASE']
         if is_db_empty(db_path):
             click.echo('Database is empty. Running populate_db.py...')
             try:
-                subprocess.run(["python", "populate_db.py"], check=True)
+                subprocess.run(["python", "./dances/populate_db.py"], check=True)
                 click.echo('Database populated.')
             except subprocess.CalledProcessError as e:
                 click.echo(f'Failed to populate DB: {e}')

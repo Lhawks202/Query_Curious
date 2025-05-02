@@ -3,10 +3,10 @@ import json
 import glob
 import os
 
-DANCE_DIR = '../output'
-FIGURE_FILE = '../output/figure_library.json'
+DANCE_DIR = './output'
+FIGURE_FILE = os.path.join(DANCE_DIR, 'figure_library.json')
 DANCE_GLOB = os.path.join(DANCE_DIR, 'ins_*.json')
-DB_FILE = './dances.db'
+DB_FILE = './dances/dances.sqlite'
 
 def insert_figures(cursor, figure_data):
     for fig in figure_data:
@@ -29,31 +29,35 @@ def get_figure_id(cursor, name):
 
 def insert_dance_and_steps(cursor, dance_data, source_filename):
     video = dance_data.get('video') # None if doesn't exist
+    source = dance_data.get('source')
     cursor.execute('''
         INSERT INTO Dance (DanceName, Source, Video)
         VALUES (?, ?, ?)
     ''', (
         dance_data.get('title', 'Untitled'),
-        source_filename,
+        source,
         video
     ))
     dance_id = cursor.lastrowid # Get the ID of the last inserted row
 
     for step_name, figures in dance_data.get('phrases', {}).items():
-            cursor.execute('''
-                INSERT INTO Steps (DanceId, StepName)
-                VALUES (?, ?)
-            ''', (dance_id, step_name))
-            step_id = cursor.lastrowid
-            for place, fig_name in enumerate(figures):
-                figure_id = get_figure_id(cursor, fig_name)
-                if figure_id:
+        cursor.execute('''
+            INSERT INTO Steps (DanceId, StepName)
+            VALUES (?, ?)
+        ''', (dance_id, step_name))
+        step_id = cursor.lastrowid
+        for place, fig_name in enumerate(figures):
+            figure_id = get_figure_id(cursor, fig_name)
+            if figure_id:
+                try:
                     cursor.execute('''
-                        INSERT INTO FigureStep (StepId, FigureId, Place)
+                        INSERT INTO FigureStep (StepsId, FigureId, Place)
                         VALUES (?, ?, ?)
                     ''', (step_id, figure_id, place))
-                else:
-                    print(f"Figure not found in DB: \"{fig_name}\" (from {source_filename})")
+                except sqlite3.IntegrityError as e:
+                    print(f"[UNIQUE FAIL] {e} — File: {source_filename}, Step: {step_name}, Figure: {fig_name}")
+            else:
+                print(f"Figure not found in DB: \"{fig_name}\" (from {source_filename})")
 
 def main():
     with open(FIGURE_FILE, 'r') as f:
@@ -62,16 +66,13 @@ def main():
     conn = sqlite3.connect(DB_FILE)
     conn.execute('PRAGMA foreign_keys = ON')
     cursor = conn.cursor()
-
     try:
         insert_figures(cursor, figures)
-
         for dance_path in glob.glob(DANCE_GLOB):
             with open(dance_path, 'r') as f:
                 dance_data = json.load(f)
             print(f"Importing {dance_path}...")
             insert_dance_and_steps(cursor, dance_data, os.path.basename(dance_path))
-
         conn.commit()
         print("All dances imported successfully.")
     except Exception as e:
