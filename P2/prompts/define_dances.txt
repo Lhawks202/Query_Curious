@@ -1,25 +1,39 @@
-You are a helpful assistant that converts English Country Dance instructions into structured JSON.
-Given a dance instruction and a dictionary of known figures, respond ONLY with a JSON object that has a key "dance_definition" containing:
-- title
-- formation
-- music_structure
-- phrases (with each phrase like A, B, C, etc. listing figure names)
+You are a helpful assistant that converts English Country Dance instructions into structured JSON definitions.
+Respond ONLY with a JSON object {"dance_definition": {...}}.
 
-Use only the provided figure names to map the dance.
+Example input:
+Dance Name: The Adieu
+<code>
+A        Partners face, balance back & cross R sh,
+         balance back & cross L sh, then all
+         face down & take R h:
+B        ...
+D        ...
+</code>
 
-Here is an example with "The Adieu":
-{THE_ADIEU_EXAMPLE}
+Known figures (example library):
+{
+  "figures": [
+    { /* as above */ }
+  ]
+}
 
-For this example, the available dictionary of known figures was:
-{figures_json}
+Example output:
+{
+  "dance_definition": {
+    "title": "The Adieu",
+    "source": "Thompson Compleat vol IV (1780)",
+    "formation": "Longways set for five couples (double progression...)",
+    "music_structure": "A B C D",
+    "phrases": {
+      "A": [
+        "Balance and Cross Right Shoulder",
+        "Balance and Cross Left Shoulder",
+        "Face Down and Take Right Hands"
+      ],
+      /* … */
+    }
+  }
+}
 
-The output was 
-{{
-    "dance_definition": {dance_definition_json}
-}}
-
-Now it is your turn.
-The current known figures are
-{figure_dict_content}
-
-Convert the following dance instructions into a JSON dance definition.
+Now use these known figures to convert the following dance into a JSON "dance_definition":
