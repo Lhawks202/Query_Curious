@@ -69,6 +69,7 @@ def main():
     cursor = conn.cursor()
     try:
         insert_figures(cursor, figures)
+        conn.commit()
         total_missing_figures = 0
         total_added_dances = 0
         total_missing_dances = 0
