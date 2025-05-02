@@ -38,7 +38,7 @@ def insert_dance_and_steps(cursor, dance_data, source_filename):
         video
     ))
     dance_id = cursor.lastrowid # Get the ID of the last inserted row
-
+    missing_sum = 0
     for step_name, figures in dance_data.get('phrases', {}).items():
         cursor.execute('''
             INSERT INTO Steps (DanceId, StepName)
@@ -57,6 +57,8 @@ def insert_dance_and_steps(cursor, dance_data, source_filename):
                     print(f"[UNIQUE FAIL] {e} — File: {source_filename}, Step: {step_name}, Figure: {fig_name}")
             else:
                 print(f"Figure not found in DB: \"{fig_name}\" (from {source_filename})")
+                missing_sum += 1
+    return missing_sum
 
 def main():
     with open(FIGURE_FILE, 'r') as f:
@@ -67,12 +69,15 @@ def main():
     cursor = conn.cursor()
     try:
         insert_figures(cursor, figures)
+        total_missing = 0
         for dance_path in glob.glob(DANCE_GLOB):
             with open(dance_path, 'r') as f:
                 dance_data = json.load(f)
             print(f"Importing {dance_path}...")
-            insert_dance_and_steps(cursor, dance_data, os.path.basename(dance_path))
+            total_missing += insert_dance_and_steps(cursor, dance_data, os.path.basename(dance_path))
+        print(total_missing, "missing figures in total.")
         conn.commit()
+
         print("All dances imported successfully.")
     except Exception as e:
         conn.rollback()
