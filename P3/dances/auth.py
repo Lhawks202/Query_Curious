@@ -4,7 +4,7 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 from dances.db import get_db
-from typing import Optional, Callable, Any, Dict
+from typing import Optional, Any
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -47,7 +47,6 @@ def register() -> str:
                 # TODO: redirect to correct page
                 next_page = request.form.get('next') or url_for("index")
                 return redirect(next_page)
-
 
         flash(error)
 
