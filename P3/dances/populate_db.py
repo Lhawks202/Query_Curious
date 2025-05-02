@@ -3,8 +3,8 @@ import json
 import glob
 import os
 
-DANCE_DIR = './output'
-FIGURE_FILE = './output/figure_library.json'
+DANCE_DIR = '../output'
+FIGURE_FILE = '../output/figure_library.json'
 DANCE_GLOB = os.path.join(DANCE_DIR, 'ins_*.json')
 DB_FILE = './dances.db'
 
@@ -28,7 +28,7 @@ def get_figure_id(cursor, name):
     return result[0] if result else None
 
 def insert_dance_and_steps(cursor, dance_data, source_filename):
-    video = dance_data.get('video')
+    video = dance_data.get('video') # None if doesn't exist
     cursor.execute('''
         INSERT INTO Dance (DanceName, Source, Video)
         VALUES (?, ?, ?)
@@ -37,24 +37,23 @@ def insert_dance_and_steps(cursor, dance_data, source_filename):
         source_filename,
         video
     ))
-    dance_id = cursor.lastrowid
+    dance_id = cursor.lastrowid # Get the ID of the last inserted row
 
-    for step_name, figure_names in dance_data.get('phrases', {}).items():
-        cursor.execute('''
-            INSERT INTO Steps (DanceId, StepName)
-            VALUES (?, ?)
-        ''', (dance_id, step_name))
-        step_id = cursor.lastrowid
-
-        for place, fig_name in enumerate(figure_names):
-            figure_id = get_figure_id(cursor, fig_name)
-            if figure_id:
-                cursor.execute('''
-                    INSERT INTO FigureStep (StepsId, FigureId, Place)
-                    VALUES (?, ?, ?)
-                ''', (step_id, figure_id, place))
-            else:
-                print(f"Figure not found in DB: \"{fig_name}\" (from {source_filename})")
+    for step_name, figures in dance_data.get('phrases', {}).items():
+            cursor.execute('''
+                INSERT INTO Steps (DanceId, StepName)
+                VALUES (?, ?)
+            ''', (dance_id, step_name))
+            step_id = cursor.lastrowid
+            for place, fig_name in enumerate(figures):
+                figure_id = get_figure_id(cursor, fig_name)
+                if figure_id:
+                    cursor.execute('''
+                        INSERT INTO FigureStep (StepId, FigureId, Place)
+                        VALUES (?, ?, ?)
+                    ''', (step_id, figure_id, place))
+                else:
+                    print(f"Figure not found in DB: \"{fig_name}\" (from {source_filename})")
 
 def main():
     with open(FIGURE_FILE, 'r') as f:
