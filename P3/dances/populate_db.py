@@ -29,13 +29,12 @@ def get_figure_id(cursor, name):
 
 def insert_dance_and_steps(cursor, dance_data, source_filename):
     video = dance_data.get('video') # None if doesn't exist
-    source = dance_data.get('source')
     cursor.execute('''
         INSERT INTO Dance (DanceName, Source, Video)
         VALUES (?, ?, ?)
     ''', (
         dance_data.get('title', 'Untitled'),
-        source,
+        source_filename,
         video
     ))
     dance_id = cursor.lastrowid # Get the ID of the last inserted row
