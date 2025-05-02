@@ -26,4 +26,8 @@ def create_app(test_config: Optional[Dict[str, Any]] = None) -> Flask:
     from . import auth
     app.register_blueprint(auth.bp)
 
+    @app.route('/')
+    def index():
+        return render_template('index.html')
+
     return app
