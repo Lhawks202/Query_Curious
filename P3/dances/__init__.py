@@ -26,17 +26,16 @@ def create_app(test_config: Optional[Dict[str, Any]] = None) -> Flask:
     from . import auth
     app.register_blueprint(auth.bp)
 
-<<<<<<< HEAD
     from . import home
     app.register_blueprint(home.bp)
     app.add_url_rule('/', endpoint='index')
-=======
+
     from . import favorites
     app.register_blueprint(favorites.bp)
 
     @app.route('/')
     def index():
         return render_template('index.html')
->>>>>>> 77f3985 (progress)
+
 
     return app

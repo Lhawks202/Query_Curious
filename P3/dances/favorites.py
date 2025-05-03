@@ -11,6 +11,8 @@ def favorite_dances():
         pass
     db = get_db()
     # add an error if the user is not logged in?
+    if g.user is None:
+        return render_template('favorites.html')
     favorite_dances = db.execute(
                             'SELECT d.DanceName as dance_name, f.DateAdded as date_added, f.Rating as rating'
                             'FROM Favorites f JOIN Dance d ON f.DanceId = d.ID'
