@@ -35,17 +35,31 @@ body {
 
 /* Tremble animation: slight rotate side to side */
 @keyframes tremble {
-    0%   { transform: rotate(-0.15deg); }
-    25%  { transform: rotate( 0.15deg); }
-    50%  { transform: rotate(-0.15deg); }
-    75%  { transform: rotate( 0.15deg); }
-    100% { transform: rotate( 0deg); }
-  }
-  
-  .step-card.shake {
+    0% {
+        transform: rotate(-0.15deg);
+    }
+
+    25% {
+        transform: rotate(0.15deg);
+    }
+
+    50% {
+        transform: rotate(-0.15deg);
+    }
+
+    75% {
+        transform: rotate(0.15deg);
+    }
+
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+.step-card.shake {
     animation: tremble 0.4s infinite ease-in-out;
-  }
-  
+}
+
 
 .step-card-header {
     padding: 1rem;
@@ -99,4 +113,33 @@ body {
 
 .step-label-input:focus {
     box-shadow: none;
+}
+
+
+/* ===== make the modal nearly fullscreen ===== */
+#figureModal .modal-dialog {
+    max-width: 90vw;
+    /* almost full‑width */
+    margin: 0 auto;
+    /* center horizontally */
+}
+
+#figureModal .modal-content {
+    height: 80vh;
+    /* ~80% of viewport height */
+    display: flex;
+    flex-direction: column;
+}
+
+#figureModal .modal-body {
+    flex: 1 1 auto;
+    /* body fills available height */
+    overflow-y: auto;
+    /* scroll if content overflows */
+}
+
+/* ensure header/footer keep their natural size */
+#figureModal .modal-header,
+#figureModal .modal-footer {
+    flex: 0 0 auto;
 }

@@ -5,6 +5,7 @@
 {% block head %}
 {{ super() }}
 <!-- Custom CSS for the create‑dance page -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/figure_modal.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/create_dance.css') }}">
 {% endblock %}
 
@@ -34,4 +35,5 @@
 {{ super() }}
 <!-- Your custom JS for dynamic steps & deletion mode -->
 <script src="{{ url_for('static', filename='js/create_dance.js') }}"></script>
+<script src="{{ url_for('static', filename='js/figure_modal.js') }}"></script>
 {% endblock %}
