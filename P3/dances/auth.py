@@ -44,9 +44,8 @@ def register() -> str:
             except db.IntegrityError:
                 error = f"User {user_id} is already registered."
             else:
-                # TODO: redirect to correct page
-                next_page = request.form.get('next') or url_for("index")
-                return redirect(next_page)
+                flash('Registration successful! Please log in.')
+                return redirect(url_for("auth.login"))
 
         flash(error)
 
@@ -70,7 +69,7 @@ def login() -> str:
         if error is None:
             session['user_id'] = user['UserID']
             next = request.form['next']
-            return redirect(url_for('cart.assign_user'))
+            return redirect(url_for('index'))
 
         flash(error)
 
