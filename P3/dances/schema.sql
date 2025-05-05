@@ -57,3 +57,10 @@ CREATE TABLE FigureStep (
 	FOREIGN KEY (StepsId) REFERENCES Steps (ID),
 	FOREIGN KEY (FigureId) REFERENCES Figure (ID)
 );
+
+CREATE TABLE IF NOT EXISTS Authentication (
+    UserID TEXT PRIMARY KEY,
+    Password TEXT,
+    SessionID TEXT,
+    FOREIGN KEY (UserID) REFERENCES User (ID)
+);
