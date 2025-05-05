@@ -32,7 +32,6 @@ def test_register(client: FlaskClient, app: Flask, auth: Any) -> None:
         ).fetchone() is not None
     assert response.headers['Location'] == '/auth/login', "Post registration redirect location is incorrect."
 
-
 def test_register_existing_user(client: FlaskClient, auth: Any) -> None:
     auth.register()
     response = auth.register()
@@ -98,7 +97,6 @@ def test_logout(client: FlaskClient, auth: Any) -> None:
         assert session['user_id'] == 'testtestingauth'
         auth.logout()
         assert 'test' not in session
-
 
 def test_load_logged_in_user(client: FlaskClient, auth: Any) -> None:
     auth.register()
