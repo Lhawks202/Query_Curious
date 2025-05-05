@@ -36,3 +36,26 @@ def client(app: Flask) -> FlaskClient:
 @pytest.fixture(scope='function')
 def runner(app: Flask) -> 'FlaskCliRunner':
     return app.test_cli_runner()
+
+class AuthActions(object):
+    def __init__(self, client: FlaskClient) -> None:
+        self._client = client
+
+    def register(self, username: str = 'testtestingauth', password: str = 'testtestingauth', next: str = '/') -> 'Response':
+        return self._client.post(
+            'auth/register',
+            data={'user_id': username, 'password': password, 'next': next}
+        )
+
+    def login(self, username: str = 'testtestingauth', password: str = 'testtestingauth', next: str = '/') -> 'Response':
+        return self._client.post(
+            'auth/login',
+            data={'user_id': username, 'password': password, 'next': next}
+        )
+
+    def logout(self) -> 'Response':
+        return self._client.get('auth/logout')
+
+@pytest.fixture(scope='function')
+def auth(client: FlaskClient) -> AuthActions:
+    return AuthActions(client)
