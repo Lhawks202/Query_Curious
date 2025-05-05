@@ -33,6 +33,9 @@ def create_app(test_config: Optional[Dict[str, Any]] = None) -> Flask:
     from . import favorites
     app.register_blueprint(favorites.bp)
 
+    from . import learning
+    app.register_blueprint(learning.bp)
+
     @app.route('/')
     def index():
         return render_template('index.html')
