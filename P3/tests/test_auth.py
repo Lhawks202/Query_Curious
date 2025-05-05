@@ -32,7 +32,6 @@ def test_register(client: FlaskClient, app: Flask, auth: Any) -> None:
         ).fetchone() is not None
     assert response.headers['Location'] == '/auth/login', "Post registration redirect location is incorrect."
 
-
 def test_register_existing_user(client: FlaskClient, auth: Any) -> None:
     auth.register()
     response = auth.register()
@@ -42,13 +41,11 @@ def test_register_existing_user(client: FlaskClient, auth: Any) -> None:
         print(sess.get('_flashes', []))
     assert 'User already exists—try logging in!' in response_text
     
-
 def test_register_strange_characters(auth: Any) -> None:
     response = auth.register(username='test_!@#$%^*&()`\'', password='test_!@#$%^*&()`\'')
     assert response.headers['Location'] == '/auth/login',  "Doesn't accept strange characters in username and password."
     response = auth.register(username='éñçøßΩ中あ😊€', password='éñçøßΩ中あ😊€')
     assert response.headers['Location'] == '/auth/login',  "Doesn't accept strange characters in username and password."
-
 
 def test_sql_injection_drop_table_register(app: Flask, auth: Any) -> None:
     with app.app_context():
@@ -62,7 +59,6 @@ def test_sql_injection_drop_table_register(app: Flask, auth: Any) -> None:
             db.execute('SELECT 1 FROM User LIMIT 1')
         except Exception as e:
             assert False, f"Customer table was dropped: {e}"
-
 
 def test_login(client: FlaskClient, auth: Any) -> None:
     auth.register()
@@ -78,7 +74,6 @@ def test_login(client: FlaskClient, auth: Any) -> None:
         assert client.get('/').status_code == 200, "Internal Server Error on Login"
         assert session['user_id'] == 'testtestingauth'
 
-
 def test_sql_injection_drop_table_login(app: Flask, auth: Any) -> None:
     with app.app_context():
         auth.register()
@@ -93,7 +88,6 @@ def test_sql_injection_drop_table_login(app: Flask, auth: Any) -> None:
         except Exception as e:
             assert False, f"Authentication table was dropped: {e}"
 
-
 def test_logout(client: FlaskClient, auth: Any) -> None:
     auth.register()
     auth.login()
@@ -102,7 +96,6 @@ def test_logout(client: FlaskClient, auth: Any) -> None:
         assert session['user_id'] == 'testtestingauth'
         auth.logout()
         assert 'test' not in session
-
 
 def test_load_logged_in_user(client: FlaskClient, auth: Any) -> None:
     auth.register()
