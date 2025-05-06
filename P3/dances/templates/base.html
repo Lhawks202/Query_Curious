@@ -135,8 +135,8 @@
               </a>
               <ul class="dropdown-menu dropdown-menu-end">
                 <li><a class="dropdown-item" href="#">My Profile</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('home.user_favorites') }}">My Favorites</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('home.user_learning') }}">Learning List</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('favorites.favorites') }}">My Favorites</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('learning.learning') }}">Learning List</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">Log Out</a></li>
               </ul>

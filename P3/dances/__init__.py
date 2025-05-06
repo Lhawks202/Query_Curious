@@ -30,4 +30,15 @@ def create_app(test_config: Optional[Dict[str, Any]] = None) -> Flask:
     app.register_blueprint(home.bp)
     app.add_url_rule('/', endpoint='index')
 
+    from . import favorites
+    app.register_blueprint(favorites.bp)
+
+    from . import learning
+    app.register_blueprint(learning.bp)
+
+    @app.route('/')
+    def index():
+        return render_template('index.html')
+
+
     return app
