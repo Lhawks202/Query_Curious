@@ -2,12 +2,14 @@ from flask import (
     Blueprint, g, render_template, request
 )
 from dances.db import get_db
+from datetime import date
 
 bp = Blueprint('home', __name__)
 
 @bp.route('/')
 def index():
     database = get_db()
+    current_date = date.today().isoformat()
     
     search_query = request.args.get('search', '')
     
@@ -44,4 +46,5 @@ def index():
         
     return render_template('index.html', dances=dances, 
                           user_favorites=user_favorites, 
-                          user_learning=user_learning)
+                          user_learning=user_learning,
+                          current_date=current_date)

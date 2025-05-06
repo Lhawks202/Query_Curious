@@ -1,6 +1,5 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for,
-        render_template_string)
+    Blueprint, g, render_template, request, jsonify)
 from dances.db import get_db
 
 bp = Blueprint('fav_and_learning', __name__)
@@ -8,7 +7,8 @@ bp = Blueprint('fav_and_learning', __name__)
 @bp.route('/favorites', methods=['GET', 'POST'],)
 def favorites():
     if request.method == 'POST':
-        pass
+        ret_status = add_favorite(request.get_json())
+        return jsonify(status=ret_status)
     db = get_db()
     # add an error if the user is not logged in?
     if g.user is None:
@@ -27,10 +27,20 @@ def favorites():
             (g.user['UserID'],)).fetchall()
     return render_template('favorites.html', favorites=favorite_dances, dances=dance_information)
 
-@bp.route('/favorite/<int:dance_id>', methods=['POST'])
-def favorite_dance(dance_id):
-    data = request.get_json()
-    reason = data['reason']
+def add_favorite(data):
+    db = get_db()
+    dance_id = data['danceId']
+    rating = data['rating']
+    date = data['date']
+    user_id = g.user['UserId']
+    db.execute(
+        '''INSERT INTO Favorites (UserId, DanceId, DateAdded, Rating)
+         VALUES (?, ?, ?, ?)''',
+         (user_id, dance_id, date, rating)
+    )
+    db.commit()
+    # TO DO: add error handling
+    return "added"
 
 @bp.route('/learning', methods=['GET', 'POST'])
 def learning():

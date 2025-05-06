@@ -55,9 +55,10 @@
                   <button type="button" 
                           class="btn btn-sm {% if dance.ID|string in user_favorites %}btn-danger{% else %}btn-outline-danger{% endif %}"
                           data-dance-id="{{ dance.ID }}"
+                          data-role="favorite-button"
                           data-bs-toggle="modal"
-                          data-bs-target="#favoriteModal"
-                          onclick=`prepareFavoriteForm({{ dance.ID }})`>
+                          data-bs-target="#favoriteModal">
+                          <!-- onclick="prepareFavoriteForm('{{ dance.ID }}')" -->
                     <i class="bi {% if dance.ID|string in user_favorites %}bi-heart-fill{% else %}bi-heart{% endif %} me-1"></i>
                     {% if dance.ID|string in user_favorites %}Favorited{% else %}Favorite{% endif %}
                   </button>
@@ -91,7 +92,7 @@
           <input type="hidden" id="favoriteDanceId">
           <div class="mb-3">
             <label for="rating" class="form-label">What do you rate this dance?</label>
-            <select id="rating" class="form-select" required>
+            <select id="rating" class="form-select">
               <option value="">Choose...</option>
               <option value="5">★★★★★</option>
               <option value="4">★★★★</option>
@@ -99,6 +100,8 @@
               <option value="2">★★</option>
               <option value="1">★</option>
             </select>
+            <label for="date" class="form-label">Date</label>
+            <input type="date" class="form-control" id="date" name="date" value="{{ current_date }}">
           </div>
         </div>
         <div class="modal-footer">
@@ -116,47 +119,25 @@
 
 
 <script>
-  function toggleFavorite(danceId) {
-    fetch(`/favorite/${danceId}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
-    .then(response => response.json())
-    .then(data => {
-      const button = document.querySelector(`button[data-dance-id="${danceId}"][onclick^="toggleFavorite"]`);
-      if (data.status === 'added') {
-        button.classList.remove('btn-outline-danger');
-        button.classList.add('btn-danger');
-        button.innerHTML = `<i class="bi bi-heart-fill me-1"></i>Favorited`;
-      } else {
-        button.classList.remove('btn-danger');
-        button.classList.add('btn-outline-danger');
-        button.innerHTML = `<i class="bi bi-heart me-1"></i>Favorite`;
-      }
-    });
-  }
-
   document.getElementById('favoriteFormElement').addEventListener('submit', function(event) {
   event.preventDefault();
   const danceId = document.getElementById('favoriteDanceId').value;
-  const rating = document.getElementById('rating').value;
+  const rating = parseInt(document.getElementById('rating').value, 10)
+  const date = document.getElementById('date').value;
 
-  fetch(`/favorite/${danceId}`, {
+  fetch(`/favorites`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ rating })
+    body: JSON.stringify({ rating, date, danceId })
   })
   .then(res => res.json())
   .then(data => {
     alert('Dance favorited!');
+    console.log('Success:', data);
     const modal = bootstrap.Modal.getInstance(document.getElementById('favoriteModal'));
     modal.hide();  // close modal
-  })
-  .then(data => {
-      const button = document.querySelector(`button[data-dance-id="${danceId}"][onclick^="toggleLearning"]`);
-      if (data.status === 'added') {
+    const button = document.querySelector(`button[data-dance-id="${danceId.toString()}"][data-role="favorite-button"]`);
+    if (data.status === 'added') {
         button.classList.remove('btn-outline-warning');
         button.classList.add('btn-warning');
         button.innerHTML = `<i class="bi bi-bookmark-check-fill me-1"></i>Learning`;
@@ -165,7 +146,7 @@
         button.classList.add('btn-outline-warning');
         button.innerHTML = `<i class="bi bi-bookmark-plus me-1"></i>Learn`;
       }
-    })
+  })
   .catch(error => {
     console.error('Error:', error);
     alert('Something went wrong.');
