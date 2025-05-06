@@ -90,8 +90,15 @@
         <div class="modal-body">
           <input type="hidden" id="favoriteDanceId">
           <div class="mb-3">
-            <label for="reason" class="form-label">Why do you like this dance?</label>
-            <textarea id="reason" class="form-control" required></textarea>
+            <label for="rating" class="form-label">What do you rate this dance?</label>
+            <select id="rating" class="form-select" required>
+              <option value="">Choose...</option>
+              <option value="5">★★★★★</option>
+              <option value="4">★★★★</option>
+              <option value="3">★★★</option>
+              <option value="2">★★</option>
+              <option value="1">★</option>
+            </select>
           </div>
         </div>
         <div class="modal-footer">
@@ -106,6 +113,8 @@
 {% endblock %}
 
 {% block scripts %}
+
+
 <script>
   function toggleFavorite(danceId) {
     fetch(`/favorite/${danceId}`, {
@@ -132,12 +141,12 @@
   document.getElementById('favoriteFormElement').addEventListener('submit', function(event) {
   event.preventDefault();
   const danceId = document.getElementById('favoriteDanceId').value;
-  const reason = document.getElementById('reason').value;
+  const rating = document.getElementById('rating').value;
 
   fetch(`/favorite/${danceId}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ reason })
+    body: JSON.stringify({ rating })
   })
   .then(res => res.json())
   .then(data => {
