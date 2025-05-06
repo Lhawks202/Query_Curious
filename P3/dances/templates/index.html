@@ -55,7 +55,9 @@
                   <button type="button" 
                           class="btn btn-sm {% if dance.ID|string in user_favorites %}btn-danger{% else %}btn-outline-danger{% endif %}"
                           data-dance-id="{{ dance.ID }}"
-                          onclick=`toggleFavorite({{ dance.ID }})`>
+                          data-bs-toggle="modal"
+                          data-bs-target="#favoriteModal"
+                          onclick=`prepareFavoriteForm({{ dance.ID }})`>
                     <i class="bi {% if dance.ID|string in user_favorites %}bi-heart-fill{% else %}bi-heart{% endif %} me-1"></i>
                     {% if dance.ID|string in user_favorites %}Favorited{% else %}Favorite{% endif %}
                   </button>
@@ -75,6 +77,32 @@
       No dances available. Check back later!
     {% endif %}
   {% endif %}
+
+  <!-- Favorite Modal -->
+<div class="modal fade" id="favoriteModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="favoriteFormElement">
+        <div class="modal-header">
+          <h5 class="modal-title">Add to Favorites</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="favoriteDanceId">
+          <div class="mb-3">
+            <label for="reason" class="form-label">Why do you like this dance?</label>
+            <textarea id="reason" class="form-control" required></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Submit</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
@@ -101,15 +129,23 @@
     });
   }
 
-  function toggleLearning(danceId) {
-    fetch(`/learning/${danceId}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
-    .then(response => response.json())
-    .then(data => {
+  document.getElementById('favoriteFormElement').addEventListener('submit', function(event) {
+  event.preventDefault();
+  const danceId = document.getElementById('favoriteDanceId').value;
+  const reason = document.getElementById('reason').value;
+
+  fetch(`/favorite/${danceId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ reason })
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert('Dance favorited!');
+    const modal = bootstrap.Modal.getInstance(document.getElementById('favoriteModal'));
+    modal.hide();  // close modal
+  })
+  .then(data => {
       const button = document.querySelector(`button[data-dance-id="${danceId}"][onclick^="toggleLearning"]`);
       if (data.status === 'added') {
         button.classList.remove('btn-outline-warning');
@@ -120,7 +156,33 @@
         button.classList.add('btn-outline-warning');
         button.innerHTML = `<i class="bi bi-bookmark-plus me-1"></i>Learn`;
       }
-    });
-  }
+    })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Something went wrong.');
+  });
+});
+
+  // function toggleLearning(danceId) {
+  //   fetch(`/learning/${danceId}`, {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json'
+  //     }
+  //   })
+  //   .then(response => response.json())
+  //   .then(data => {
+  //     const button = document.querySelector(`button[data-dance-id="${danceId}"][onclick^="toggleLearning"]`);
+  //     if (data.status === 'added') {
+  //       button.classList.remove('btn-outline-warning');
+  //       button.classList.add('btn-warning');
+  //       button.innerHTML = `<i class="bi bi-bookmark-check-fill me-1"></i>Learning`;
+  //     } else {
+  //       button.classList.remove('btn-warning');
+  //       button.classList.add('btn-outline-warning');
+  //       button.innerHTML = `<i class="bi bi-bookmark-plus me-1"></i>Learn`;
+  //     }
+  //   });
+  // }
 </script>
 {% endblock %} 

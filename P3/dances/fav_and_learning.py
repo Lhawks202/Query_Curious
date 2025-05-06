@@ -27,6 +27,11 @@ def favorites():
             (g.user['UserID'],)).fetchall()
     return render_template('favorites.html', favorites=favorite_dances, dances=dance_information)
 
+@bp.route('/favorite/<int:dance_id>', methods=['POST'])
+def favorite_dance(dance_id):
+    data = request.get_json()
+    reason = data['reason']
+
 @bp.route('/learning', methods=['GET', 'POST'])
 def learning():
     if request.method == 'POST':
