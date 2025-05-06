@@ -1,66 +1,108 @@
 <!-- Figure Name / Step Modal -->
-<div
-  class="modal fade"
-  id="figureModal"
-  tabindex="-1"
-  aria-labelledby="figureModalLabel"
-  aria-hidden="true"
->
+<div class="modal fade" id="figureModal" tabindex="-1" aria-labelledby="figureModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-fullscreen" role="document">
-    <div class="modal-content">
+    <div class="modal-content shadow-sm">
       <div class="modal-body p-0">
         <!-- Begin your login/signup panel markup -->
         <div class="container" id="container">
           <!-- SIGN UP PANEL -->
-          <div class="form-container sign-up">
-            <form>
-              <h1>Create Account</h1>
-              <div class="social-icons">
-                <a href="#" class="icon"><i class="fa-brands fa-google-plus-g"></i></a>
-                <a href="#" class="icon"><i class="fa-brands fa-facebook-f"></i></a>
-                <a href="#" class="icon"><i class="fa-brands fa-github"></i></a>
-                <a href="#" class="icon"><i class="fa-brands fa-linkedin-in"></i></a>
-              </div>
-              <span>or use your email for registration</span>
-              <input type="text" placeholder="Name">
-              <input type="email" placeholder="Email">
-              <input type="password" placeholder="Password">
-              <button type="button">Sign Up</button>
-            </form>
+          <div class="form-container add p-5">
+            <div class="add-container pe-3 mb-4">
+              <form id="figureForm" method="post" action="{{ url_for('create.add_dance') }}">
+                <div class="mb-3 w-80">
+                  <h4 class="mb-3">Name</h4>
+                  <!-- <label for="figureNameInput" class="form-label">Figure Name</label> -->
+                  <div class="textarea-container p-2">
+                    <textarea id="figureNameInput" name="name" type="text" class="form-control textarea-scroll"
+                      placeholder="Circle Left and Fall Back" required></textarea>
+                  </div>
+                </div>
+
+                <div class="mb-3 w-80">
+                  <!-- <label for="rolesInput" class="form-label">Roles</label> -->
+                  <h4 class="mb-3">Roles</h4>
+                  <div class="textarea-container p-2">
+                    <textarea id="rolesInput" name="roles" type="text" class="form-control textarea-scroll"
+                      placeholder="Bottom 2 Couples (1st & 3rd)" required></textarea>
+                  </div>
+                </div>
+
+                <div class="mb-3 w-80">
+                  <!-- <label for="startPosInput" class="form-label">Start Position</label> -->
+                  <h4 class="mb-3">Start Position</h4>
+                  <div class="textarea-container p-2">
+                    <textarea id="startPosInput" name="start_position" type="text" class="form-control textarea-scroll"
+                      placeholder="Facing each other in a circle of 4" required></textarea>
+                  </div>
+                </div>
+
+                <div class="mb-3 w-80">
+                  <!-- <label for="actionInput" class="form-label">Action</label> -->
+                  <h4 class="mb-3">Action</h4>
+                  <div class="textarea-container p-2">
+                    <textarea id="actionInput" name="action" type="text" class="form-control textarea-scroll"
+                      placeholder="Circle 4 to the left, half way then fall back" required></textarea>
+                  </div>
+                </div>
+
+                <div class="mb-3 w-80">
+                  <!-- <label for="endPosInput" class="form-label">End Position</label> -->
+                  <h4 class="mb-3">End Position</h4>
+                  <div class="textarea-container p-2">
+                    <textarea id="endPosInput" name="end_position" type="text" class="form-control textarea-scroll"
+                      placeholder="Facing each other in a line" required></textarea>
+                  </div>
+                </div>
+
+                <div class="mb-3 w-80">
+                  <!-- <label for="durationInput" class="form-label">Duration (seconds)</label> -->
+                  <h4 class="mb-3">Duration (s)</h4>
+                  <input id="durationInput" name="duration" type="number" min="1" class="form-control" placeholder="4"
+                    required>
+                </div>
+
+                <hr class="w-80 white-divider">
+
+                <button type="submit" id="figureModalSubmit"
+                  class="btn add-btn add-btn-step w-80 d-flex justify-content-center align-items-center">
+                  <i class="bi bi-plus"></i>
+                </button>
+              </form>
+            </div>
           </div>
 
           <!-- SIGN IN PANEL -->
-          <div class="form-container sign-in">
-            <form>
-              <h1>Sign In</h1>
-              <div class="social-icons">
-                <a href="#" class="icon"><i class="fa-brands fa-google-plus-g"></i></a>
-                <a href="#" class="icon"><i class="fa-brands fa-facebook-f"></i></a>
-                <a href="#" class="icon"><i class="fa-brands fa-github"></i></a>
-                <a href="#" class="icon"><i class="fa-brands fa-linkedin-in"></i></a>
+          <div class="form-container search p-5">
+            <form id="figureSearchForm">
+              <h4>Search for Figure</h4>
+              <div class="input-group mb-3 w-80">
+                <input id="figureSearchInput" type="text" class="form-control" placeholder="keywords…"
+                  aria-label="search figures" />
+                <button class="btn btn-outline-secondary" type="submit">
+                  <i class="bi bi-search"></i>
+                </button>
               </div>
-              <span>or use your email password</span>
-              <input type="email" placeholder="Email">
-              <input type="password" placeholder="Password">
-              <!-- NEW: Figure Name field -->
-              <input type="text" placeholder="Figure Name">
-              <a href="#">Forget Your Password?</a>
-              <button type="button">Sign In</button>
             </form>
+
+            <div id="figureSearchResults" class="w-80">
+              <!-- results injected here -->
+            </div>
           </div>
 
           <!-- TOGGLE PANELS -->
-          <div class="toggle-container">
+          <div class="toggle-container shadow">
             <div class="toggle">
               <div class="toggle-panel toggle-left">
-                <h1>Welcome Back!</h1>
-                <p>Enter your personal details to use all of site features</p>
-                <button class="hidden" id="login">Sign In</button>
+                <h3>Want to Use an Existing Figure?</h3>
+                <p>Click Below to Browse our Database for a Figure.</p>
+                <button class="hidden p-2 shadow-sm d-flex align-items-center" id="search"><i
+                    class="fa-solid fa-magnifying-glass d-flex align-items-center justify-content-center"></i></button>
               </div>
               <div class="toggle-panel toggle-right">
-                <h1>Hello, Friend!</h1>
-                <p>Register with your personal details to use all of site features</p>
-                <button class="hidden" id="register">Sign Up</button>
+                <h3>Can't Find What You're Looking For?</h3>
+                <p>Click Below to Create a New Figure.</p>
+                <button class="hidden p-2 shadow-sm d-flex align-items-center" id="add"><i
+                    class="fa-solid fa-plus d-flex align-items-center justify-content-center"></i></button>
               </div>
             </div>
           </div>

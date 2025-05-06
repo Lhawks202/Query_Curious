@@ -1,125 +1,224 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const stepsContainer     = document.getElementById('stepsContainer');
-    const addStepBtn         = document.getElementById('addStepBtn');
-    const deleteBtn          = document.getElementById('deleteModeBtn');
-  
-    // 1) Grab the modal + inputs
-    const figureModalEl      = document.getElementById('figureModal');
-    // const figureNameInput    = document.getElementById('figureNameInput');
-    // const figureNamePreview  = document.getElementById('figureNamePreview');
-    // const figureModalSubmit  = document.getElementById('figureModalSubmit');
-    // const toConfirmBtn       = document.getElementById('toConfirmBtn');
-    // const backBtn            = document.getElementById('backBtn');
-    // const slider             = document.getElementById('figureSlider');
-  
-    // 2) Initialize Bootstrap’s modal
-    const figureModal = new bootstrap.Modal(figureModalEl);
-  
-    // 3) pendingAddFn must be declared before we use it
-    let pendingAddFn = null;
-  
-    let stepCount  = 0;
-    let deleteMode = false;
-  
-    const figures = ['Figure 1', 'Figure 2', 'Figure 3', 'Figure 4'];
-  
-    function updateDeleteModeUI() {
-      document
-        .querySelectorAll('.step-card')
-        .forEach(card => card.classList.toggle('shake', deleteMode));
-      deleteBtn.classList.toggle('text-danger', !deleteMode);
-      deleteBtn.classList.toggle('text-white', deleteMode);
-    }
-  
-    deleteBtn.addEventListener('click', e => {
-      e.stopPropagation();
-      deleteMode = !deleteMode;
-      updateDeleteModeUI();
-    });
-  
-    document.addEventListener('click', e => {
-      if (
-        deleteMode &&
-        !e.target.closest('#deleteModeBtn') &&
-        !e.target.closest('.step-card')
-      ) {
-        deleteMode = false;
-        updateDeleteModeUI();
-      }
-    });
-  
-    stepsContainer.addEventListener('click', e => {
-      if (!deleteMode) return;
-      const card = e.target.closest('.step-card');
-      if (card) card.remove();
-    });
-  
-    function createStep() {
-      const idx        = stepCount++;
-      const label      = String.fromCharCode(65 + idx);
-      const collapseId = `collapse${idx}`;
-  
-      const card = document.createElement('div');
-      card.className = 'shadow-sm step-card mb-3';
-  
-      const hdr = document.createElement('div');
-      hdr.className = 'step-card-header d-flex justify-content-between align-items-center';
-  
-      const input = document.createElement('input');
-      input.type        = 'text';
-      input.className   = 'step-label-input ps-3';
-      input.value       = label;
-      input.placeholder = label;
-      input.addEventListener('mousedown', e => e.stopPropagation());
-      input.addEventListener('click',      e => e.stopPropagation());
-  
-      const icon = document.createElement('i');
-      icon.className = 'bi bi-chevron-down pe-3';
-  
-      hdr.appendChild(input);
-      hdr.appendChild(icon);
-      card.appendChild(hdr);
-  
-      const coll = document.createElement('div');
-      coll.className = 'collapse';
-      coll.id        = collapseId;
-  
-      const body = document.createElement('div');
-      body.className = 'card-body p-3 d-flex flex-column figure-dropdown';
-  
-      // + Figure button
-      const addFigBtn = document.createElement('button');
-      addFigBtn.type = 'button';
-      addFigBtn.className = 'btn shadow-sm figure-card p-3 mx-5 add-btn add-btn-figure d-flex justify-content-center align-items-center';
-      addFigBtn.innerHTML = '<i class="bi bi-plus"></i>';
-      addFigBtn.addEventListener('mousedown', e => e.stopPropagation());
-      addFigBtn.addEventListener('click', e => {
-        e.stopPropagation();
-        pendingAddFn = addFigure;
-        figureModal.show();
-      });
-      body.appendChild(addFigBtn);
-  
-      function addFigure(name) {
-        const fc = document.createElement('div');
-        fc.className = 'shadow-sm figure-card p-3 mx-5';
-        fc.textContent = name;
-        body.insertBefore(fc, addFigBtn);
-      }
-  
-      coll.appendChild(body);
-      card.appendChild(coll);
-      stepsContainer.appendChild(card);
-  
-      hdr.addEventListener('click', e => {
-        if (e.target === input) return;
-        const bsColl = bootstrap.Collapse.getOrCreateInstance(coll);
-        bsColl.toggle();
-      });
-  
-      if (deleteMode) card.classList.add('shake');
-    }
-  
-    addStepBtn.addEventListener('click', createStep);
+  const stepsContainer = document.getElementById('stepsContainer');
+  const addStepBtn = document.getElementById('addStepBtn');
+  const deleteBtn = document.getElementById('deleteModeBtn');
+
+  // 1) Grab the modal + inputs
+  const figureModalEl = document.getElementById('figureModal');
+  // const figureNameInput    = document.getElementById('figureNameInput');
+  // const figureNamePreview  = document.getElementById('figureNamePreview');
+  // const figureModalSubmit  = document.getElementById('figureModalSubmit');
+  // const toConfirmBtn       = document.getElementById('toConfirmBtn');
+  // const backBtn            = document.getElementById('backBtn');
+  // const slider             = document.getElementById('figureSlider');
+
+  // 2) Initialize Bootstrap’s modal
+  const figureModal = new bootstrap.Modal(figureModalEl);
+
+  // 3) pendingAddFn must be declared before we use it
+  let pendingAddFn = null;
+
+  let stepCount = 0;
+  let deleteMode = false;
+
+  const figures = ['Figure 1', 'Figure 2', 'Figure 3', 'Figure 4'];
+
+  function updateDeleteModeUI() {
+    document
+      .querySelectorAll('.step-card')
+      .forEach(card => card.classList.toggle('shake', deleteMode));
+    deleteBtn.classList.toggle('text-danger', !deleteMode);
+    deleteBtn.classList.toggle('text-white', deleteMode);
+  }
+
+  deleteBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    deleteMode = !deleteMode;
+    updateDeleteModeUI();
   });
-  
+
+  document.addEventListener('click', e => {
+    if (
+      deleteMode &&
+      !e.target.closest('#deleteModeBtn') &&
+      !e.target.closest('.step-card')
+    ) {
+      deleteMode = false;
+      updateDeleteModeUI();
+    }
+  });
+
+  stepsContainer.addEventListener('click', e => {
+    if (!deleteMode) return;
+    const card = e.target.closest('.step-card');
+    if (card) card.remove();
+  });
+
+  function createStep() {
+    const idx = stepCount++;
+    const label = String.fromCharCode(65 + idx);
+    const collapseId = `collapse${idx}`;
+
+    const card = document.createElement('div');
+    card.className = 'shadow-sm step-card mb-3';
+
+    const hdr = document.createElement('div');
+    hdr.className = 'step-card-header d-flex justify-content-between align-items-center';
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'step-label-input ps-3';
+    input.value = label;
+    input.placeholder = label;
+    input.addEventListener('mousedown', e => e.stopPropagation());
+    input.addEventListener('click', e => e.stopPropagation());
+
+    const icon = document.createElement('i');
+    icon.className = 'bi bi-chevron-down pe-3';
+
+    hdr.appendChild(input);
+    hdr.appendChild(icon);
+    card.appendChild(hdr);
+
+    const coll = document.createElement('div');
+    coll.className = 'collapse';
+    coll.id = collapseId;
+
+    const body = document.createElement('div');
+    body.className = 'card-body p-3 d-flex flex-column figure-dropdown';
+
+    // + Figure button
+    const addFigBtn = document.createElement('button');
+    addFigBtn.type = 'button';
+    addFigBtn.className = 'btn shadow-sm figure-card p-3 mx-5 add-btn add-btn-figure d-flex justify-content-center align-items-center';
+    addFigBtn.innerHTML = '<i class="bi bi-plus"></i>';
+    addFigBtn.addEventListener('mousedown', e => e.stopPropagation());
+    addFigBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      pendingAddFn = addFigure;
+      figureModal.show();
+    });
+    body.appendChild(addFigBtn);
+
+    function addFigure(name) {
+      const fc = document.createElement('div');
+      fc.className = 'shadow-sm figure-card p-3 mx-5';
+      fc.textContent = name;
+      body.insertBefore(fc, addFigBtn);
+    }
+
+    coll.appendChild(body);
+    card.appendChild(coll);
+    stepsContainer.appendChild(card);
+
+    hdr.addEventListener('click', e => {
+      if (e.target === input) return;
+      const bsColl = bootstrap.Collapse.getOrCreateInstance(coll);
+      bsColl.toggle();
+    });
+
+    if (deleteMode) card.classList.add('shake');
+  }
+
+  addStepBtn.addEventListener('click', createStep);
+
+  const figureForm = document.getElementById('figureForm');
+  const nameInput = document.getElementById('figureNameInput');
+  const rolesInput = document.getElementById('rolesInput');
+  const startPosInput = document.getElementById('startPosInput');
+  const actionInput = document.getElementById('actionInput');
+  const endPosInput = document.getElementById('endPosInput');
+  const durationInput = document.getElementById('durationInput');
+
+  figureForm.addEventListener('submit', e => {
+    e.preventDefault();
+
+    const payload = {
+      name: nameInput.value.trim(),
+      roles: rolesInput.value.trim(),
+      start_position: startPosInput.value.trim(),
+      action: actionInput.value.trim(),
+      end_position: endPosInput.value.trim(),
+      duration: parseInt(durationInput.value, 10)
+    };
+    // simple validation
+    if (Object.values(payload).some(v => v === '' || v == null || isNaN(payload.duration))) {
+      return alert('Please fill out all fields');
+    }
+
+    const url = figureForm.getAttribute('action');
+    console.log(url);
+    fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(res => {
+        if (!res.ok) throw new Error('Save failed');
+        return res.json();
+      })
+      .then(data => {
+        // your existing function that injects a card into the DOM
+        pendingAddFn(data.name);
+
+        // clear and close
+        figureForm.reset();
+        figureModal.hide();
+      })
+      .catch(err => {
+        console.error(err);
+        alert('Could not save figure. Try again.');
+      });
+  });
+
+  const searchForm = document.getElementById('figureSearchForm');
+  const searchInput = document.getElementById('figureSearchInput');
+  const resultsHolder = document.getElementById('figureSearchResults');
+
+  // 2) intercept submit
+  searchForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const q = searchInput.value.trim();
+    if (!q) return;
+
+    // clear old
+    resultsHolder.innerHTML = '<p>Searching…</p>';
+
+    fetch(`${figureForm.getAttribute('action')}search`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ q })
+    })
+      .then(r => r.json())
+      .then(list => {
+        if (list.length === 0) {
+          resultsHolder.innerHTML = '<p>No matches found.</p>';
+          return;
+        }
+        // build a card for each result
+        resultsHolder.innerHTML = '';
+        list.forEach(fig => {
+          const card = document.createElement('div');
+          card.className = 'card mb-2';
+          card.innerHTML = `
+            <div class="card-body">
+              <h5 class="card-title">${fig.name}</h5>
+              <p class="card-text"><strong>Roles:</strong> ${fig.roles}</p>
+              <p class="card-text"><strong>Action:</strong> ${fig.action}</p>
+              <!-- … add other fields as you like … -->
+            </div>
+          `;
+          // clicking a result could call your pendingAddFn or otherwise
+          card.addEventListener('click', () => {
+            pendingAddFn(fig.name);
+            figureModal.hide();
+          });
+          resultsHolder.appendChild(card);
+        });
+      })
+      .catch(err => {
+        console.error(err);
+        resultsHolder.innerHTML = '<p class="text-danger">Search failed.</p>';
+      });
+  });
+});

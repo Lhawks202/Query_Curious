@@ -8,6 +8,22 @@ FIGURE_FILE = os.path.join(DANCE_DIR, 'figure_library.json')
 DANCE_GLOB = os.path.join(DANCE_DIR, 'ins_*.json')
 DB_FILE = './dances/dances.sqlite'
 
+def init_fts(cursor):
+    cursor.execute("""
+    CREATE VIRTUAL TABLE IF NOT EXISTS FigureFTS
+    USING fts5(
+      Name,
+      Roles,
+      StartPosition,
+      Action,
+      EndPosition,
+      content='Figure',
+      content_rowid='ID'
+    );
+    """)
+
+    cursor.execute("INSERT INTO FigureFTS(FigureFTS) VALUES('rebuild');")
+
 def insert_figures(cursor, figure_data):
     for fig in figure_data:
         cursor.execute('''
@@ -68,6 +84,9 @@ def main():
     conn.execute('PRAGMA foreign_keys = ON')
     cursor = conn.cursor()
     try:
+        init_fts(cursor)
+        conn.commit()
+
         insert_figures(cursor, figures)
         conn.commit()
         total_missing_figures = 0

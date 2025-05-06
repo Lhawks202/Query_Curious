@@ -129,13 +129,18 @@ body {
     /* ~80% of viewport height */
     display: flex;
     flex-direction: column;
+    border-radius: 2rem;
+    background-color: #2f2f2f;
+    overflow-y: hidden;
 }
 
 #figureModal .modal-body {
     flex: 1 1 auto;
     /* body fills available height */
     overflow-y: auto;
-    /* scroll if content overflows */
+    border-radius: 2rem;
+    background-color: #2f2f2f;
+    overflow-y: hidden;
 }
 
 /* ensure header/footer keep their natural size */
