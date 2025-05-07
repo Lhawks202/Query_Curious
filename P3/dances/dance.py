@@ -2,9 +2,9 @@ from flask import (Blueprint, render_template, redirect, url_for, request, jsoni
 from .db import get_db
 import secrets, re, sqlite3, json
 
-bp = Blueprint('create', __name__, url_prefix='/create')
+bp = Blueprint('dance', __name__, url_prefix='/dance')
 
-@bp.route('/', methods=['GET', 'POST'])
+@bp.route('/edit', methods=['GET', 'POST'])
 def add_dance():
     db = get_db()
 
@@ -44,12 +44,12 @@ def add_dance():
                 else:
                     print(f"Warning: figure not found: {fig_name}")
         db.commit()
-        return redirect(url_for('create.add_dance'))
+        return redirect(url_for('dance.add_dance'))
 
-    return render_template('create/create_dance.html')
+    return render_template('dance/create_dance.html')
 
 @bp.route('/create_figure', methods=['POST'])
-def create_figure_endpoint():
+def create_figure():
     data = request.get_json() or {}
     db = get_db()
 

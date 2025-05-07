@@ -7,7 +7,7 @@
 
           <div class="form-container add p-5">
             <div class="add-container pe-3 mb-4">
-              <form id="figureForm" method="post" action="{{ url_for('create.add_dance') }}">
+              <form id="figureForm" method="post" action="{{ url_for('dance.create_figure') }}">
                 <div class="mb-3 w-80">
                   <h4 class="mb-3">Name</h4>
 
@@ -68,8 +68,11 @@
 
 
           <div class="form-container search p-5">
-
-            <form id="figureSearchForm">
+            <form
+              id="figureSearchForm"
+              action="{{ url_for('dance.search_figures') }}"
+              method="post"
+            >
               <h4>Search for Figure</h4>
               <div class="input-group mb-3 w-80">
                 <input id="figureSearchInput" type="text" class="form-control" placeholder="keywords…"

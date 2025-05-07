@@ -25,7 +25,7 @@
 
 
     <div class="content p-3">
-        <form id="danceForm" method="post" action="{{ url_for('create.add_dance') }}">
+        <form id="danceForm" method="post" action="{{ url_for('dance.add_dance') }}">
             <div id="stepsContainer"></div>
 
             <button id="addStepBtn" type="button"
@@ -46,7 +46,7 @@
         </form>
     </div>
 </div>
-{% include "create/figure_modal.html" %}
+{% include "dance/figure_modal.html" %}
 {% endblock %}
 
 {% block scripts %}

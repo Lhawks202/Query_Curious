@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return alert('Please fill out all fields');
     }
 
-    fetch(`${figureForm.getAttribute('action')}create_figure`, {
+    fetch(`${figureForm.getAttribute('action')}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     resultsHolder.innerHTML = '<p>Searching…</p>';
 
-    fetch(`${figureForm.getAttribute('action')}search`, {
+    fetch(searchForm.getAttribute('action'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ q })
