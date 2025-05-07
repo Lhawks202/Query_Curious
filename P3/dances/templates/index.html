@@ -61,10 +61,11 @@
                           data-dance-id="{{ dance.ID }}"
                           data-dance-name="{{ dance.DanceName }}"
                           data-is-learned="{{ 'true' if dance.ID|string in user_learned else 'false' }}"
+                          data-is-currently-learning="{{ 'true' if dance.ID|string in user_learning else 'false' }}"
                           data-role="learned-button"
                           onclick="handleLearnedButtonClick(this)">
                     <i class="bi {% if dance.ID|string in user_learned %}bi-heart-fill{% else %}bi-heart{% endif %} me-1"></i>
-                    {% if dance.ID|string in user_learned %}Learned{% else %}Learned{% endif %}
+                    {% if dance.ID|string in user_learned%}Learned{% elif dance.ID|string in user_learning %}Finished?{% else %}Learned{% endif %}
                   </button>
                 {% endif %}
               </div>
@@ -94,6 +95,7 @@
         </div>
         <div class="modal-body">
           <input type="hidden" id="learnedDanceId">
+          <input type="hidden" id="isCurrentlyLearning">
           <div class="mb-3">
             <label for="rating" class="form-label">What do you rate this dance?</label>
             <div class="star-rating d-flex justify-content-center mb-3">
@@ -161,10 +163,11 @@
 
 function handleLearnedButtonClick(button) {
   const isLearned = button.dataset.isLearned === 'true';
+  const isCurrentlyLearning = button.dataset.isCurrentlyLearning === 'true';
   const danceId = button.dataset.danceId;
   const danceName = button.dataset.danceName;
 
-  if (isLearned) {
+  if (isLearned && !isCurrentlyLearning) {
     // Immediate removal, no modal
     fetch('/learned', {
       method: 'POST',
@@ -174,18 +177,19 @@ function handleLearnedButtonClick(button) {
     .then(res => res.json())
     .then(data => {
       if (data.status === 'removed') {
-        updateLearnedButton(button, false);
-        alert(`You removed ${danceName} from Learned`);
+        //updateLearnedButton(button, false);
+        // alert(`You removed ${danceName} from Learned`);
+        location.reload();
       } else {
         alert('Error: ' + data.message);
       }
     });
-  } else {
-    // Show modal to add
-    const modal = new bootstrap.Modal(document.getElementById('learnedModal'));
+  } else { 
+    modal = new bootstrap.Modal(document.getElementById('learnedModal'));
     document.getElementById('learnedDanceId').value = danceId;
+    document.getElementById('isCurrentlyLearning').value = isCurrentlyLearning;
     modal.show();
-  }
+  } 
 }
 
 function updateLearnedButton(button, hasLearned) {
@@ -200,12 +204,31 @@ function updateLearnedButton(button, hasLearned) {
 document.getElementById('learnedFormElement').addEventListener('submit', function(event) {
   event.preventDefault();
   const danceId = document.getElementById('learnedDanceId').value;
+  const isCurrentlyLearning = document.getElementById('isCurrentlyLearning').value;
   const date = document.getElementById('date').value;
   const rating = parseInt(document.querySelector('input[name="rating"]:checked')?.value, 10);
   console.log("rating: ", rating)
   const button = document.querySelector(`button[data-dance-id="${danceId}"][data-role="learned-button"]`);
   const danceName = button.dataset.danceName;
 
+  if (isCurrentlyLearning) {
+  fetch('/learned', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json'},
+        body: JSON.stringify({ rating, danceId, date, action: 'transfer'})
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'transfered') {
+          //updateLearnedButton(button, true);
+          bootstrap.Modal.getInstance(document.getElementById('learnedModal')).hide();
+          // alert(`${danceName} added to Learned.`);
+          location.reload();
+        } else {
+          alert('Error: ' + data.message)
+        }
+      });
+  } else {
   fetch('/learned', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -214,13 +237,15 @@ document.getElementById('learnedFormElement').addEventListener('submit', functio
   .then(res => res.json())
   .then(data => {
     if (data.status === 'added') {
-      updateLearnedButton(button, true);
+      //updateLearnedButton(button, true);
       bootstrap.Modal.getInstance(document.getElementById('learnedModal')).hide();
-      alert(`${danceName} added to Learned.`);
+      // alert(`${danceName} added to Learned.`);
+      location.reload();
     } else {
       alert('Failed to add.');
     }
   });
+}
 });
 
 
@@ -231,7 +256,7 @@ function handleLearningButtonClick(button) {
   const danceName = button.dataset.danceName;
 
   if (isLearning) {
-    // 🔸 Immediate removal, no modal
+    // Immediate removal, no modal
     fetch('/learning', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -240,14 +265,15 @@ function handleLearningButtonClick(button) {
     .then(res => res.json())
     .then(data => {
       if (data.status === 'removed') {
-        updateLearningButton(button, false);
-        alert(`You removed ${danceName} from Learning`);
+        //updateLearningButton(button, false);
+        // alert(`You removed ${danceName} from Learning`);
+        location.reload();
       } else {
         alert('Error: ' + data.message);
       }
     });
   } else {
-    // 🔸 Show modal to add
+    // Show modal to add
     const modal = new bootstrap.Modal(document.getElementById('learningModal'));
     document.getElementById('learningDanceId').value = danceId;
     // document.getElementById('learningDanceName').textContent = danceName;
@@ -279,9 +305,10 @@ document.getElementById('learningFormElement').addEventListener('submit', functi
   .then(res => res.json())
   .then(data => {
     if (data.status === 'added') {
-      updateLearningButton(button, true);
+      //updateLearningButton(button, true);
       bootstrap.Modal.getInstance(document.getElementById('learningModal')).hide();
-      alert(`${danceName} added to Learning.`);
+      // alert(`${danceName} added to Learning.`);
+      location.reload();
     } else {
       alert('Failed to add.');
     }

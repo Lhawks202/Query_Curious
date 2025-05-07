@@ -14,6 +14,8 @@ def learned():
         action = data['action']
         if action == 'remove':
             ret_status = remove_from_learned(data)
+        elif action == 'transfer':
+            ret_status = transfer_to_learned(data)
         else:
             ret_status = add_learned(data)
         return jsonify(status=ret_status)
@@ -116,6 +118,22 @@ def remove_from_learned(data):
                    (user_id, dance_id))
     db.commit()
     return "removed"
+
+def transfer_to_learned(data):
+    db = get_db()
+    user_id = g.user['Username']
+    dance_id = data['danceId']
+    date = data['date']
+    rating = data['rating']
+    db.execute('DELETE FROM Learning WHERE UserId = ? AND DanceId = ?',
+                   (user_id, dance_id))
+    db.execute(
+        '''INSERT INTO Learned (UserId, DanceId, DateAdded, Rating)
+         VALUES (?, ?, ?, ?)''',
+         (user_id, dance_id, date, rating)
+    )
+    db.commit()
+    return "transfered"
 
 
 @bp.route('/learning', methods=['GET', 'POST'])
