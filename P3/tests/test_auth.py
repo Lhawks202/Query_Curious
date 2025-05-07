@@ -22,13 +22,13 @@ def test_register(client: FlaskClient, app: Flask, auth: Any) -> None:
     # Check if the user was added to the database
     with app.app_context():
         assert get_db().execute(
-            "SELECT * FROM Authentication WHERE UserID = 'testtestingauth'",
+            "SELECT * FROM User WHERE Username = ?", ('testtestingauth',)
         ).fetchone() is not None
     response = auth.register(username='testtestingauth2', password='testtestingauth2', next='/cart')
     # Check if the user was added to the database
     with app.app_context():
         assert get_db().execute(
-            "SELECT * FROM Authentication WHERE UserID = 'testtestingauth2'",
+            "SELECT * FROM User WHERE Username = 'testtestingauth2'",
         ).fetchone() is not None
     assert response.headers['Location'] == '/auth/login', "Post registration redirect location is incorrect."
 
@@ -69,6 +69,7 @@ def test_login(client: FlaskClient, auth: Any) -> None:
     assert b'Incorrect password.' in response.data
     # Test successful login and redirection
     response = auth.login()
+
     assert response.headers['Location'] == '/', "Post login redirect location is incorrect."
     with client:
         assert client.get('/').status_code == 200, "Internal Server Error on Login"
@@ -78,15 +79,15 @@ def test_sql_injection_drop_table_login(app: Flask, auth: Any) -> None:
     with app.app_context():
         auth.register()
         # Attempt to login with SQL injection in the user_id to drop the Authentication table
-        response = auth.login(username="'; DROP TABLE Authentication; --", password='password')
+        response = auth.login(username="'; DROP TABLE User; --", password='password')
         assert response.status_code == 200
         response_text = response.data.decode('utf-8')
         assert 'Incorrect user id.' in response_text
         db = get_db()
         try:
-            db.execute('SELECT 1 FROM Authentication LIMIT 1')
+            db.execute('SELECT 1 FROM User LIMIT 1')
         except Exception as e:
-            assert False, f"Authentication table was dropped: {e}"
+            assert False, f"User table was dropped: {e}"
 
 def test_logout(client: FlaskClient, auth: Any) -> None:
     auth.register()
@@ -102,4 +103,4 @@ def test_load_logged_in_user(client: FlaskClient, auth: Any) -> None:
     auth.login()
     with client:
         client.get('/')
-        assert g.user['UserID'] == 'testtestingauth'
+        assert g.user['Username'] == 'testtestingauth'
