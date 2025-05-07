@@ -45,7 +45,8 @@ def add_favorite(data):
 @bp.route('/learning', methods=['GET', 'POST'])
 def learning():
     if request.method == 'POST':
-        pass
+        ret_status = add_learning(request.get_json())
+        return jsonify(status=ret_status)
     db = get_db()
     # add an error if the user is not logged in?
     if g.user is None:
@@ -63,3 +64,17 @@ def learning():
              WHERE UserId = ?''',
             (g.user['UserID'],)).fetchall()
     return render_template('learning.html', learning=learning_dances, dances=dance_information)
+
+def add_learning(data):
+    db = get_db()
+    dance_id = data['danceId']
+    date = data['date']
+    user_id = g.user['UserId']
+    db.execute(
+        '''INSERT INTO Learning (UserId, DanceId, DateAdded)
+         VALUES (?, ?, ?)''',
+         (user_id, dance_id, date)
+    )
+    db.commit()
+    # TO DO: add error handling
+    return "added"

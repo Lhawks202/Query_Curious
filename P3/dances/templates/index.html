@@ -48,7 +48,9 @@
                   <button type="button" 
                           class="btn btn-sm {% if dance.ID|string in user_learning %}btn-warning{% else %}btn-outline-warning{% endif %}"
                           data-dance-id="{{ dance.ID }}"
-                          onclick=`toggleLearning({{ dance.ID }})`>
+                          data-role="learning-button"
+                          data-bs-toggle="modal"
+                          data-bs-target="#learningModal">
                     <i class="bi {% if dance.ID|string in user_learning %}bi-bookmark-check-fill{% else %}bi-bookmark-plus{% endif %} me-1"></i>
                     {% if dance.ID|string in user_learning %}Learning{% else %}Learn{% endif %}
                   </button>
@@ -121,15 +123,43 @@
   </div>
 </div>
 
+  <!-- Learning Modal -->
+<div class="modal fade" id="learningModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="learningFormElement">
+        <div class="modal-header">
+          <h5 class="modal-title">Learn</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="learningDanceId">
+          <div class="mb-3">
+            <label for="date" class="form-label">What date did you start learning this dance?</label>
+            <input type="date" class="form-control" id="date" name="date" value="{{ current_date }}">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Submit</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
 {% endblock %}
 
 {% block scripts %}
 
 
 <script>
-
+// Handle favorites
 document.getElementById('favoriteModal').addEventListener('show.bs.modal', function (event) {
-  // Clear selected rating
+  const button = event.relatedTarget; // ← the button that triggered the modal
+  const danceId = button.getAttribute('data-dance-id');
+  document.getElementById('favoriteDanceId').value = danceId;
   document.querySelectorAll('input[name="rating"]').forEach(input => input.checked = false);
 });
 
@@ -138,6 +168,8 @@ document.getElementById('favoriteModal').addEventListener('show.bs.modal', funct
   const danceId = document.getElementById('favoriteDanceId').value;
   const rating = parseInt(document.querySelector('input[name="rating"]:checked')?.value, 10);
   const date = document.getElementById('date').value;
+
+  console.log("Dance ID:", danceId);
 
   fetch(`/favorites`, {
     method: 'POST',
@@ -151,6 +183,46 @@ document.getElementById('favoriteModal').addEventListener('show.bs.modal', funct
     const modal = bootstrap.Modal.getInstance(document.getElementById('favoriteModal'));
     modal.hide();  // close modal
     const button = document.querySelector(`button[data-dance-id="${danceId.toString()}"][data-role="favorite-button"]`);
+    if (data.status === 'added') {
+        button.classList.remove('btn-outline-danger');
+        button.classList.add('btn-danger');
+        button.innerHTML = `<i class="bi bi-heart-fill me-1"></i>Favorited`;
+      } else {
+        button.classList.remove('btn-danger');
+        button.classList.add('btn-outline-danger');
+        button.innerHTML = `<i class="bi bi-heart me-1"></i>Favorite`;
+      }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Something went wrong.');
+  });
+});
+
+//Handle learning
+document.getElementById('learningModal').addEventListener('show.bs.modal', function (event) {
+  const button = event.relatedTarget; // ← the button that triggered the modal
+  const danceId = button.getAttribute('data-dance-id');
+  document.getElementById('learningDanceId').value = danceId;
+});
+
+  document.getElementById('learningFormElement').addEventListener('submit', function(event) {
+  event.preventDefault();
+  const danceId = document.getElementById('learningDanceId').value;
+  const date = document.getElementById('date').value;
+
+  fetch(`/learning`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ date, danceId })
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert('Add to learning!');
+    console.log('Success:', data);
+    const modal = bootstrap.Modal.getInstance(document.getElementById('learningModal'));
+    modal.hide();  // close modal
+    const button = document.querySelector(`button[data-dance-id="${danceId.toString()}"][data-role="learning-button"]`);
     if (data.status === 'added') {
         button.classList.remove('btn-outline-warning');
         button.classList.add('btn-warning');
@@ -167,26 +239,5 @@ document.getElementById('favoriteModal').addEventListener('show.bs.modal', funct
   });
 });
 
-  // function toggleLearning(danceId) {
-  //   fetch(`/learning/${danceId}`, {
-  //     method: 'POST',
-  //     headers: {
-  //       'Content-Type': 'application/json'
-  //     }
-  //   })
-  //   .then(response => response.json())
-  //   .then(data => {
-  //     const button = document.querySelector(`button[data-dance-id="${danceId}"][onclick^="toggleLearning"]`);
-  //     if (data.status === 'added') {
-  //       button.classList.remove('btn-outline-warning');
-  //       button.classList.add('btn-warning');
-  //       button.innerHTML = `<i class="bi bi-bookmark-check-fill me-1"></i>Learning`;
-  //     } else {
-  //       button.classList.remove('btn-warning');
-  //       button.classList.add('btn-outline-warning');
-  //       button.innerHTML = `<i class="bi bi-bookmark-plus me-1"></i>Learn`;
-  //     }
-  //   });
-  // }
 </script>
 {% endblock %} 
