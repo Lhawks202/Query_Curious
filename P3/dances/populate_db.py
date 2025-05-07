@@ -69,7 +69,7 @@ def insert_dance_and_steps(cursor, dance_data, source_filename):
     missing_sum = 0
     for step_name, figures in dance_data.get('phrases', {}).items():
         cursor.execute('''
-            INSERT INTO Steps (DanceId, StepName)
+            INSERT INTO Step (DanceID, StepName)
             VALUES (?, ?)
         ''', (dance_id, step_name))
         step_id = cursor.lastrowid
@@ -78,7 +78,7 @@ def insert_dance_and_steps(cursor, dance_data, source_filename):
             if figure_id:
                 try:
                     cursor.execute('''
-                        INSERT INTO FigureStep (StepsId, FigureId, Place)
+                        INSERT INTO FigureStep (StepID, FigureID, Place)
                         VALUES (?, ?, ?)
                     ''', (step_id, figure_id, place))
                 except sqlite3.IntegrityError as e:

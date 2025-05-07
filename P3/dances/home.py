@@ -27,16 +27,16 @@ def index():
             'SELECT d.ID, d.DanceName, d.Video, d.Source FROM Dance d'
         ).fetchall()
     
-    # If user is logged in, get their favorites and learning dances
-    user_favorites = []
+    # If user is logged in, get their learned and learning dances
+    user_learned = []
     user_learning = []
     if g.user:
         user_id = g.user['Username']
-        user_favorites = database.execute(
-            'SELECT DanceId FROM Favorites WHERE UserId = ?',
+        user_learned = database.execute(
+            'SELECT DanceId FROM Learned WHERE UserId = ?',
             (user_id,)
         ).fetchall()
-        user_favorites = [f['DanceId'] for f in user_favorites]
+        user_learned = [f['DanceId'] for f in user_learned]
         
         user_learning = database.execute(
             'SELECT DanceId FROM Learning WHERE UserId = ?',
@@ -45,6 +45,6 @@ def index():
         user_learning = [l['DanceId'] for l in user_learning]
         
     return render_template('index.html', dances=dances, 
-                          user_favorites=user_favorites, 
+                          user_favorites=user_learned, 
                           user_learning=user_learning,
                           current_date=current_date)

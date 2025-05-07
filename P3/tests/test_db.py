@@ -44,7 +44,7 @@ def test_init_db(app: Flask, runner: CliRunner, db_connection: sqlite3.Connectio
             'Figure',
             'FigureStep',
             'User',
-            'Favorites',
+            'Learned',
             'Learning'
         ]
         for table_name in expected_tables:
