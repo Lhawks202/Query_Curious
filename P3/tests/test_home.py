@@ -2,7 +2,7 @@ from flask import g, session
 from dances.db import get_db
 
 def test_index_no_user(client):
-    response = client.get('/')
+    response = client.get('/')      
     assert response.status_code == 200, "Internal Server Error Index"
     response_text = response.data.decode('utf-8')
     assert '<h5 class="card-title">Dance Name</h5>' in response_text

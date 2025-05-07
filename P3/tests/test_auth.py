@@ -69,6 +69,7 @@ def test_login(client: FlaskClient, auth: Any) -> None:
     assert b'Incorrect password.' in response.data
     # Test successful login and redirection
     response = auth.login()
+
     assert response.headers['Location'] == '/', "Post login redirect location is incorrect."
     with client:
         assert client.get('/').status_code == 200, "Internal Server Error on Login"

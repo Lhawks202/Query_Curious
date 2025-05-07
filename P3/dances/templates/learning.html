@@ -2,15 +2,28 @@
 
 {% if g.user %}
 
+{% block header %}
+  <h1 class="display-4 mb-3">Currently Learning Dances</h1>
+  <p class="lead">All of your currently learning dances</p>
+{% endblock %}
+
 {% block content %}
-    {% for fav in favorites %}
-        <div class="card h-100 border-0 shadow-sm">
-        <h3>{{ fav['dance_name'] }}</h3>
-        <p><strong>Date Added:</strong> {{ fav['date_added'] }}</p>
-        <p><strong>Rating:</strong> {{ fav['rating'] }}</p>
+    {% for learn in learning %}
+        <div class="col">
+            <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">{{ learn['dance_name'] }}</h5>
+                <p class="card-text">
+                <small class="text-muted">
+                    <i class="bi bi-calendar3 me-1"></i>
+                    Date started learning: {{ learn['date_added'] }}
+                </small>
+                </p>
+            </div>
+            </div>
         </div>
         {% else %}
-        <p>No learning dances found for this user.</p>
+        <p>No learning dances found for this user. Go back to home and find a fun dance to learn!</p>
     {% endfor %}
 {% endblock %}
 
