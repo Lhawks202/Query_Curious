@@ -1,12 +1,12 @@
 from flask import (
-    Blueprint, g, render_template, request
+    Blueprint, g, render_template, request, redirect, url_for
 )
 from dances.db import get_db
 from datetime import date
 
 bp = Blueprint('home', __name__)
 
-@bp.route('/')
+@bp.route('/', methods=['GET','POST'])
 def index():
     database = get_db()
     current_date = date.today().isoformat()

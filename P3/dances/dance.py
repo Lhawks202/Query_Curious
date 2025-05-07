@@ -2,7 +2,7 @@ from flask import (Blueprint, render_template, redirect, url_for, request, jsoni
 from .db import get_db
 import secrets, re, sqlite3, json
 
-bp = Blueprint('create', __name__, url_prefix='/create')
+bp = Blueprint('dance', __name__, url_prefix='/dance')
 
 @bp.route('/', methods=['GET', 'POST'])
 def add_dance():
@@ -138,3 +138,25 @@ def search_figures():
         for r in rows
     ]
     return jsonify(results), 200
+
+@bp.route('/<int:dance_id>', methods=['GET', 'POST'])
+def display_information(dance_id):
+    db = get_db()
+
+    # Get main dance information
+    dance_info = db.execute(
+        '''SELECT ID, DanceName, Video, Source 
+           FROM Dance WHERE ID = ?''',
+        (dance_id,)
+    ).fetchone()
+
+    # Get all steps associated with this dance
+    dance_steps = db.execute(
+        '''SELECT StepName FROM Steps WHERE DanceId = ?''',
+        (dance_id,)
+    ).fetchall()
+
+    if not dance_info:
+        return "Dance not found", 404
+
+    return render_template('specific_dance.html', dance=dance_info, steps=dance_steps)

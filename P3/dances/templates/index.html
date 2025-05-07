@@ -21,55 +21,55 @@
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
       {% for dance in dances %}
         <div class="col">
-          <div class="card h-100 border-0 shadow-sm">
-            {% if dance.Video %}
-              <div class="ratio ratio-16x9">
-                <iframe src="{{ dance.Video|replace('watch?v=', 'embed/') if 'youtube' in dance.Video else dance.Video }}" allowfullscreen></iframe>
-              </div>
-            {% else %}
-              <div class="bg-primary bg-opacity-10 text-center p-5">
-                <i class="bi bi-music-note-beamed" style="font-size: 4rem;"></i>
-                <p class="mt-2">No Preview Available</p>
-              </div>
-            {% endif %}
-            <div class="card-body">
-              <h5 class="card-title">{{ dance.DanceName }}</h5>
-              <p class="card-text"><i class="bi bi-music-note me-1"></i>{{ dance.StepName }}</p>
-              {% if dance.Date %}
-                <p class="card-text"><small class="text-muted"><i class="bi bi-calendar3 me-1"></i>Date: {{ dance.Date }}</small></p>
+            <div class="card h-100 border-0 shadow-sm">
+              <a href="{{ url_for('dance.display_information', dance_id=dance.ID) }}" class="stretched-link"></a>
+              {% if dance.Video %}
+                <div class="ratio ratio-16x9">
+                  <iframe src="{{ dance.Video|replace('watch?v=', 'embed/') if 'youtube' in dance.Video else dance.Video }}" allowfullscreen></iframe>
+                </div>
+              {% else %}
+                <div class="bg-primary bg-opacity-10 text-center p-5">
+                  <i class="bi bi-music-note-beamed" style="font-size: 4rem;"></i>
+                  <p class="mt-2">No Preview Available</p>
+                </div>
               {% endif %}
-              {% if dance.Source %}
-                <p class="card-text"><small class="text-muted"><i class="bi bi-book me-1"></i>Source: {{ dance.Source }}</small></p>
-              {% endif %}
-            </div>
-            <div class="card-footer border-0 bg-transparent">
-              <div class="btn-group w-100" role="group">
-                {% if g.user %}
-                  <button type="button"
-                        class="btn btn-sm {% if dance.ID|string in user_learning %}btn-warning{% else %}btn-outline-warning{% endif %}"
-                        data-dance-id="{{ dance.ID }}"
-                        data-dance-name="{{ dance.DanceName }}"
-                        data-is-learning="{{ 'true' if dance.ID|string in user_learning else 'false' }}"
-                        data-role="learning-button"
-                        onclick="handleLearningButtonClick(this)">
-                    <i class="bi {% if dance.ID|string in user_learning %}bi-bookmark-check-fill{% else %}bi-bookmark-plus{% endif %} me-1"></i>
-                    {% if dance.ID|string in user_learning %}Learning{% else %}Learn{% endif %}
-                  </button>
-        
-                  <button type="button" 
-                          class="btn btn-sm {% if dance.ID|string in user_learned %}btn-danger{% else %}btn-outline-danger{% endif %}"
-                          data-dance-id="{{ dance.ID }}"
-                          data-dance-name="{{ dance.DanceName }}"
-                          data-is-learned="{{ 'true' if dance.ID|string in user_learned else 'false' }}"
-                          data-role="learned-button"
-                          onclick="handleLearnedButtonClick(this)">
-                    <i class="bi {% if dance.ID|string in user_learned %}bi-heart-fill{% else %}bi-heart{% endif %} me-1"></i>
-                    {% if dance.ID|string in user_learned %}Learned{% else %}Learned{% endif %}
-                  </button>
+              <div class="card-body">
+                <h5 class="card-title">{{ dance.DanceName }}</h5>
+                <p class="card-text"><i class="bi bi-music-note me-1"></i>{{ dance.StepName }}</p>
+                {% if dance.Date %}
+                  <p class="card-text"><small class="text-muted"><i class="bi bi-calendar3 me-1"></i>Date: {{ dance.Date }}</small></p>
+                {% endif %}
+                {% if dance.Source %}
+                  <p class="card-text"><small class="text-muted"><i class="bi bi-book me-1"></i>Source: {{ dance.Source }}</small></p>
                 {% endif %}
               </div>
+              <div class="card-footer border-0 bg-transparent">
+                <div class="btn-group w-100" role="group">
+                  {% if g.user %}
+                    <button type="button" 
+                            class="btn btn-sm {% if dance.ID|string in user_learning %}btn-warning{% else %}btn-outline-warning{% endif %}"
+                            data-dance-id="{{ dance.ID }}"
+                            data-role="learning-button"
+                            data-bs-toggle="modal"
+                            data-bs-target="#learningModal">
+                      <i class="bi {% if dance.ID|string in user_learning %}bi-bookmark-check-fill{% else %}bi-bookmark-plus{% endif %} me-1"></i>
+                      {% if dance.ID|string in user_learning %}Learning{% else %}Learn{% endif %}
+                    </button>
+                    <button type="button" 
+                            class="btn btn-sm {% if dance.ID|string in user_favorites %}btn-danger{% else %}btn-outline-danger{% endif %}"
+                            data-dance-id="{{ dance.ID }}"
+                            data-role="favorite-button"
+                            data-bs-toggle="modal"
+                            data-bs-target="#favoriteModal">
+                            <!-- onclick="prepareFavoriteForm('{{ dance.ID }}')" -->
+                      <i class="bi {% if dance.ID|string in user_favorites %}bi-heart-fill{% else %}bi-heart{% endif %} me-1"></i>
+                      {% if dance.ID|string in user_favorites %}Favorited{% else %}Favorite{% endif %}
+                    </button>
+                  {% endif %}
+                </div>
+              </div>
             </div>
-          </div>
+            
         </div>
       {% endfor %}
     </div>

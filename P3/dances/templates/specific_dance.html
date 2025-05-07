@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% if g.user %}
+  {% block header %}
+    <h1 class="display-4 mb-3">Dance Info</h1>
+  {% endblock %}
+
+  {% block content %}
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h3 class="card-title">{{ dance.DanceName }}</h3>
+
+        {% if dance.Video %}
+          <div class="mb-3">
+            <iframe src="{{ dance.Video }}" width="100%" height="400" frameborder="0" allowfullscreen></iframe>
+          </div>
+        {% endif %}
+
+        {% if dance.Source %}
+          <p><strong>Source:</strong> {{ dance.Source }}</p>
+        {% endif %}
+
+        <h5 class="mt-4">Steps:</h5>
+        <ul class="list-group list-group-flush">
+          {% for step in steps %}
+            <li class="list-group-item">{{ step.StepName }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  {% endblock %}
+{% endif %}
