@@ -9,7 +9,7 @@ import re
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
-# fetches user from Authentication by UserID
+# fetches user from User by Username
 def fetch_user(username: str) -> Optional[Any]:
     db = get_db()
     return db.execute(
@@ -23,6 +23,8 @@ def register() -> str:
         password = request.form['password']
         name = request.form['name']
         email = request.form['email']
+        state = request.form['state'] or None
+        city = request.form['city'] or None
         db = get_db()
         error = None
 
@@ -44,8 +46,8 @@ def register() -> str:
         if error is None:
             try:
                 db.execute(
-                    "INSERT INTO User (Username, Password, Name, Email) VALUES (?, ?, ?, ?)",
-                    (user_id, generate_password_hash(password), name, email)
+                    "INSERT INTO User (Username, Password, Name, Email, State, City) VALUES (?, ?, ?, ?, ?, ?)",
+                    (user_id, generate_password_hash(password), name, email, state, city)
                 )
                 db.commit()
             except db.IntegrityError:
