@@ -10,7 +10,6 @@ def add_dance():
 
     if request.method == 'POST':
         data = json.loads(request.form['dance_data'])
-        print(data)
         dance_name = data.get('danceName', 'Untitled Dance')
         source = data.get('source', '')
         video = data.get('video', '')
