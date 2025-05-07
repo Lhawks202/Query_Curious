@@ -34,7 +34,7 @@ def update_profile():
         db = get_db()
         db.execute(
             """UPDATE User 
-               SET Name = ?, Email = ?, State = ?, City = ?, updated_at = CURRENT_TIMESTAMP
+               SET Name = ?, Email = ?, State = ?, City = ?, UpdatedAt = CURRENT_TIMESTAMP
                WHERE Username = ?""",
             (name, email, state, city, g.user['Username'])
         )
