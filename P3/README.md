@@ -10,7 +10,7 @@ Our Team members are:
 - Joshua Gorniak :: Development Engineer - 
 - Rafael Singer :: Development Engineer - 
 - Katie Baek :: Development Engineer - 
-- Sofia Utoft :: Development Engineer - Authentication & Initialization
+- Sofia Utoft :: Development Engineer - Authentication (Login/Registration) & Documentation
 
 
 ## ER Diagram
