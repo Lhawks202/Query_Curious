@@ -9,48 +9,86 @@
 {% block content %}
     {% for fav in favorites %}
     <div class="col">
-        <div class="card h-100 border-0 shadow-sm">
-          <div class="card-body">
-            <h5 class="card-title">{{ fav['dance_name'] }}</h5>
-            <p class="card-text">
-              <small class="text-muted">
-                <i class="bi bi-calendar3 me-1"></i>
-                Date favorited: {{ fav['date_added'] }}
-              </small>
-            </p>
-            <p class="card-text">
-              <small class="text-muted">
-                Rating:
-                {% if fav['rating'] is none %}
-                  {% for i in range(5) %}
-                    <i class="bi bi-star text-warning"></i>
-                  {% endfor %}
-                {% else %}
+      <div class="card h-100 border-0 shadow-sm"
+           style="cursor: pointer;"
+           data-bs-toggle="modal"
+           data-bs-target="#infoModal"
+           data-dance-name="{{ fav['dance_name'] }}"
+           data-date="{{ fav['date_added'] }}"
+           data-rating="{{ fav['rating'] }}"
+           onclick="populateFavoriteModal(this)">
+        <div class="card-body">
+          <h5 class="card-title">{{ fav['dance_name'] }}</h5>
+          <p class="card-text">
+            <small class="text-muted">
+              <i class="bi bi-calendar3 me-1"></i>
+              Date favorited: {{ fav['date_added'] }}
+            </small>
+          </p>
+          <p class="card-text">
+            <small class="text-muted">
+              Rating:
+              {% if fav['rating'] is none %}
+                {% for i in range(5) %}
+                  <i class="bi bi-star text-warning"></i>
+                {% endfor %}
+              {% else %}
                 {% for i in range(fav['rating']) %}
                   <i class="bi bi-star-fill text-warning"></i>
                 {% endfor %}
                 {% for i in range(5 - fav['rating']) %}
                   <i class="bi bi-star text-warning"></i>
                 {% endfor %}
-                {% endif %}
-              </small>
-            </p>
-            <button type="button"
-                        class="btn btn-sm btn-outline-danger mt-2"
-                        data-dance-id="{{ fav['dance_id'] }}"
-                        onclick="removeFromFavorites(this)">
-                    <i class="bi bi-x-circle me-1"></i>Remove
-                </button>
-          </div>
+              {% endif %}
+            </small>
+          </p>
+          <button type="button"
+                  class="btn btn-sm btn-outline-danger mt-2"
+                  data-dance-id="{{ fav['dance_id'] }}"
+                  onclick="event.stopPropagation(); removeFromFavorites(this)">
+            <i class="bi bi-x-circle me-1"></i>Remove
+          </button>
         </div>
       </div>
+    </div>
+    
       
         {% else %}
         <p>No favorites found for this user.</p>
     {% endfor %}
+
+    <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="infoModalLabel">Favorite Dance Info</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p><strong>Dance:</strong> <span id="modalFavDanceName"></span></p>
+            <p><strong>Date Favorited:</strong> <span id="modalFavDate"></span></p>
+            <p><strong>Rating:</strong> <span id="modalFavRating"></span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
     
 
     <script>
+      function populateFavoriteModal(card) {
+        const name = card.getAttribute('data-dance-name');
+        const date = card.getAttribute('data-date');
+        const rating = card.getAttribute('data-rating');
+
+        document.getElementById('modalFavDanceName').textContent = name;
+        document.getElementById('modalFavDate').textContent = date;
+        document.getElementById('modalFavRating').innerHTML =
+          rating === "None" || rating === null
+            ? 'No rating'
+            : '★'.repeat(rating) + '☆'.repeat(5 - rating);
+      }
+
       function removeFromFavorites(button) {
           const danceId = button.getAttribute('data-dance-id');
           console.log("danceID: ", danceId)

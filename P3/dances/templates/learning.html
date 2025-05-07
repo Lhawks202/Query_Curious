@@ -7,31 +7,62 @@
 
 {% block content %}
     {% for learn in learning %}
-        <div class="col">
-            <div class="card h-100 border-0 shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">{{ learn['dance_name'] }}</h5>
-                <p class="card-text">
-                <small class="text-muted">
-                    <i class="bi bi-calendar3 me-1"></i>
-                    Date started learning: {{ learn['date_added'] }}
-                </small>
-                </p>
-                <button type="button"
-                        class="btn btn-sm btn-outline-danger mt-2"
-                        data-dance-id="{{ learn['dance_id'] }}"
-                        onclick="removeFromLearning(this)">
-                    <i class="bi bi-x-circle me-1"></i>Remove
-                </button>
-            </div>
-            </div>
+    <div class="col">
+        <div class="card h-100 border-0 shadow-sm"
+             style="cursor: pointer;"
+             data-bs-toggle="modal"
+             data-bs-target="#learnModal"
+             data-dance-name="{{ learn['dance_name'] }}"
+             data-date="{{ learn['date_added'] }}"
+             onclick="populateLearningModal(this)">
+          <div class="card-body">
+            <h5 class="card-title">{{ learn['dance_name'] }}</h5>
+            <p class="card-text">
+              <small class="text-muted">
+                <i class="bi bi-calendar3 me-1"></i>
+                Date started learning: {{ learn['date_added'] }}
+              </small>
+            </p>
+            <button type="button"
+                    class="btn btn-sm btn-outline-danger mt-2"
+                    data-dance-id="{{ learn['dance_id'] }}"
+                    onclick="event.stopPropagation(); removeFromLearning(this)">
+              <i class="bi bi-x-circle me-1"></i>Remove
+            </button>
+          </div>
         </div>
+      </div>
+      
         {% else %}
         <p>No learning dances found for this user. Go back to home and find a fun dance to learn!</p>
     {% endfor %}
 
+    <div class="modal fade" id="learnModal" tabindex="-1" aria-labelledby="learnModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="learnModalLabel">Learning Dance Info</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <p><strong>Dance:</strong> <span id="modalLearnDanceName"></span></p>
+              <p><strong>Date Started:</strong> <span id="modalLearnDate"></span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+
 
 <script>
+    function populateLearningModal(card) {
+    const name = card.getAttribute('data-dance-name');
+    const date = card.getAttribute('data-date');
+
+    document.getElementById('modalLearnDanceName').textContent = name;
+    document.getElementById('modalLearnDate').textContent = date;
+    }
+    
     function removeFromLearning(button) {
         const danceId = button.getAttribute('data-dance-id');
         console.log("danceID: ", danceId)
