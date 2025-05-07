@@ -99,7 +99,8 @@ body {
 }
 
 /* Optional: highlight cards on hover in delete mode */
-.step-card.shake:hover {
+.step-card.shake:hover,
+.figure-card.shake:hover {
     box-shadow: 0 0 0 2px rgba(255, 10, 67, 0.9) !important;
 }
 

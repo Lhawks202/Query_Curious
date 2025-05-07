@@ -30,7 +30,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (
       deleteMode &&
       !e.target.closest('#deleteModeBtn') &&
-      !e.target.closest('.step-card')
+      !e.target.closest('.step-card') &&
+      !e.target.closest('.figure-card')
     ) {
       deleteMode = false;
       updateDeleteModeUI();
@@ -39,8 +40,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   stepsContainer.addEventListener('click', e => {
     if (!deleteMode) return;
-    const card = e.target.closest('.step-card');
-    if (card) card.remove();
+    const fig = e.target.closest('.figure-card');
+    if (fig) {
+      fig.remove();
+    }
+    const step = e.target.closest('.step-card');
+    if (step) step.remove();
   });
 
   function createStep() {
