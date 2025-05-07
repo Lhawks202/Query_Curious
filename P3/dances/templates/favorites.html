@@ -7,15 +7,16 @@
 {% endblock %}
 
 {% block content %}
-    {% for fav in favorites %}
+    {% for fav in favorites.values() %}
     <div class="col">
+      
       <div class="card h-100 border-0 shadow-sm"
            style="cursor: pointer;"
            data-bs-toggle="modal"
            data-bs-target="#infoModal"
            data-dance-name="{{ fav['dance_name'] }}"
-           data-date="{{ fav['date_added'] }}"
-           data-rating="{{ fav['rating'] }}"
+           data-step-list="{{ fav.step_list | join(', ') }}"
+           data-step-figure-map='{{ fav["steps"] | default({}) | tojson | safe }}'
            onclick="populateFavoriteModal(this)">
         <div class="card-body">
           <h5 class="card-title">{{ fav['dance_name'] }}</h5>
@@ -61,13 +62,15 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="infoModalLabel">Favorite Dance Info</h5>
+            <h5 class="modal-title" id="infoModalLabel">Dance Info</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
             <p><strong>Dance:</strong> <span id="modalFavDanceName"></span></p>
-            <p><strong>Date Favorited:</strong> <span id="modalFavDate"></span></p>
-            <p><strong>Rating:</strong> <span id="modalFavRating"></span></p>
+            <p><strong>Step sequence:</strong> <span id="modalFavStepList"></span></p>
+            <div id="modalStepFigureList">
+              <!-- Step–figure pairs will be inserted here dynamically -->
+            </div>
           </div>
         </div>
       </div>
@@ -77,17 +80,26 @@
 
     <script>
       function populateFavoriteModal(card) {
-        const name = card.getAttribute('data-dance-name');
-        const date = card.getAttribute('data-date');
-        const rating = card.getAttribute('data-rating');
+      const danceName = card.getAttribute('data-dance-name');
+      const stepList = card.getAttribute('data-step-list');
+      const stepFigureData = JSON.parse(card.getAttribute('data-step-figure-map')); // embedded in data attribute
 
-        document.getElementById('modalFavDanceName').textContent = name;
-        document.getElementById('modalFavDate').textContent = date;
-        document.getElementById('modalFavRating').innerHTML =
-          rating === "None" || rating === null
-            ? 'No rating'
-            : '★'.repeat(rating) + '☆'.repeat(5 - rating);
+      document.getElementById('modalFavDanceName').textContent = danceName;
+      document.getElementById('modalFavStepList').textContent = stepList;
+
+      const container = document.getElementById('modalStepFigureList');
+      container.innerHTML = ''; // clear previous content
+
+      for (const [step, figures] of Object.entries(stepFigureData)) {
+        const p = document.createElement('p');
+        const strong = document.createElement('strong');
+        strong.textContent = `${step}: `;
+        p.appendChild(strong);
+        p.append(figures.join(', '));
+        container.appendChild(p);
       }
+    }
+
 
       function removeFromFavorites(button) {
           const danceId = button.getAttribute('data-dance-id');

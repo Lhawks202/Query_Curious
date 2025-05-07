@@ -2,6 +2,7 @@ from flask import (
     Blueprint, g, render_template, request, jsonify)
 from dances.db import get_db
 from dances.auth import login_required
+from collections import defaultdict
 
 bp = Blueprint('fav_and_learning', __name__)
 
@@ -32,18 +33,60 @@ def favorites():
     # WHERE f.UserId = ?
     # ''',
     # (g.user['Username'],)).fetchall()
-    favorite_dances = db.execute(
-                            '''SELECT d.DanceName as dance_name, f.DateAdded as date_added, f.Rating as rating, f.danceId as dance_id
-                             FROM Favorites f JOIN Dance d ON f.DanceId = d.ID
-                             WHERE UserId = ?''',
-                            (g.user['Username'],)).fetchall()
+    # favorite_dances = db.execute(
+    #                         '''SELECT d.DanceName as dance_name, f.DateAdded as date_added, f.Rating as rating, f.danceId as dance_id
+    #                          FROM Favorites f JOIN Dance d ON f.DanceId = d.ID
+    #                          WHERE UserId = ?''',
+    #                         (g.user['Username'],)).fetchall()
+
+
+    raw_rows = db.execute(
+    '''SELECT d.ID as dance_id, d.DanceName as dance_name, 
+                    fav.DateAdded as date_added, fav.Rating as rating
+                    , s.StepName as step_name, fs.Place as place, 
+                    fig.Name as figure_name
+       FROM Favorites fav
+       JOIN Dance d ON fav.DanceId = d.ID 
+       JOIN Steps s ON s.DanceId = d.ID
+       JOIN FigureStep fs ON fs.StepsId = s.ID
+       JOIN Figure fig ON fig.ID = fs.FigureId
+       WHERE fav.UserId = ?
+       ORDER BY d.ID, s.StepName, fs.Place
+    ''',
+    (g.user['Username'],)).fetchall()
+
     
-    dance_information = db.execute(
-            '''SELECT d.ID, d.DanceName, d.Video, d.Source, s.StepName
-             FROM Favorites f JOIN Dance d ON f.DanceId = d.ID 
-             JOIN Steps s ON s.DanceId = d.ID
-             WHERE UserId = ?''',
-            (g.user['Username'],)).fetchall()
+
+    favorite_dances = {}
+
+    for row in raw_rows:
+        d_id   = row['dance_id']
+        step   = row['step_name']
+        figure = row['figure_name']
+        place  = row['place']
+
+        if d_id not in favorite_dances:
+            favorite_dances[d_id] = {
+                'dance_name': row['dance_name'],
+                'date_added': row['date_added'],
+                'rating': row['rating'],
+                'steps': defaultdict(list),
+                'step_list':[]
+            }
+
+        favorite_dances[d_id]['steps'][step].append((place, figure))
+        favorite_dances[d_id]['step_list'].append(step)
+
+    # Sort figures by their numeric place
+    for dance in favorite_dances.values():
+        dance['steps'] = {
+            step: [name for place, name in sorted(fig_list)]
+            for step, fig_list in dance['steps'].items()
+        }
+
+
+
+    print(favorite_dances)
     return render_template('favorites.html', favorites=favorite_dances)
 
 def add_favorite(data):
