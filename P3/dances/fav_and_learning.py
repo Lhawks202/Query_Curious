@@ -17,14 +17,14 @@ def favorites():
                             '''SELECT d.DanceName as dance_name, f.DateAdded as date_added, f.Rating as rating
                              FROM Favorites f JOIN Dance d ON f.DanceId = d.ID
                              WHERE UserId = ?''',
-                            (g.user['UserID'],)).fetchall()
+                            (g.user['Username'],)).fetchall()
     
     dance_information = db.execute(
             '''SELECT d.ID, d.DanceName, d.Video, d.Source, s.StepName
              FROM Favorites f JOIN Dance d ON f.DanceId = d.ID 
              JOIN Steps s ON s.DanceId = d.ID
              WHERE UserId = ?''',
-            (g.user['UserID'],)).fetchall()
+            (g.user['Username'],)).fetchall()
     return render_template('favorites.html', favorites=favorite_dances, dances=dance_information)
 
 def add_favorite(data):
@@ -32,7 +32,7 @@ def add_favorite(data):
     dance_id = data['danceId']
     rating = data['rating']
     date = data['date']
-    user_id = g.user['UserId']
+    user_id = g.user['Username']
     db.execute(
         '''INSERT INTO Favorites (UserId, DanceId, DateAdded, Rating)
          VALUES (?, ?, ?, ?)''',
@@ -55,21 +55,21 @@ def learning():
                             '''SELECT d.DanceName as dance_name, l.DateAdded as date_added
                              FROM Learning l JOIN Dance d ON l.DanceId = d.ID
                              WHERE UserId = ?''',
-                            (g.user['UserID'],)).fetchall()
+                            (g.user['Username'],)).fetchall()
     
     dance_information = db.execute(
             '''SELECT d.ID, d.DanceName, d.Video, d.Source, s.StepName
              FROM Learning l JOIN Dance d ON l.DanceId = d.ID 
              JOIN Steps s ON s.DanceId = d.ID
              WHERE UserId = ?''',
-            (g.user['UserID'],)).fetchall()
+            (g.user['Username'],)).fetchall()
     return render_template('learning.html', learning=learning_dances, dances=dance_information)
 
 def add_learning(data):
     db = get_db()
     dance_id = data['danceId']
     date = data['date']
-    user_id = g.user['UserId']
+    user_id = g.user['Username']
     db.execute(
         '''INSERT INTO Learning (UserId, DanceId, DateAdded)
          VALUES (?, ?, ?)''',
