@@ -29,7 +29,7 @@ def index():
     user_favorites = []
     user_learning = []
     if g.user:
-        user_id = g.user['UserID']
+        user_id = g.user['Username']
         user_favorites = database.execute(
             'SELECT DanceId FROM Favorites WHERE UserId = ?',
             (user_id,)

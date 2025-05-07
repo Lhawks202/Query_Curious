@@ -17,12 +17,12 @@ def favorites():
                             '''SELECT d.DanceName as dance_name, f.DateAdded as date_added, f.Rating as rating
                              FROM Favorites f JOIN Dance d ON f.DanceId = d.ID
                              WHERE UserId = ?''',
-                            (g.user['UserID'],)).fetchall()
+                            (g.user['Username'],)).fetchall()
     
     dance_information = db.execute(
             '''SELECT d.ID, d.DanceName, d.Video, d.Source, s.StepName
              FROM Favorites f JOIN Dance d ON f.DanceId = d.ID 
              JOIN Steps s ON s.DanceId = d.ID
              WHERE UserId = ?''',
-            (g.user['UserID'],)).fetchall()
+            (g.user['Username'],)).fetchall()
     return render_template('favorites.html', favorites=favorite_dances, dances=dance_information)
