@@ -35,11 +35,17 @@ def get_figure_id(cursor, name):
 
 def insert_dance_and_steps(cursor, dance_data, source_filename):
     video = dance_data.get('video') # None if doesn't exist
+    dance_name = (
+        source_filename.replace('ins_', '') 
+        .replace('.json', '')
+        .replace('_', ' ')
+        .title()
+    )
     cursor.execute('''
         INSERT INTO Dance (DanceName, Source, Video)
         VALUES (?, ?, ?)
     ''', (
-        dance_data.get('title', 'Untitled'),
+        dance_name,
         source_filename,
         video
     ))
