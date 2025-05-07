@@ -92,14 +92,22 @@
           <input type="hidden" id="favoriteDanceId">
           <div class="mb-3">
             <label for="rating" class="form-label">What do you rate this dance?</label>
-            <select id="rating" class="form-select">
-              <option value="">Choose...</option>
-              <option value="5">★★★★★</option>
-              <option value="4">★★★★</option>
-              <option value="3">★★★</option>
-              <option value="2">★★</option>
-              <option value="1">★</option>
-            </select>
+            <div class="star-rating d-flex justify-content-center mb-3">
+              <input type="radio" id="star5" name="rating" value="5">
+              <label for="star5" class="mx-1">★</label>
+            
+              <input type="radio" id="star4" name="rating" value="4">
+              <label for="star4" class="mx-1">★</label>
+            
+              <input type="radio" id="star3" name="rating" value="3">
+              <label for="star3" class="mx-1">★</label>
+            
+              <input type="radio" id="star2" name="rating" value="2">
+              <label for="star2" class="mx-1">★</label>
+            
+              <input type="radio" id="star1" name="rating" value="1">
+              <label for="star1" class="mx-1">★</label>
+            </div>
             <label for="date" class="form-label">Date</label>
             <input type="date" class="form-control" id="date" name="date" value="{{ current_date }}">
           </div>
@@ -119,10 +127,16 @@
 
 
 <script>
+
+document.getElementById('favoriteModal').addEventListener('show.bs.modal', function (event) {
+  // Clear selected rating
+  document.querySelectorAll('input[name="rating"]').forEach(input => input.checked = false);
+});
+
   document.getElementById('favoriteFormElement').addEventListener('submit', function(event) {
   event.preventDefault();
   const danceId = document.getElementById('favoriteDanceId').value;
-  const rating = parseInt(document.getElementById('rating').value, 10)
+  const rating = parseInt(document.querySelector('input[name="rating"]:checked')?.value, 10);
   const date = document.getElementById('date').value;
 
   fetch(`/favorites`, {
