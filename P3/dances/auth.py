@@ -5,10 +5,11 @@ from flask import (
 from werkzeug.security import check_password_hash, generate_password_hash
 from dances.db import get_db
 from typing import Optional, Any
+import re
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
-# fetches user from Authentication by UserID
+# Fetch user from User by Username
 def fetch_user(username: str) -> Optional[Any]:
     db = get_db()
     return db.execute(
@@ -20,6 +21,10 @@ def register() -> str:
     if request.method == 'POST':
         user_id = request.form['user_id'].lower()
         password = request.form['password']
+        name = request.form['name']
+        email = request.form['email']
+        state = request.form['state'] or None
+        city = request.form['city'] or None 
         db = get_db()
         error = None
 
@@ -27,26 +32,31 @@ def register() -> str:
             error = 'User ID is required.'
         elif not password:
             error = 'Password is required.'
+        elif not name:
+            error = 'Name is required.'
+        elif not re.match(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", email):
+            error = 'Invalid email address.'
 
-        # check if user is in user table
+        # Check if user is in user table
         customer = fetch_user(user_id)
         if customer:
             error = 'User already exists—try logging in!'
         
-        # no error, proceed
+        # No error, proceed
         if error is None:
             try:
                 db.execute(
-                    "INSERT INTO User (Username, Password, Name, Email) VALUES (?, ?, ?, ?)",
-                    (user_id, generate_password_hash(password), "dummydata", "dummydata") # TODO: FIX FORM
+                    "INSERT INTO User (Username, Password, Name, Email, State, City) VALUES (?, ?, ?, ?, ?, ?)",
+                    (user_id, generate_password_hash(password), name, email, state, city)
                 )
                 db.commit()
             except db.IntegrityError:
                 error = f"User {user_id} is already registered."
             else:
-                flash('Registration successful! Please log in.')
-                return redirect(url_for("auth.login"))
-
+                flash('Registration successful!')
+                session['user_id'] = user_id
+                return redirect(url_for('index'))
+                
         flash(error)
 
     next = request.args.get('next')
@@ -55,7 +65,7 @@ def register() -> str:
 @bp.route('/login', methods=('GET', 'POST'))
 def login() -> str:
     if request.method == 'POST':
-        user_id = request.form['user_id'].lower() # treat user_id as case insensitive
+        user_id = request.form['user_id'].lower()
         password = request.form['password']
         error = None
 

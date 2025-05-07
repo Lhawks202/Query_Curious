@@ -71,3 +71,14 @@ def test_populate_db(app: Flask, runner: CliRunner, db_connection: sqlite3.Conne
             cursor.execute(f'SELECT COUNT(*) FROM {table_name}')
             count = cursor.fetchone()[0]
             assert count > 0, f"No {table_name}s were populated"
+
+def test_force_reinitialize_db(app: Flask, runner: CliRunner) -> None:
+    with app.app_context():
+        db_path = current_app.config['DATABASE']
+        assert os.path.exists(db_path), "Dummy database file was not created."
+        result = runner.invoke(args=['init-db', '--force'])
+        assert result.exit_code == 0, "init-db command failed with --force option."
+        assert 'Forcing database reinitialization...' in result.output
+        assert 'Existing database deleted.' in result.output
+        assert 'Initialized tables.' in result.output
+        assert os.path.exists(db_path), "Database file was not reinitialized."

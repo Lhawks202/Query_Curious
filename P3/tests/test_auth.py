@@ -24,13 +24,13 @@ def test_register(client: FlaskClient, app: Flask, auth: Any) -> None:
         assert get_db().execute(
             "SELECT * FROM User WHERE Username = ?", ('testtestingauth',)
         ).fetchone() is not None
-    response = auth.register(username='testtestingauth2', password='testtestingauth2', next='/cart')
+    response = auth.register(username='testtestingauth2', password='testtestingauth2', next='/')
     # Check if the user was added to the database
     with app.app_context():
         assert get_db().execute(
             "SELECT * FROM User WHERE Username = 'testtestingauth2'",
         ).fetchone() is not None
-    assert response.headers['Location'] == '/auth/login', "Post registration redirect location is incorrect."
+    assert response.headers['Location'] == '/', "Post registration redirect location is incorrect."
 
 def test_register_existing_user(client: FlaskClient, auth: Any) -> None:
     auth.register()
@@ -43,9 +43,9 @@ def test_register_existing_user(client: FlaskClient, auth: Any) -> None:
     
 def test_register_strange_characters(auth: Any) -> None:
     response = auth.register(username='test_!@#$%^*&()`\'', password='test_!@#$%^*&()`\'')
-    assert response.headers['Location'] == '/auth/login',  "Doesn't accept strange characters in username and password."
+    assert response.headers['Location'] == '/',  "Doesn't accept strange characters in username and password."
     response = auth.register(username='éñçøßΩ中あ😊€', password='éñçøßΩ中あ😊€')
-    assert response.headers['Location'] == '/auth/login',  "Doesn't accept strange characters in username and password."
+    assert response.headers['Location'] == '/',  "Doesn't accept strange characters in username and password."
 
 def test_sql_injection_drop_table_register(app: Flask, auth: Any) -> None:
     with app.app_context():
@@ -69,6 +69,7 @@ def test_login(client: FlaskClient, auth: Any) -> None:
     assert b'Incorrect password.' in response.data
     # Test successful login and redirection
     response = auth.login()
+
     assert response.headers['Location'] == '/', "Post login redirect location is incorrect."
     with client:
         assert client.get('/').status_code == 200, "Internal Server Error on Login"

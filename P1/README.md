@@ -11,7 +11,7 @@ Our Team members are:
 
 ## Setting up your environment
 1. Clone the repository. 
-2. Download the `northwind.sqlite` binary from releases.
+2. Download the `northwind.sqlite` binary from the releases tab in the top-level repository view.
 3. Place that binary in `<project-root>/northwind/`
 4. Set up a virtual environment:
    a. Run `python -m venv env` to create a virtual environment.
