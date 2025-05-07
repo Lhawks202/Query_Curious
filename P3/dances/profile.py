@@ -3,6 +3,7 @@ from flask import (
 )
 from dances.db import get_db
 from dances.auth import login_required
+import re
 
 bp = Blueprint('profile', __name__, url_prefix='/profile')
 
@@ -25,8 +26,8 @@ def update_profile():
     
     if not name:
         error = 'Name is required.'
-    elif not email:
-        error = 'Email is required.'
+    elif not re.match(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", email):
+            error = 'Invalid email address.'
     
     if error is not None:
         flash(error)
