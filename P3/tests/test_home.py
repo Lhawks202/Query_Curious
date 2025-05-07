@@ -11,10 +11,12 @@ def test_index_no_user(client):
     assert 'Source: ins_anna_maria.json' in response_text
     assert 'Source: ins_apley_house.json' in response_text
     assert 'Source: ins_astonished_archeologist.json' in response_text
-    assert '<button type="button" class="btn btn-sm btn-warning"' not in response_text
-    assert '<button type="button" class="btn btn-sm btn-outline-warning"' not in response_text
-    assert '<button type="button" class="btn btn-sm btn-danger"' not in response_text
-    assert '<button type="button" class="btn btn-sm btn-outline-danger"' not in response_text
+    
+    assert 'Register' in response_text
+    assert 'Log In' in response_text
+    assert 'My Profile' not in response_text
+    assert 'My Favorites' not in response_text
+    assert 'My Learning' not in response_text
 
 def test_index_user(client, auth):
     auth.register()
@@ -28,11 +30,11 @@ def test_index_user(client, auth):
         assert '<h5 class="card-title">The Gypsy Orbit</h5>' in response_text
         assert 'Source: ins_anna_maria.json' in response_text
         assert 'Source: ins_apley_house.json' in response_text
-        assert 'Source: ins_astonished_archeologist.json' in response_text
-        assert '<button type="button" class="btn btn-sm btn-warning"' in response_text
-        assert '<button type="button" class="btn btn-sm btn-outline-warning"' in response_text
-        assert '<button type="button" class="btn btn-sm btn-danger"' in response_text
-        assert '<button type="button" class="btn btn-sm btn-outline-danger"' in response_text
+        assert 'Register' not in response_text
+        assert 'Log In' not in response_text
+        assert 'My Profile' in response_text
+        assert 'My Favorites' in response_text
+        assert 'Learning List' in response_text
 
 def test_index_with_valid_search(client):
     response = client.get('/?search=The Gypsy Orbit')
@@ -48,4 +50,4 @@ def test_index_with_invalid_search(client):
     response_text = response.data.decode('utf-8')
     assert 'The Gypsy Orbit' not in response_text
     assert 'Unknown Dance' not in response_text
-    assert 'No results found' in response_text
+    assert 'No dances found matching \"NonExistentDance\".' in response_text
