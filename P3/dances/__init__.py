@@ -1,4 +1,4 @@
-import os
+import os, sqlite3
 from flask import Flask, render_template
 from typing import Any, Dict, Optional
 
@@ -9,6 +9,13 @@ def create_app(test_config: Optional[Dict[str, Any]] = None) -> Flask:
         SECRET_KEY='dev',
         DATABASE=os.path.join(app.root_path, './dances.sqlite'),
     )
+
+    def parse_timestamp(value):
+        """Custom timestamp parser."""
+        return value.decode('utf-8') if value else None
+
+    # Register the custom timestamp converter
+    sqlite3.register_converter("timestamp", parse_timestamp)
 
     if test_config is None:
         app.config.from_pyfile('config.py', silent=True)
