@@ -103,7 +103,7 @@ class InsertActions(object):
             db.commit()
             return cursor.lastrowid
 
-    def insert_learning(self, user_id: str = 'testtestingauth', dance_id: int = 1, date_added: str = '2025-05-01') -> int:
+    '''def insert_learning(self, user_id: str = 'testtestingauth', dance_id: int = 1, date_added: str = '2025-05-01') -> int:
         with self._app.app_context():
             db = get_db()
             cursor = db.execute(
@@ -158,7 +158,7 @@ class InsertActions(object):
                 self.insert_figure_step(step_id=step_ids[i * 2], figure_id=figure_id, place=1)
                 self.insert_figure_step(step_id=step_ids[i * 2 + 1], figure_id=figure_id, place=2)
             db.commit()
-            return dance_ids
+            return dance_ids'''
 
 
 @pytest.fixture(scope='function')
