@@ -1,0 +1,61 @@
+/* Styles for the learned modal */
+.step-header {
+  background-color: var(--bs-light);
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-size: 2rem;
+  color: var(--bs-body-color);
+}
+
+.figure-name {
+  color: var(--bs-primary);
+  font-weight: 500;
+}
+
+.figure-details {
+  background-color: var(--bs-light);
+  padding: 12px 15px;
+  border-radius: 5px;
+  border-left: 3px solid var(--bs-primary);
+}
+
+[data-bs-theme="dark"] .step-header {
+  background-color: #2c3034;
+}
+
+[data-bs-theme="dark"] .figure-details {
+  background-color: #2c3034;
+  border-left: 3px solid var(--bs-primary);
+}
+
+[data-bs-theme="dark"] .modal-header.bg-light {
+  background-color: #2c3034 !important;
+}
+
+.dance-title {
+  color: var(--bs-body-color);
+  border-bottom: 1px solid var(--bs-border-color);
+  padding-bottom: 10px;
+}
+
+.modal-lg {
+  max-width: 800px;
+}
+
+.step-figure-container {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.rating-display {
+  display: inline-block;
+  margin-top: 5px;
+}
+
+.star-fill {
+  color: var(--bs-warning);
+}
+
+.star-empty {
+  color: var(--bs-light);
+} 

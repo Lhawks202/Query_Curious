@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
 
+{% block head %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/learned.css') }}">
+{% endblock %}
 
 {% block header %}
   <h1 class="display-4 mb-3">Learned Dances</h1>
@@ -7,36 +10,37 @@
 {% endblock %}
 
 {% block content %}
-    {% for learn in learned.values() %}
+    {% for dance_name, details in learned.items() %}
     <div class="col">
-      
       <div class="card h-100 border-0 shadow-sm"
            style="cursor: pointer;"
            data-bs-toggle="modal"
-           data-bs-target="#infoModal"
-           data-dance-name="{{ learn['dance_name'] }}"
-           data-step-figure-map='{{ learn["steps"] | default({}) | tojson | safe }}'
+           data-bs-target="#learnedModal"
+           data-dance-name="{{ dance_name }}"
+           data-step-figure-map='{{ details["steps"]|tojson }}'
+           data-figure-details='{{ figures|tojson }}'
+           data-rating="{{ details['rating'] }}"
            onclick="populateLearnedModal(this)">
         <div class="card-body">
-          <h5 class="card-title">{{ learn['dance_name'] }}</h5>
+          <h5 class="card-title">{{ dance_name }}</h5>
           <p class="card-text">
             <small class="text-muted">
               <i class="bi bi-calendar3 me-1"></i>
-              Date finished learned: {{ learn['date_added'] }}
+              Finished learning: {{ details['date_added'] }}
             </small>
           </p>
           <p class="card-text">
             <small class="text-muted">
               Rating:
-              {% if learn['rating'] is none %}
+              {% if details['rating'] is none %}
                 {% for i in range(5) %}
                   <i class="bi bi-star text-warning"></i>
                 {% endfor %}
               {% else %}
-                {% for i in range(learn['rating']) %}
+                {% for i in range(details['rating']) %}
                   <i class="bi bi-star-fill text-warning"></i>
                 {% endfor %}
-                {% for i in range(5 - learn['rating']) %}
+                {% for i in range(5 - details['rating']) %}
                   <i class="bi bi-star text-warning"></i>
                 {% endfor %}
               {% endif %}
@@ -44,29 +48,31 @@
           </p>
           <button type="button"
                   class="btn btn-sm btn-outline-danger mt-2"
-                  data-dance-id="{{ learn['dance_id'] }}"
+                  data-dance-id="{{ details['dance_id'] }}"
                   onclick="event.stopPropagation(); removeFromLearned(this)">
             <i class="bi bi-x-circle me-1"></i>Remove
           </button>
         </div>
       </div>
     </div>
-    
       
-        {% else %}
-        <p>No learned found for this user. Go to home, chose a dance, and start learning!</p>
+    {% else %}
+        <p>No learned dances found for this user. Go to home, choose a dance, and start learning!</p>
     {% endfor %}
 
-    <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
+    <div class="modal fade" id="learnedModal" tabindex="-1" aria-labelledby="learnedModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="infoModalLabel">Dance Info</h5>
+          <div class="modal-header bg-light">
+            <h5 class="modal-title" id="learnedModalLabel">Learned Dance Info</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <p><strong>Dance:</strong> <span id="modalLearnedDanceName"></span></p>
-            <div id="modalStepFigureList">
+            <div class="d-flex justify-content-between align-items-center">
+              <h4 class="dance-title mb-4"><strong>Dance:</strong> <span id="modalLearnedDanceName"></span></h4>
+              <div id="modalRating" class="rating-display"></div>
+            </div>
+            <div id="modalStepFigureList" class="step-figure-container">
               <!-- Step–figure pairs will be inserted here dynamically -->
             </div>
           </div>
@@ -74,55 +80,124 @@
       </div>
     </div>
     
-    
+<script>
+function populateLearnedModal(card) {
+  const danceName = card.getAttribute('data-dance-name');
+  const stepFigureData = JSON.parse(card.getAttribute('data-step-figure-map')); // embedded in data attribute
+  const figureDetails = JSON.parse(card.getAttribute('data-figure-details')); // Get figure details
+  const rating = card.getAttribute('data-rating');
 
-    <script>
-      function populateLearnedModal(card) {
-      const danceName = card.getAttribute('data-dance-name');
-      const stepFigureData = JSON.parse(card.getAttribute('data-step-figure-map')); // embedded in data attribute
-
-      document.getElementById('modalLearnedDanceName').textContent = danceName;
-      document.getElementById('modalLearnedStepList').textContent = stepList;
-
-      const container = document.getElementById('modalStepFigureList');
-      container.innerHTML = ''; // clear previous content
-
-      for (const [step, figures] of Object.entries(stepFigureData)) {
-        const p = document.createElement('p');
-        const strong = document.createElement('strong');
-        strong.textContent = `${step}: `;
-        p.appendChild(strong);
-        p.append(figures.join(', '));
-        container.appendChild(p);
-      }
-    }
-
-
-      function removeFromLearned(button) {
-          const danceId = button.getAttribute('data-dance-id');
-      
-          fetch('/learned', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ danceId, action: 'remove' })
-          })
-          .then(res => res.json())
-          .then(data => {
-              if (data.status === 'removed') {
-                  
-                  const card = button.closest('.col');
-                  if (card) card.remove();
+  document.getElementById('modalLearnedDanceName').textContent = danceName;
   
-                  alert('Dance removed from learned');
-                  location.reload();
-              } else {
-                  alert('Error removing dance.');
-              }
-          })
-          .catch(err => {
-              console.error('Error:', err);
-              alert('Request failed.');
-          });
+  // Display rating stars
+  const ratingContainer = document.getElementById('modalRating');
+  ratingContainer.innerHTML = '';
+  
+  if (rating) {
+    const ratingValue = parseInt(rating);
+    for (let i = 0; i < 5; i++) {
+      const star = document.createElement('i');
+      star.className = i < ratingValue ? 'bi bi-star-fill star-fill me-1' : 'bi bi-star star-empty me-1';
+      ratingContainer.appendChild(star);
+    }
+  }
+
+  const container = document.getElementById('modalStepFigureList');
+  container.innerHTML = ''; // clear previous content
+
+  // Create sections for each step (A, B, etc.)
+  for (const [step, figureIds] of Object.entries(stepFigureData)) {
+    const stepDiv = document.createElement('div');
+    stepDiv.className = 'step-container mb-4';
+    
+    const stepHeader = document.createElement('h2');
+    stepHeader.className = 'step-header mb-3';
+    stepHeader.textContent = step;
+    stepDiv.appendChild(stepHeader);
+    
+    // Create a list for the figures
+    const figureList = document.createElement('ul');
+    figureList.className = 'figure-list list-unstyled';
+    
+    figureIds.forEach(figureId => {
+      const figureName = figureDetails[figureId]['name'];
+      const figureItem = document.createElement('li');
+      figureItem.className = 'figure-item mb-4 border-bottom pb-3';
+      
+      // Create figure name element
+      const nameSpan = document.createElement('h5');
+      nameSpan.className = 'figure-name mb-2';
+      nameSpan.textContent = figureName;
+      figureItem.appendChild(nameSpan);
+      
+      // Get figure details directly by ID
+      if (figureDetails[figureId]) {
+        const details = figureDetails[figureId];
+        
+        // Create details container
+        const detailsDiv = document.createElement('div');
+        detailsDiv.className = 'figure-details ps-3';
+        
+        // Add duration
+        if (details.duration) {
+          const durationP = document.createElement('p');
+          durationP.className = 'mb-2';
+          durationP.innerHTML = `<strong>Duration:</strong> ${details.duration}`;
+          detailsDiv.appendChild(durationP);
+        }
+        
+        // Add positions
+        if (details.start_position || details.end_position) {
+          const positionP = document.createElement('p');
+          positionP.className = 'mb-2';
+          positionP.innerHTML = `<strong>Position:</strong> ${details.start_position || ''} → ${details.end_position || ''}`;
+          detailsDiv.appendChild(positionP);
+        }
+        
+        // Add action
+        if (details.action) {
+          const actionP = document.createElement('p');
+          actionP.className = 'mb-2';
+          actionP.innerHTML = `<strong>Action:</strong> ${details.action}`;
+          detailsDiv.appendChild(actionP);
+        }
+        
+        figureItem.appendChild(detailsDiv);
       }
-      </script>
+      
+      figureList.appendChild(figureItem);
+    });
+    
+    stepDiv.appendChild(figureList);
+    container.appendChild(stepDiv);
+  }
+}
+
+function removeFromLearned(button) {
+    const danceId = button.getAttribute('data-dance-id');
+
+    fetch('/learned', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ danceId, action: 'remove' })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'removed') {
+            
+            const card = button.closest('.col');
+            if (card) card.remove();
+
+            alert('Dance removed from learned');
+            location.reload();
+        } else {
+            alert('Error removing dance.');
+        }
+    })
+    .catch(err => {
+        console.error('Error:', err);
+        alert('Request failed.');
+    });
+}
+</script>
 {% endblock %}
