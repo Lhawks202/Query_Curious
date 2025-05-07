@@ -103,7 +103,6 @@
 
       function removeFromFavorites(button) {
           const danceId = button.getAttribute('data-dance-id');
-          console.log("danceID: ", danceId)
       
           fetch('/favorites', {
               method: 'POST',

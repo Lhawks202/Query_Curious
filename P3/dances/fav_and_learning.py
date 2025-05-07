@@ -49,6 +49,7 @@ def favorites():
 
         if d_id not in favorite_dances:
             favorite_dances[d_id] = {
+                'dance_id': row['dance_id'],
                 'dance_name': row['dance_name'],
                 'date_added': row['date_added'],
                 'rating': row['rating'],
@@ -136,6 +137,7 @@ def learning():
 
         if d_id not in learning_dances:
             learning_dances[d_id] = {
+                'dance_id': row['dance_id'],
                 'dance_name': row['dance_name'],
                 'date_added': row['date_added'],
                 'steps': defaultdict(list),
