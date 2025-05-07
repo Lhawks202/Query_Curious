@@ -18,27 +18,9 @@ def favorites():
             ret_status = add_favorite(data)
         return jsonify(status=ret_status)
     db = get_db()
-    # add an error if the user is not logged in?
     if g.user is None:
         return render_template('favorites.html')
     
-    # favorite_dances = db.execute(
-    # '''
-    # SELECT d.ID, d.DanceName AS dance_name, d.Video, d.Source, 
-    #        f.DateAdded AS date_added, f.Rating AS rating, 
-    #        s.StepName
-    # FROM Favorites f
-    # JOIN Dance d ON f.DanceId = d.ID
-    # JOIN Steps s ON s.DanceId = d.ID
-    # WHERE f.UserId = ?
-    # ''',
-    # (g.user['Username'],)).fetchall()
-    # favorite_dances = db.execute(
-    #                         '''SELECT d.DanceName as dance_name, f.DateAdded as date_added, f.Rating as rating, f.danceId as dance_id
-    #                          FROM Favorites f JOIN Dance d ON f.DanceId = d.ID
-    #                          WHERE UserId = ?''',
-    #                         (g.user['Username'],)).fetchall()
-
 
     raw_rows = db.execute(
     '''SELECT d.ID as dance_id, d.DanceName as dance_name, 
@@ -84,9 +66,6 @@ def favorites():
             for step, fig_list in dance['steps'].items()
         }
 
-
-
-    print(favorite_dances)
     return render_template('favorites.html', favorites=favorite_dances)
 
 def add_favorite(data):
@@ -130,28 +109,50 @@ def learning():
     if g.user is None:
         return render_template('learning.html')
     
-    learning_dances = db.execute(
-                            '''SELECT d.DanceName as dance_name, l.DateAdded as date_added, l.danceId as dance_id
-                             FROM Learning l JOIN Dance d ON l.DanceId = d.ID
-                             WHERE UserId = ?''',
-                            (g.user['Username'],)).fetchall()
+    raw_rows = db.execute(
+    '''SELECT d.ID as dance_id, d.DanceName as dance_name, 
+                    learn.DateAdded as date_added
+                    , s.StepName as step_name, fs.Place as place, 
+                    fig.Name as figure_name
+       FROM Learning learn
+       JOIN Dance d ON learn.DanceId = d.ID 
+       JOIN Steps s ON s.DanceId = d.ID
+       JOIN FigureStep fs ON fs.StepsId = s.ID
+       JOIN Figure fig ON fig.ID = fs.FigureId
+       WHERE learn.UserId = ?
+       ORDER BY d.ID, s.StepName, fs.Place
+    ''',
+    (g.user['Username'],)).fetchall()
+
     
-    dance_information = db.execute(
-            '''SELECT d.ID, d.DanceName, d.Video, d.Source, s.StepName
-             FROM Learning l JOIN Dance d ON l.DanceId = d.ID 
-             JOIN Steps s ON s.DanceId = d.ID
-             WHERE UserId = ?''',
-            (g.user['Username'],)).fetchall()
-    # learning_dances = db.execute(
-    # '''
-    # SELECT d.ID, d.DanceName AS dance_name, d.Video, d.Source, 
-    #        l.DateAdded AS date_added, s.StepName
-    # FROM Learning l
-    # JOIN Dance d ON l.DanceId = d.ID
-    # JOIN Steps s ON s.DanceId = d.ID
-    # WHERE l.UserId = ?
-    # ''',
-    # (g.user['Username'],)).fetchall()
+
+    learning_dances = {}
+
+    for row in raw_rows:
+        d_id   = row['dance_id']
+        step   = row['step_name']
+        figure = row['figure_name']
+        place  = row['place']
+
+        if d_id not in learning_dances:
+            learning_dances[d_id] = {
+                'dance_name': row['dance_name'],
+                'date_added': row['date_added'],
+                'steps': defaultdict(list),
+                'step_list':[]
+            }
+
+        learning_dances[d_id]['steps'][step].append((place, figure))
+        learning_dances[d_id]['step_list'].append(step)
+
+    # Sort figures by their numeric place
+    for dance in learning_dances.values():
+        dance['steps'] = {
+            step: [name for place, name in sorted(fig_list)]
+            for step, fig_list in dance['steps'].items()
+        }
+    
+    
     return render_template('learning.html', learning=learning_dances)
 
 def add_learning(data):

@@ -6,14 +6,16 @@
 {% endblock %}
 
 {% block content %}
-    {% for learn in learning %}
+    {% for learn in learning.values() %}
     <div class="col">
         <div class="card h-100 border-0 shadow-sm"
              style="cursor: pointer;"
              data-bs-toggle="modal"
              data-bs-target="#learnModal"
              data-dance-name="{{ learn['dance_name'] }}"
+             data-step-list="{{ learn.step_list | join(', ') }}"
              data-date="{{ learn['date_added'] }}"
+             data-step-figure-map='{{ learn["steps"] | default({}) | tojson | safe }}'
              onclick="populateLearningModal(this)">
           <div class="card-body">
             <h5 class="card-title">{{ learn['dance_name'] }}</h5>
@@ -46,7 +48,10 @@
             </div>
             <div class="modal-body">
               <p><strong>Dance:</strong> <span id="modalLearnDanceName"></span></p>
-              <p><strong>Date Started:</strong> <span id="modalLearnDate"></span></p>
+              <p><strong>Step sequence:</strong> <span id="modalLearnStepList"></span></p>
+              <div id="modalStepFigureList">
+                <!-- Step–figure pairs will be inserted here dynamically -->
+              </div>
             </div>
           </div>
         </div>
@@ -56,13 +61,26 @@
 
 <script>
     function populateLearningModal(card) {
-    const name = card.getAttribute('data-dance-name');
-    const date = card.getAttribute('data-date');
+      const danceName = card.getAttribute('data-dance-name');
+      const stepList = card.getAttribute('data-step-list');
+      const stepFigureData = JSON.parse(card.getAttribute('data-step-figure-map')); // embedded in data attribute
 
-    document.getElementById('modalLearnDanceName').textContent = name;
-    document.getElementById('modalLearnDate').textContent = date;
+      document.getElementById('modalLearnDanceName').textContent = danceName;
+      document.getElementById('modalLearnStepList').textContent = stepList;
+
+      const container = document.getElementById('modalStepFigureList');
+      container.innerHTML = ''; // clear previous content
+
+      for (const [step, figures] of Object.entries(stepFigureData)) {
+        const p = document.createElement('p');
+        const strong = document.createElement('strong');
+        strong.textContent = `${step}: `;
+        p.appendChild(strong);
+        p.append(figures.join(', '));
+        container.appendChild(p);
+      }
     }
-    
+
     function removeFromLearning(button) {
         const danceId = button.getAttribute('data-dance-id');
         console.log("danceID: ", danceId)
