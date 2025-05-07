@@ -31,6 +31,22 @@
                 Make sure to use a strong, unique password
               </div>
             </div>
+
+            <div class="mb-3">
+              <label for="name" class="form-label">Name</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                <input type="text" class="form-control" name="name" id="name" placeholder="Enter your name" required>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                <input type="email" class="form-control" name="email" id="email" placeholder="Enter your email" required>
+              </div>
+            </div>
             
             <input type="hidden" name="next" value="{{ next }}">
             

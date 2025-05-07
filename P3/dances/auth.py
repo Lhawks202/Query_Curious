@@ -5,6 +5,7 @@ from flask import (
 from werkzeug.security import check_password_hash, generate_password_hash
 from dances.db import get_db
 from typing import Optional, Any
+import re
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -20,6 +21,8 @@ def register() -> str:
     if request.method == 'POST':
         user_id = request.form['user_id'].lower()
         password = request.form['password']
+        name = request.form['name']
+        email = request.form['email']
         db = get_db()
         error = None
 
@@ -27,6 +30,10 @@ def register() -> str:
             error = 'User ID is required.'
         elif not password:
             error = 'Password is required.'
+        elif not name:
+            error = 'Name is required.'
+        elif not re.match(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", email):
+            error = 'Invalid email address.'
 
         # check if user is in user table
         customer = fetch_user(user_id)
@@ -38,7 +45,7 @@ def register() -> str:
             try:
                 db.execute(
                     "INSERT INTO User (Username, Password, Name, Email) VALUES (?, ?, ?, ?)",
-                    (user_id, generate_password_hash(password), "dummydata", "dummydata") # TODO: FIX FORM
+                    (user_id, generate_password_hash(password), name, email)
                 )
                 db.commit()
             except db.IntegrityError:
