@@ -1,11 +1,8 @@
-import functools
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for
+    Blueprint, flash, g, redirect, render_template, request, url_for
 )
-from werkzeug.security import check_password_hash, generate_password_hash
 from dances.db import get_db
 from dances.auth import login_required
-import datetime
 
 bp = Blueprint('profile', __name__, url_prefix='/profile')
 
