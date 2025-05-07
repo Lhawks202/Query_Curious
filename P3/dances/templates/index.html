@@ -57,14 +57,14 @@
                   </button>
         
                   <button type="button" 
-                          class="btn btn-sm {% if dance.ID|string in user_favorites %}btn-danger{% else %}btn-outline-danger{% endif %}"
+                          class="btn btn-sm {% if dance.ID|string in user_learned %}btn-danger{% else %}btn-outline-danger{% endif %}"
                           data-dance-id="{{ dance.ID }}"
                           data-dance-name="{{ dance.DanceName }}"
-                          data-is-favorite="{{ 'true' if dance.ID|string in user_favorites else 'false' }}"
-                          data-role="favorite-button"
-                          onclick="handleFavoriteButtonClick(this)">
-                    <i class="bi {% if dance.ID|string in user_favorites %}bi-heart-fill{% else %}bi-heart{% endif %} me-1"></i>
-                    {% if dance.ID|string in user_favorites %}Favorited{% else %}Favorite{% endif %}
+                          data-is-learned="{{ 'true' if dance.ID|string in user_learned else 'false' }}"
+                          data-role="learned-button"
+                          onclick="handleLearnedButtonClick(this)">
+                    <i class="bi {% if dance.ID|string in user_learned %}bi-heart-fill{% else %}bi-heart{% endif %} me-1"></i>
+                    {% if dance.ID|string in user_learned %}Learned{% else %}Learned{% endif %}
                   </button>
                 {% endif %}
               </div>
@@ -83,17 +83,17 @@
     {% endif %}
   {% endif %}
 
-  <!-- Favorite Modal -->
-<div class="modal fade" id="favoriteModal" tabindex="-1" aria-hidden="true">
+  <!-- Learned Modal -->
+<div class="modal fade" id="learnedModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-      <form id="favoriteFormElement">
+      <form id="learnedFormElement">
         <div class="modal-header">
-          <h5 class="modal-title">Add to Favorites</h5>
+          <h5 class="modal-title">Add to Learned</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <input type="hidden" id="favoriteDanceId">
+          <input type="hidden" id="learnedDanceId">
           <div class="mb-3">
             <label for="rating" class="form-label">What do you rate this dance?</label>
             <div class="star-rating d-flex justify-content-center mb-3">
@@ -157,16 +157,16 @@
 
 
 <script>
-// Handle favorites
+// Handle learned
 
-function handleFavoriteButtonClick(button) {
-  const isFavorite = button.dataset.isFavorite === 'true';
+function handleLearnedButtonClick(button) {
+  const isLearned = button.dataset.isLearned === 'true';
   const danceId = button.dataset.danceId;
   const danceName = button.dataset.danceName;
 
-  if (isFavorite) {
+  if (isLearned) {
     // Immediate removal, no modal
-    fetch('/favorites', {
+    fetch('/learned', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ danceId, action: 'remove' })
@@ -174,39 +174,39 @@ function handleFavoriteButtonClick(button) {
     .then(res => res.json())
     .then(data => {
       if (data.status === 'removed') {
-        updateFavoriteButton(button, false);
-        alert(`You removed ${danceName} from Favorites`);
+        updateLearnedButton(button, false);
+        alert(`You removed ${danceName} from Learned`);
       } else {
         alert('Error: ' + data.message);
       }
     });
   } else {
     // Show modal to add
-    const modal = new bootstrap.Modal(document.getElementById('favoriteModal'));
-    document.getElementById('favoriteDanceId').value = danceId;
+    const modal = new bootstrap.Modal(document.getElementById('learnedModal'));
+    document.getElementById('learnedDanceId').value = danceId;
     modal.show();
   }
 }
 
-function updateFavoriteButton(button, hasFavorited) {
-  button.dataset.isFavorite = hasFavorited ? 'true' : 'false';
-  button.classList.toggle('btn-danger', hasFavorited);
-  button.classList.toggle('btn-outline-danger', !hasFavorited);
-  button.innerHTML = hasFavorited
-    ? '<i class="bi bi-heart-fill me-1"></i>Favorited'
-    : '<i class="bi bi-heart me-1"></i>Favorite';
+function updateLearnedButton(button, hasLearned) {
+  button.dataset.isLearned = hasLearned ? 'true' : 'false';
+  button.classList.toggle('btn-danger', hasLearned);
+  button.classList.toggle('btn-outline-danger', !hasLearned);
+  button.innerHTML = hasLearned
+    ? '<i class="bi bi-heart-fill me-1"></i>Learned'
+    : '<i class="bi bi-heart me-1"></i>Learned';
 }
 
-document.getElementById('favoriteFormElement').addEventListener('submit', function(event) {
+document.getElementById('learnedFormElement').addEventListener('submit', function(event) {
   event.preventDefault();
-  const danceId = document.getElementById('favoriteDanceId').value;
+  const danceId = document.getElementById('learnedDanceId').value;
   const date = document.getElementById('date').value;
   const rating = parseInt(document.querySelector('input[name="rating"]:checked')?.value, 10);
   console.log("rating: ", rating)
-  const button = document.querySelector(`button[data-dance-id="${danceId}"][data-role="favorite-button"]`);
+  const button = document.querySelector(`button[data-dance-id="${danceId}"][data-role="learned-button"]`);
   const danceName = button.dataset.danceName;
 
-  fetch('/favorites', {
+  fetch('/learned', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ rating, danceId, date, action: 'add' })
@@ -214,9 +214,9 @@ document.getElementById('favoriteFormElement').addEventListener('submit', functi
   .then(res => res.json())
   .then(data => {
     if (data.status === 'added') {
-      updateFavoriteButton(button, true);
-      bootstrap.Modal.getInstance(document.getElementById('favoriteModal')).hide();
-      alert(`${danceName} added to Favorites.`);
+      updateLearnedButton(button, true);
+      bootstrap.Modal.getInstance(document.getElementById('learnedModal')).hide();
+      alert(`${danceName} added to Learned.`);
     } else {
       alert('Failed to add.');
     }

@@ -4,7 +4,7 @@ from dances.db import get_db
 from dances.auth import login_required
 from collections import defaultdict
 
-bp = Blueprint('fav_and_learning', __name__)
+bp = Blueprint('learn', __name__)
 
 @bp.route('/learned', methods=['GET', 'POST'],)
 @login_required
@@ -54,11 +54,9 @@ def learned():
                 'date_added': row['date_added'],
                 'rating': row['rating'],
                 'steps': defaultdict(list),
-                'step_list':[]
             }
 
         learned_dances[d_id]['steps'][step].append((place, figure))
-        learned_dances[d_id]['step_list'].append(step)
 
     # Sort figures by their numeric place
     for dance in learned_dances.values():
@@ -141,11 +139,9 @@ def learning():
                 'dance_name': row['dance_name'],
                 'date_added': row['date_added'],
                 'steps': defaultdict(list),
-                'step_list':[]
             }
 
         learning_dances[d_id]['steps'][step].append((place, figure))
-        learning_dances[d_id]['step_list'].append(step)
 
     # Sort figures by their numeric place
     for dance in learning_dances.values():

@@ -14,7 +14,7 @@ def test_index_no_user(client):
     assert 'Register' in response_text
     assert 'Log In' in response_text
     assert 'My Profile' not in response_text
-    assert 'My Favorites' not in response_text
+    assert 'My Learned' not in response_text
     assert 'My Learning' not in response_text
 
 def test_index_user(client, auth):
@@ -33,7 +33,7 @@ def test_index_user(client, auth):
         assert 'Register' not in response_text
         assert 'Log In' not in response_text
         assert 'My Profile' in response_text
-        assert 'My Favorites' in response_text
+        assert 'My Learned' in response_text
         assert 'Learning List' in response_text
 
 def test_index_with_valid_search(client):

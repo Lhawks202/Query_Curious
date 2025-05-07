@@ -2,42 +2,41 @@
 
 
 {% block header %}
-  <h1 class="display-4 mb-3">Favorite Dances</h1>
-  <p class="lead">All of your favorite dances</p>
+  <h1 class="display-4 mb-3">Learned Dances</h1>
+  <p class="lead">All of your learned dances</p>
 {% endblock %}
 
 {% block content %}
-    {% for fav in favorites.values() %}
+    {% for learn in learned.values() %}
     <div class="col">
       
       <div class="card h-100 border-0 shadow-sm"
            style="cursor: pointer;"
            data-bs-toggle="modal"
            data-bs-target="#infoModal"
-           data-dance-name="{{ fav['dance_name'] }}"
-           data-step-list="{{ fav.step_list | join(', ') }}"
-           data-step-figure-map='{{ fav["steps"] | default({}) | tojson | safe }}'
-           onclick="populateFavoriteModal(this)">
+           data-dance-name="{{ learn['dance_name'] }}"
+           data-step-figure-map='{{ learn["steps"] | default({}) | tojson | safe }}'
+           onclick="populateLearnedModal(this)">
         <div class="card-body">
-          <h5 class="card-title">{{ fav['dance_name'] }}</h5>
+          <h5 class="card-title">{{ learn['dance_name'] }}</h5>
           <p class="card-text">
             <small class="text-muted">
               <i class="bi bi-calendar3 me-1"></i>
-              Date favorited: {{ fav['date_added'] }}
+              Date finished learned: {{ learn['date_added'] }}
             </small>
           </p>
           <p class="card-text">
             <small class="text-muted">
               Rating:
-              {% if fav['rating'] is none %}
+              {% if learn['rating'] is none %}
                 {% for i in range(5) %}
                   <i class="bi bi-star text-warning"></i>
                 {% endfor %}
               {% else %}
-                {% for i in range(fav['rating']) %}
+                {% for i in range(learn['rating']) %}
                   <i class="bi bi-star-fill text-warning"></i>
                 {% endfor %}
-                {% for i in range(5 - fav['rating']) %}
+                {% for i in range(5 - learn['rating']) %}
                   <i class="bi bi-star text-warning"></i>
                 {% endfor %}
               {% endif %}
@@ -45,8 +44,8 @@
           </p>
           <button type="button"
                   class="btn btn-sm btn-outline-danger mt-2"
-                  data-dance-id="{{ fav['dance_id'] }}"
-                  onclick="event.stopPropagation(); removeFromFavorites(this)">
+                  data-dance-id="{{ learn['dance_id'] }}"
+                  onclick="event.stopPropagation(); removeFromLearned(this)">
             <i class="bi bi-x-circle me-1"></i>Remove
           </button>
         </div>
@@ -55,7 +54,7 @@
     
       
         {% else %}
-        <p>No favorites found for this user. Go to home and favorite some dances!</p>
+        <p>No learned found for this user. Go to home, chose a dance, and start learning!</p>
     {% endfor %}
 
     <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
@@ -66,8 +65,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <p><strong>Dance:</strong> <span id="modalFavDanceName"></span></p>
-            <p><strong>Step sequence:</strong> <span id="modalFavStepList"></span></p>
+            <p><strong>Dance:</strong> <span id="modalLearnedDanceName"></span></p>
             <div id="modalStepFigureList">
               <!-- Step–figure pairs will be inserted here dynamically -->
             </div>
@@ -79,13 +77,12 @@
     
 
     <script>
-      function populateFavoriteModal(card) {
+      function populateLearnedModal(card) {
       const danceName = card.getAttribute('data-dance-name');
-      const stepList = card.getAttribute('data-step-list');
       const stepFigureData = JSON.parse(card.getAttribute('data-step-figure-map')); // embedded in data attribute
 
-      document.getElementById('modalFavDanceName').textContent = danceName;
-      document.getElementById('modalFavStepList').textContent = stepList;
+      document.getElementById('modalLearnedDanceName').textContent = danceName;
+      document.getElementById('modalLearnedStepList').textContent = stepList;
 
       const container = document.getElementById('modalStepFigureList');
       container.innerHTML = ''; // clear previous content
@@ -101,10 +98,10 @@
     }
 
 
-      function removeFromFavorites(button) {
+      function removeFromLearned(button) {
           const danceId = button.getAttribute('data-dance-id');
       
-          fetch('/favorites', {
+          fetch('/learned', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ danceId, action: 'remove' })
@@ -116,7 +113,7 @@
                   const card = button.closest('.col');
                   if (card) card.remove();
   
-                  alert('Dance removed from Favorites');
+                  alert('Dance removed from learned');
                   location.reload();
               } else {
                   alert('Error removing dance.');

@@ -13,7 +13,6 @@
              data-bs-toggle="modal"
              data-bs-target="#learnModal"
              data-dance-name="{{ learn['dance_name'] }}"
-             data-step-list="{{ learn.step_list | join(', ') }}"
              data-date="{{ learn['date_added'] }}"
              data-step-figure-map='{{ learn["steps"] | default({}) | tojson | safe }}'
              onclick="populateLearningModal(this)">
@@ -48,7 +47,6 @@
             </div>
             <div class="modal-body">
               <p><strong>Dance:</strong> <span id="modalLearnDanceName"></span></p>
-              <p><strong>Step sequence:</strong> <span id="modalLearnStepList"></span></p>
               <div id="modalStepFigureList">
                 <!-- Step–figure pairs will be inserted here dynamically -->
               </div>
@@ -62,7 +60,6 @@
 <script>
     function populateLearningModal(card) {
       const danceName = card.getAttribute('data-dance-name');
-      const stepList = card.getAttribute('data-step-list');
       const stepFigureData = JSON.parse(card.getAttribute('data-step-figure-map')); // embedded in data attribute
 
       document.getElementById('modalLearnDanceName').textContent = danceName;
