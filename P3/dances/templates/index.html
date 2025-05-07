@@ -224,49 +224,6 @@ document.getElementById('favoriteFormElement').addEventListener('submit', functi
 });
 
 
-// document.getElementById('favoriteModal').addEventListener('show.bs.modal', function (event) {
-//   const button = event.relatedTarget; // ← the button that triggered the modal
-//   const danceId = button.getAttribute('data-dance-id');
-//   document.getElementById('favoriteDanceId').value = danceId;
-//   document.querySelectorAll('input[name="rating"]').forEach(input => input.checked = false);
-// });
-
-//   document.getElementById('favoriteFormElement').addEventListener('submit', function(event) {
-//   event.preventDefault();
-//   const danceId = document.getElementById('favoriteDanceId').value;
-//   const rating = parseInt(document.querySelector('input[name="rating"]:checked')?.value, 10);
-//   const date = document.getElementById('date').value;
-
-//   console.log("Dance ID:", danceId);
-
-//   fetch(`/favorites`, {
-//     method: 'POST',
-//     headers: { 'Content-Type': 'application/json' },
-//     body: JSON.stringify({ rating, date, danceId })
-//   })
-//   .then(res => res.json())
-//   .then(data => {
-//     alert('Dance favorited!');
-//     console.log('Success:', data);
-//     const modal = bootstrap.Modal.getInstance(document.getElementById('favoriteModal'));
-//     modal.hide();  // close modal
-//     const button = document.querySelector(`button[data-dance-id="${danceId.toString()}"][data-role="favorite-button"]`);
-//     if (data.status === 'added') {
-//         button.classList.remove('btn-outline-danger');
-//         button.classList.add('btn-danger');
-//         button.innerHTML = `<i class="bi bi-heart-fill me-1"></i>Favorited`;
-//       } else {
-//         button.classList.remove('btn-danger');
-//         button.classList.add('btn-outline-danger');
-//         button.innerHTML = `<i class="bi bi-heart me-1"></i>Favorite`;
-//       }
-//   })
-//   .catch(error => {
-//     console.error('Error:', error);
-//     alert('Something went wrong.');
-//   });
-// });
-
 //Handle learning
 function handleLearningButtonClick(button) {
   const isLearning = button.dataset.isLearning === 'true';

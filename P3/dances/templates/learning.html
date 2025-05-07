@@ -1,7 +1,5 @@
 {% extends 'base.html' %}
 
-{% if g.user %}
-
 {% block header %}
   <h1 class="display-4 mb-3">Currently Learning Dances</h1>
   <p class="lead">All of your currently learning dances</p>
@@ -19,16 +17,47 @@
                     Date started learning: {{ learn['date_added'] }}
                 </small>
                 </p>
+                <button type="button"
+                        class="btn btn-sm btn-outline-danger mt-2"
+                        data-dance-id="{{ learn['dance_id'] }}"
+                        onclick="removeFromLearning(this)">
+                    <i class="bi bi-x-circle me-1"></i>Remove
+                </button>
             </div>
             </div>
         </div>
         {% else %}
         <p>No learning dances found for this user. Go back to home and find a fun dance to learn!</p>
     {% endfor %}
-{% endblock %}
 
-{% else %}
-<h1>Error: not logged in</h1>
-{% endif %}
-</body>
-</html>
+
+<script>
+    function removeFromLearning(button) {
+        const danceId = button.getAttribute('data-dance-id');
+        console.log("danceID: ", danceId)
+    
+        fetch('/learning', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ danceId, action: 'remove' })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'removed') {
+                
+                const card = button.closest('.col');
+                if (card) card.remove();
+
+                alert('Dance removed from Learning');
+                location.reload();
+            } else {
+                alert('Error removing dance.');
+            }
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            alert('Request failed.');
+        });
+    }
+    </script>
+    {% endblock %}

@@ -33,7 +33,7 @@ def favorites():
     # ''',
     # (g.user['Username'],)).fetchall()
     favorite_dances = db.execute(
-                            '''SELECT d.DanceName as dance_name, f.DateAdded as date_added, f.Rating as rating
+                            '''SELECT d.DanceName as dance_name, f.DateAdded as date_added, f.Rating as rating, f.danceId as dance_id
                              FROM Favorites f JOIN Dance d ON f.DanceId = d.ID
                              WHERE UserId = ?''',
                             (g.user['Username'],)).fetchall()
@@ -88,7 +88,7 @@ def learning():
         return render_template('learning.html')
     
     learning_dances = db.execute(
-                            '''SELECT d.DanceName as dance_name, l.DateAdded as date_added
+                            '''SELECT d.DanceName as dance_name, l.DateAdded as date_added, l.danceId as dance_id
                              FROM Learning l JOIN Dance d ON l.DanceId = d.ID
                              WHERE UserId = ?''',
                             (g.user['Username'],)).fetchall()
