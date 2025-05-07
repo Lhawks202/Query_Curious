@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function createStep() {
     const idx = stepCount++;
-    const label = String.fromCharCode(65 + idx);
+    // const label = String.fromCharCode(65 + idx);
     const collapseId = `collapse${idx}`;
 
     const card = document.createElement('div');
@@ -56,9 +56,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const input = document.createElement('input');
     input.type = 'text';
-    input.className = 'step-label-input ps-3';
-    input.value = label;
-    input.placeholder = label;
+    input.className = 'step-label-input ms-2 ps-1';
+    // input.value = label;
+    input.placeholder = "Enter Step Name";
     input.addEventListener('mousedown', e => e.stopPropagation());
     input.addEventListener('click', e => e.stopPropagation());
 
@@ -79,6 +79,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const addFigBtn = document.createElement('button');
     addFigBtn.type = 'button';
     addFigBtn.className = 'btn shadow-sm figure-card p-3 mx-5 add-btn add-btn-figure d-flex justify-content-center align-items-center';
+    addFigBtn.setAttribute('data-bs-toggle', 'tooltip');
+    addFigBtn.setAttribute('data-bs-placement', 'top');
+    addFigBtn.setAttribute('title', 'Click to add a new figure');
     addFigBtn.innerHTML = '<i class="bi bi-plus"></i>';
     addFigBtn.addEventListener('mousedown', e => e.stopPropagation());
     addFigBtn.addEventListener('click', e => {
@@ -204,6 +207,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const danceForm = document.getElementById('danceForm');
   const danceData = document.getElementById('danceData');
   const danceNameInput = document.querySelector('.danceNameInput');
+  const videoInput = document.querySelector('.videoInput');
+  const sourceInput = document.querySelector('.sourceInput');
 
   danceForm.addEventListener('submit', e => {
     const steps = Array.from(document.querySelectorAll('.step-card')).map(card => {
@@ -214,6 +219,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const payload = {
       danceName: danceNameInput.value.trim() || 'Untitled Dance',
+      video: videoInput.value.trim(),
+      source: sourceInput.value.trim(),
       steps
     };
     

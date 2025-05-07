@@ -7,7 +7,7 @@ body {
 
 .content {
     overflow-y: auto;
-    max-height: 72.5vh;
+    max-height: 55vh;
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
 }
@@ -104,8 +104,10 @@ body {
 }
 
 .step-label-input {
+    width: 15rem;
     background: transparent;
     border: none;
+    border-bottom: solid 1px white;
     color: #f2f0ef;
     font-size: 1.5rem;
     outline: none;
@@ -158,12 +160,27 @@ body {
     min-width: 50%;
 }
 
-.danceNameInput::placeholder {
+.sourceInput,
+.videoInput {
+    border: none;
+    background-color: transparent;
+    font-size: 1.5rem;
+    border-bottom: solid #999 1px;
+    color: white;
+    min-width: 75%;
+}
+
+.danceNameInput::placeholder,
+.step-label-input::placeholder,
+.sourceInput::placeholder,
+.videoInput::placeholder {
     color: #999;
     font-style: italic;
 }
 
-.danceNameInput:focus {
+.danceNameInput:focus,
+.sourceInput:focus,
+.videoInput:focus {
     box-shadow: none;
     outline: none;
 }
