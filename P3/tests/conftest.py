@@ -41,10 +41,10 @@ class AuthActions(object):
     def __init__(self, client: FlaskClient) -> None:
         self._client = client
 
-    def register(self, username: str = 'testtestingauth', password: str = 'testtestingauth', next: str = '/') -> 'Response':
+    def register(self, username: str = 'testtestingauth', password: str = 'testtestingauth', name = 'testname', email = 'test@test.com', next: str = '/') -> 'Response':
         return self._client.post(
             'auth/register',
-            data={'user_id': username, 'password': password, 'next': next}
+            data={'user_id': username, 'password': password, 'name': name, 'email': email, 'state': '', 'city': '', 'next': next}
         )
 
     def login(self, username: str = 'testtestingauth', password: str = 'testtestingauth', next: str = '/') -> 'Response':
