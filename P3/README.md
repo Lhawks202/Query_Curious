@@ -6,7 +6,7 @@ This document explains the design of the English Country Dancing Flask App. The 
 ## Meet the Team
 ### Hi there, we are Query Curious! 
 Our Team members are:
-- Luke Sanford :: 
+- Luke Sanford :: Unit Testing
 - Joshua Gorniak :: Development Engineer - 
 - Rafael Singer :: Development Engineer - 
 - Katie Baek :: Development Engineer - 
@@ -29,21 +29,26 @@ Our Team members are:
 - Represents a dance available in the system.
 - **Attributes:**
   - `ID` (Primary Key)
-  - `vlink`
-  - `date`
+  - `dance_name`
+  - `video`
   - `source
 
 ### 3. `Step`
 - Represents a single movement or unit of choreography.
 - **Attributes:**
   - `ID` (Primary Key)
-  - `sequence`
+  - `step_name`
 
 #### 4. `Figure`
 - Represents a figure illustrating a part of a step.
 - **Attributes:**
   - `ID` (Primary Key)
-  - `move`
+  - `name`
+  - `role`
+  - `start_position`
+  - `action`
+  - `end_position`
+  - `duration`
 
 ---
 
@@ -69,9 +74,9 @@ Our Team members are:
 - **Attributes:**
   - `date_added`
 
-#### `Favorites`
-- Allows users to mark dances as favorites.
-- Many users can favorite many different dances.
+#### `Learned`
+- Allows users to save dances they learned.
+- Many users can learn many different dances.
 - **Attributes:**
   - `date_added`
   - `rating`
