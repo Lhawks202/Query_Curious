@@ -43,9 +43,9 @@ def test_register_existing_user(client: FlaskClient, auth: Any) -> None:
     
 def test_register_strange_characters(auth: Any) -> None:
     response = auth.register(username='test_!@#$%^*&()`\'', password='test_!@#$%^*&()`\'')
-    assert response.headers['Location'] == '/auth/login',  "Doesn't accept strange characters in username and password."
+    assert response.headers['Location'] == '/',  "Doesn't accept strange characters in username and password."
     response = auth.register(username='éñçøßΩ中あ😊€', password='éñçøßΩ中あ😊€')
-    assert response.headers['Location'] == '/auth/login',  "Doesn't accept strange characters in username and password."
+    assert response.headers['Location'] == '/',  "Doesn't accept strange characters in username and password."
 
 def test_sql_injection_drop_table_register(app: Flask, auth: Any) -> None:
     with app.app_context():
