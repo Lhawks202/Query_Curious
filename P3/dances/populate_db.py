@@ -14,6 +14,22 @@ def get_db_file():
     db_file = app.config['DATABASE']
     return db_file
 
+def init_fts(cursor):
+    cursor.execute("""
+    CREATE VIRTUAL TABLE IF NOT EXISTS FigureFTS
+    USING fts5(
+      Name,
+      Roles,
+      StartPosition,
+      Action,
+      EndPosition,
+      content='Figure',
+      content_rowid='ID'
+    );
+    """)
+
+    cursor.execute("INSERT INTO FigureFTS(FigureFTS) VALUES('rebuild');")
+
 def insert_figures(cursor, figure_data):
     for fig in figure_data:
         cursor.execute('''
@@ -78,32 +94,35 @@ def populate_db():
         with open(FIGURE_FILE, 'r') as f:
             figures = json.load(f)
 
-        conn = sqlite3.connect(db_file)
-        conn.execute('PRAGMA foreign_keys = ON')
-        cursor = conn.cursor()
-        try:
-            insert_figures(cursor, figures)
-            conn.commit()
-            total_missing_figures = 0
-            total_added_dances = 0
-            total_missing_dances = 0
-            for dance_path in glob.glob(DANCE_GLOB):
-                with open(dance_path, 'r') as f:
-                    dance_data = json.load(f)
-                #print(f"Importing {dance_path}...")
-                current_missing = insert_dance_and_steps(cursor, dance_data, os.path.basename(dance_path))
-                if current_missing == 0:
-                    total_added_dances += 1
-                    conn.commit()
-                else:
-                    total_missing_dances += 1
-                    conn.rollback()
-                total_missing_figures += current_missing
-            print(total_missing_figures, "Missing figures in total.")
-            print(total_added_dances, "Dances imported successfully.")
-            print(total_missing_dances, "Dances with missing figures, thus skipped.")
-        except Exception as e:
-            conn.rollback()
-            print(f"Error: {e}")
-        finally:
-            conn.close()
+    conn = sqlite3.connect(db_file)
+    conn.execute('PRAGMA foreign_keys = ON')
+    cursor = conn.cursor()
+    try:
+        insert_figures(cursor, figures)
+        conn.commit()
+
+        init_fts(cursor)
+        conn.commit()
+        total_missing_figures = 0
+        total_added_dances = 0
+        total_missing_dances = 0
+        for dance_path in glob.glob(DANCE_GLOB):
+            with open(dance_path, 'r') as f:
+                dance_data = json.load(f)
+            print(f"Importing {dance_path}...")
+            current_missing = insert_dance_and_steps(cursor, dance_data, os.path.basename(dance_path))
+            if current_missing == 0:
+                total_added_dances += 1
+                conn.commit()
+            else:
+                total_missing_dances += 1
+                conn.rollback()
+            total_missing_figures += current_missing
+        print(total_missing_figures, "Missing figures in total.")
+        print(total_added_dances, "Dances imported successfully.")
+        print(total_missing_dances, "Dances with missing figures, thus skipped.")
+    except Exception as e:
+        conn.rollback()
+        print(f"Error: {e}")
+    finally:
+        conn.close()

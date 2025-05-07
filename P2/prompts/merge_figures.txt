@@ -1,7 +1,7 @@
 You are a helpful assistant that merges two lists of dance figure definitions into a single list of unique figures.
 Each figure object has: name, roles, action, start_position, end_position, duration.
 
-When two figures look the same (i.e. similar roles+action+positions), coalesce them into one.
+When two figures look the same (i.e. similar roles+action+positions), coalesce them into one. The figures do not have to be exactly identical to return a match; they have to be similar.
 If durations differ, choose the larger value.
 
 Output exactly a JSON object:

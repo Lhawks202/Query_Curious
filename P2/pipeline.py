@@ -10,7 +10,7 @@ DANCE_DIR = "dances"
 OUTPUT_DIR = "output"
 PROMPT_DIR = "prompts"
 MODEL = "gpt-4o-mini"
-CHUNK_THRESHOLD = 20       # Max figures per merge batch
+CHUNK_THRESHOLD = 50       # Max figures per merge batch
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Add Dance{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/figure_modal.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/create_dance.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="font-family: 'Montserrat', sans-serif;">
+    <div class="d-flex justify-content-between align-items-center mb-4 px-3">
+        <input class="danceNameInput px-3" placeholder="Untitled Dance">
+        <i id="deleteModeBtn" class="bi bi-trash-fill text-danger fs-1 pe-3" role="button" aria-label="Delete steps"
+            style="cursor: pointer;"></i>
+    </div>
+
+    <div class="d-flex justify-content-left align-items-center mb-4 px-3">
+        <input class="sourceInput px-3" placeholder="Input Source">
+    </div>
+    <div class="d-flex justify-content-left align-items-center mb-5 px-3">
+        <input class="videoInput px-3" placeholder="Input Link to Video">
+    </div>
+
+
+    <div class="content p-3">
+        <form id="danceForm" method="post" action="{{ url_for('create.add_dance') }}">
+            <div id="stepsContainer"></div>
+
+            <button id="addStepBtn" type="button"
+                class="btn add-btn add-btn-step w-100 d-flex justify-content-center align-items-center mb-5"
+                data-bs-toggle="tooltip" data-bs-placement="top" title="Click to add a new step">
+                <i class="bi bi-plus"></i>
+            </button>
+
+            <input type="hidden" name="dance_data" id="danceData">
+
+            <hr class="w-100 white-divider mb-4">
+
+            <button type="submit"
+                class="btn add-btn create-dance-button d-flex justify-content-center align-items-center w-100 mb-5"
+                data-bs-toggle="tooltip" data-bs-placement="top" title="Click to create dance">
+                <i class="fa-solid fa-file-import"></i>
+            </button>
+        </form>
+    </div>
+</div>
+{% include "create/figure_modal.html" %}
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/create_dance.js') }}"></script>
+<script src="{{ url_for('static', filename='js/figure_modal.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,286 @@
+.container p {
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0.3px;
+    margin: 20px 0;
+    color: black;
+}
+
+.container span {
+    font-size: 12px;
+}
+
+.container a {
+    color: #333;
+    font-size: 13px;
+    text-decoration: none;
+    margin: 15px 0 10px;
+}
+
+.container button.hidden {
+    background-color: transparent;
+    border-color: #fff;
+}
+
+#container form {
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 0 40px;
+    height: 100%;
+    background-color: #2f2f2f;
+    height: auto;
+}
+
+@keyframes move {
+
+    0%,
+    49.99% {
+        opacity: 0;
+        z-index: 1;
+    }
+
+    50%,
+    100% {
+        opacity: 1;
+        z-index: 5;
+    }
+}
+
+.toggle-panel p {
+    color: white;
+}
+
+.form-container {
+    width: 75%;
+    /* was 50% */
+    position: absolute;
+    top: 0;
+    height: 100%;
+    transition: all 0.6s ease-in-out;
+}
+
+.search {
+    left: 0;
+    z-index: 2;
+}
+
+.container.active .search {
+    transform: translateX(33.333%);
+}
+
+.add {
+    left: 0;
+    opacity: 0;
+    z-index: 1;
+    overflow-y: hidden;
+}
+
+.add-container {
+    overflow-y: auto;
+    height: 70vh;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.add-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.add-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.add-container::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    border: none;
+}
+
+.container.active .add {
+    transform: translateX(33.333%);
+    opacity: 1;
+    z-index: 5;
+    animation: move 0.6s;
+}
+
+.toggle-container {
+    position: absolute;
+    top: 0;
+    left: 75%;
+    /* was 50% */
+    width: 25%;
+    /* was 50% */
+    height: 100%;
+    overflow: hidden;
+    transition: all 0.6s ease-in-out;
+    z-index: 1000;
+    border-radius: 2rem 0 0 2rem;
+}
+
+.container.active .toggle-container {
+    transform: translateX(-300%);
+    border-radius: 0 2rem 2rem 0;
+}
+
+.toggle {
+    background: #29ae72;
+    color: #fff;
+    position: relative;
+    left: -100%;
+    width: 200%;
+    height: 100%;
+    transform: translateX(0);
+    transition: all 0.6s ease-in-out;
+}
+
+.container.active .toggle {
+    transform: translateX(50%);
+}
+
+.toggle-panel {
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 0 30px;
+    text-align: center;
+    transition: all 0.6s ease-in-out;
+}
+
+.toggle-left {
+    transform: translateX(-200%);
+}
+
+.toggle-right {
+    right: 0;
+}
+
+.container.active .toggle-left {
+    transform: translateX(0);
+}
+
+.container.active .toggle-right {
+    transform: translateX(200%);
+}
+
+#search,
+#add {
+    background-color: #f2f0ef;
+    border: none;
+    border-radius: 7.5px;
+    transition: transform 0.2s ease-in-out;
+}
+
+#search:hover,
+#add:hover {
+    transform: scale(1.1);
+}
+
+#search i,
+#add i {
+    font-size: 1.5rem;
+    width: 35px;
+    height: 35px;
+}
+
+.textarea-scroll {
+    height: 7.5rem;
+    overflow-y: auto;
+    resize: none;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(78, 78, 78, 0.3) transparent;
+    border: none;
+}
+
+.textarea-scroll:focus {
+    outline: none !important;
+    box-shadow: none !important;
+    border: none;
+    /* or whatever your normal border color is */
+}
+
+.textarea-scroll::-webkit-scrollbar {
+    width: 8px;
+}
+
+.textarea-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.textarea-scroll::-webkit-scrollbar-thumb {
+    background-color: rgba(78, 78, 78, 0.3);
+    border-radius: 4px;
+    border: none;
+}
+
+.textarea-scroll::placeholder,
+#figureForm input::placeholder {
+    color: #999;
+    font-style: italic;
+}
+
+.w-80 {
+    width: 80%;
+}
+
+.textarea-container {
+    background-color: white;
+    border-radius: 7.5px;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
+#figureForm {
+    gap: 1.75rem;
+}
+
+#durationInput {
+    height: 4rem;
+}
+
+.white-divider {
+    border: none;
+    height: 1px;
+    opacity: 100%;
+    background-color: #999;
+}
+
+.form-container.search {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+#figureSearchForm,
+#figureSearchResults {
+    width: 80%;
+}
+
+.card-title {
+    color: black;
+}
+
+#figureSearchResults {
+    overflow-y: auto;
+    height: 50vh;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
