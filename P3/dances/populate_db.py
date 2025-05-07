@@ -1,12 +1,18 @@
 import sqlite3
+import click
 import json
 import glob
 import os
+from flask import current_app
 
 DANCE_DIR = './output'
 FIGURE_FILE = os.path.join(DANCE_DIR, 'figure_library.json')
 DANCE_GLOB = os.path.join(DANCE_DIR, 'ins_*.json')
-DB_FILE = './dances/dances.sqlite'
+
+def get_db_file():
+    app = current_app
+    db_file = app.config['DATABASE']
+    return db_file
 
 def init_fts(cursor):
     cursor.execute("""
@@ -72,15 +78,17 @@ def insert_dance_and_steps(cursor, dance_data, source_filename):
                 except sqlite3.IntegrityError as e:
                     print(f"[UNIQUE FAIL] {e} — File: {source_filename}, Step: {step_name}, Figure: {fig_name}")
             else:
-                print(f"Figure not found in DB: \"{fig_name}\" (from {source_filename})")
+                #print(f"Figure not found in DB: \"{fig_name}\" (from {source_filename})")
                 missing_sum += 1
     return missing_sum
 
-def main():
-    with open(FIGURE_FILE, 'r') as f:
-        figures = json.load(f)
+def populate_db():
+    with current_app.app_context():
+        db_file = get_db_file()
+        with open(FIGURE_FILE, 'r') as f:
+            figures = json.load(f)
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = sqlite3.connect(db_file)
     conn.execute('PRAGMA foreign_keys = ON')
     cursor = conn.cursor()
     try:
@@ -112,6 +120,3 @@ def main():
         print(f"Error: {e}")
     finally:
         conn.close()
-
-if __name__ == '__main__':
-    main()

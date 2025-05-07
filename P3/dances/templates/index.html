@@ -22,9 +22,9 @@
       {% for dance in dances %}
         <div class="col">
           <div class="card h-100 border-0 shadow-sm">
-            {% if dance.Vlink %}
+            {% if dance.Video %}
               <div class="ratio ratio-16x9">
-                <iframe src="{{ dance.Vlink|replace('watch?v=', 'embed/') if 'youtube' in dance.Vlink else dance.Vlink }}" allowfullscreen></iframe>
+                <iframe src="{{ dance.Video|replace('watch?v=', 'embed/') if 'youtube' in dance.Video else dance.Video }}" allowfullscreen></iframe>
               </div>
             {% else %}
               <div class="bg-primary bg-opacity-10 text-center p-5">
@@ -44,9 +44,6 @@
             </div>
             <div class="card-footer border-0 bg-transparent">
               <div class="btn-group w-100" role="group">
-                <a href="{{ url_for('home.dance_details', dance_id=dance.ID) }}" class="btn btn-outline-primary btn-sm">
-                  <i class="bi bi-eye me-1"></i>View Details
-                </a>
                 {% if g.user %}
                   <button type="button" 
                           class="btn btn-sm {% if dance.ID|string in user_learning %}btn-warning{% else %}btn-outline-warning{% endif %}"

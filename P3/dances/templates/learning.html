@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% if g.user %}
+
+{% block content %}
+    {% for fav in favorites %}
+        <div class="card h-100 border-0 shadow-sm">
+        <h3>{{ fav['dance_name'] }}</h3>
+        <p><strong>Date Added:</strong> {{ fav['date_added'] }}</p>
+        <p><strong>Rating:</strong> {{ fav['rating'] }}</p>
+        </div>
+        {% else %}
+        <p>No learning dances found for this user.</p>
+    {% endfor %}
+{% endblock %}
+
+{% else %}
+<h1>Error: not logged in</h1>
+{% endif %}
+</body>
+</html>
