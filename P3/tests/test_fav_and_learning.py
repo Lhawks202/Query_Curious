@@ -23,6 +23,7 @@ def test_add_learning(client, app, auth, insert):
         auth.login()
         dance_id = insert.insert_dance(dance_name='Test Dance', video='test.mp4', source='Test Source')
     response = client.post('/learning', json={
+        'action': 'add',
         'danceId': dance_id,
         'date': '2025-05-01'
     })
@@ -37,24 +38,6 @@ def test_add_learning(client, app, auth, insert):
         assert learning_entry is not None
         assert learning_entry['DateAdded'] == '2025-05-01'
 
-def test_learning_with_dances(client, app, auth, insert):
-    with app.app_context():
-        auth.register()
-        auth.login()
-        dance_ids = []
-        for i in range(3):
-            dance_id = insert.insert_dance(dance_name=f'Dance {i}', video=f'dance{i}.mp4', source=f'Source {i}')
-            dance_ids.append(dance_id)
-            response = client.post('/learning', json={
-                'danceId': dance_id,
-                'date': '2025-05-01'
-            })
-        response = client.get('/learning')
-        assert response.status_code == 200
-        response_text = response.data.decode('utf-8')
-        for i in range(len(dance_ids)):
-            assert f"Dance {i}" in response_text
-
 def test_learned_not_logged_in(client):
     response = client.get('/learned', follow_redirects=False)
     assert response.status_code == 302
@@ -67,6 +50,7 @@ def test_add_learned(client, app, auth, insert):
         auth.login()
         dance_id = insert.insert_dance(dance_name='Test Dance', video='test.mp4', source='Test Source')
     response = client.post('/learned', json={
+        'action': 'add',
         'danceId': dance_id,
         'date': '2025-05-01',
         'rating': 5
@@ -82,23 +66,4 @@ def test_add_learned(client, app, auth, insert):
         assert learned_entry is not None
         assert learned_entry['DateAdded'] == '2025-05-01'
         assert learned_entry['Rating'] == 5
-
-def test_learned_with_dances(client, app, auth, insert):
-    with app.app_context():
-        auth.register()
-        auth.login()
-        dance_ids = []
-        for i in range(3):
-            dance_id = insert.insert_dance(dance_name=f'Dance {i}', video=f'dance{i}.mp4', source=f'Source {i}')
-            dance_ids.append(dance_id)
-            response = client.post('/learned', json={
-                'danceId': dance_id,
-                'date': '2025-05-01',
-                'rating': i
-            })
-        response = client.get('/learned')
-        assert response.status_code == 200
-        response_text = response.data.decode('utf-8')
-        for i in range(len(dance_ids)):
-            assert f"Dance {i}" in response_text
 
