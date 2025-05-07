@@ -84,10 +84,10 @@ def main():
     conn.execute('PRAGMA foreign_keys = ON')
     cursor = conn.cursor()
     try:
-        init_fts(cursor)
+        insert_figures(cursor, figures)
         conn.commit()
 
-        insert_figures(cursor, figures)
+        init_fts(cursor)
         conn.commit()
         total_missing_figures = 0
         total_added_dances = 0

@@ -3,25 +3,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const addStepBtn = document.getElementById('addStepBtn');
   const deleteBtn = document.getElementById('deleteModeBtn');
 
-  // 1) Grab the modal + inputs
   const figureModalEl = document.getElementById('figureModal');
-  // const figureNameInput    = document.getElementById('figureNameInput');
-  // const figureNamePreview  = document.getElementById('figureNamePreview');
-  // const figureModalSubmit  = document.getElementById('figureModalSubmit');
-  // const toConfirmBtn       = document.getElementById('toConfirmBtn');
-  // const backBtn            = document.getElementById('backBtn');
-  // const slider             = document.getElementById('figureSlider');
 
-  // 2) Initialize Bootstrap’s modal
   const figureModal = new bootstrap.Modal(figureModalEl);
 
-  // 3) pendingAddFn must be declared before we use it
   let pendingAddFn = null;
 
   let stepCount = 0;
   let deleteMode = false;
-
-  const figures = ['Figure 1', 'Figure 2', 'Figure 3', 'Figure 4'];
 
   function updateDeleteModeUI() {
     document
@@ -60,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const collapseId = `collapse${idx}`;
 
     const card = document.createElement('div');
-    card.className = 'shadow-sm step-card mb-3';
+    card.className = 'shadow-sm step-card mb-4';
 
     const hdr = document.createElement('div');
     hdr.className = 'step-card-header d-flex justify-content-between align-items-center';
@@ -87,7 +76,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const body = document.createElement('div');
     body.className = 'card-body p-3 d-flex flex-column figure-dropdown';
 
-    // + Figure button
     const addFigBtn = document.createElement('button');
     addFigBtn.type = 'button';
     addFigBtn.className = 'btn shadow-sm figure-card p-3 mx-5 add-btn add-btn-figure d-flex justify-content-center align-items-center';
@@ -141,14 +129,12 @@ document.addEventListener('DOMContentLoaded', () => {
       end_position: endPosInput.value.trim(),
       duration: parseInt(durationInput.value, 10)
     };
-    // simple validation
+
     if (Object.values(payload).some(v => v === '' || v == null || isNaN(payload.duration))) {
       return alert('Please fill out all fields');
     }
 
-    const url = figureForm.getAttribute('action');
-    console.log(url);
-    fetch(url, {
+    fetch(`${figureForm.getAttribute('action')}create_figure`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -158,10 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return res.json();
       })
       .then(data => {
-        // your existing function that injects a card into the DOM
         pendingAddFn(data.name);
-
-        // clear and close
         figureForm.reset();
         figureModal.hide();
       })
@@ -175,13 +158,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchInput = document.getElementById('figureSearchInput');
   const resultsHolder = document.getElementById('figureSearchResults');
 
-  // 2) intercept submit
   searchForm.addEventListener('submit', e => {
     e.preventDefault();
     const q = searchInput.value.trim();
     if (!q) return;
 
-    // clear old
     resultsHolder.innerHTML = '<p>Searching…</p>';
 
     fetch(`${figureForm.getAttribute('action')}search`, {
@@ -195,7 +176,6 @@ document.addEventListener('DOMContentLoaded', () => {
           resultsHolder.innerHTML = '<p>No matches found.</p>';
           return;
         }
-        // build a card for each result
         resultsHolder.innerHTML = '';
         list.forEach(fig => {
           const card = document.createElement('div');
@@ -208,7 +188,6 @@ document.addEventListener('DOMContentLoaded', () => {
               <!-- … add other fields as you like … -->
             </div>
           `;
-          // clicking a result could call your pendingAddFn or otherwise
           card.addEventListener('click', () => {
             pendingAddFn(fig.name);
             figureModal.hide();
@@ -220,5 +199,24 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error(err);
         resultsHolder.innerHTML = '<p class="text-danger">Search failed.</p>';
       });
+  });
+
+  const danceForm = document.getElementById('danceForm');
+  const danceData = document.getElementById('danceData');
+  const danceNameInput = document.querySelector('.danceNameInput');
+
+  danceForm.addEventListener('submit', e => {
+    const steps = Array.from(document.querySelectorAll('.step-card')).map(card => {
+      const stepName = card.querySelector('.step-label-input').value;
+      const figures = Array.from(card.querySelectorAll('.figure-card')).map(figureCard => figureCard.textContent.trim()).filter(name => name.length > 0);
+      return { stepName, figures }
+    });
+
+    const payload = {
+      danceName: danceNameInput.value.trim() || 'Untitled Dance',
+      steps
+    };
+    
+    danceData.value = JSON.stringify(payload);
   });
 });

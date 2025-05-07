@@ -22,7 +22,7 @@
     border-color: #fff;
 }
 
-.container form {
+#container form {
     background-color: #fff;
     display: flex;
     align-items: center;
@@ -255,6 +255,31 @@ input[type=number] {
 
 .white-divider {
     border: none;
-    height: 2px;              
-    background-color: white;  
+    height: 1px;  
+    opacity: 100%;            
+    background-color: #999;  
+  }
+
+.form-container.search {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; 
+    align-items: center;   
+    height: 100%;            
+  }
+  
+  #figureSearchForm,
+  #figureSearchResults {
+    width: 80%;          
+  }
+
+  .card-title {
+    color: black;
+  }
+
+  #figureSearchResults {
+    overflow-y: auto;
+    height: 50vh;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
   }

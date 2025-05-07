@@ -7,7 +7,7 @@ body {
 
 .content {
     overflow-y: auto;
-    max-height: 75vh;
+    max-height: 72.5vh;
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
 }
@@ -147,4 +147,32 @@ body {
 #figureModal .modal-header,
 #figureModal .modal-footer {
     flex: 0 0 auto;
+}
+
+.danceNameInput {
+    border: none;
+    background-color: transparent;
+    font-size: 2.5rem;
+    border-bottom: solid #999 1px;
+    color: white;
+    min-width: 50%;
+}
+
+.danceNameInput::placeholder {
+    color: #999;
+    font-style: italic;
+}
+
+.danceNameInput:focus {
+    box-shadow: none;
+    outline: none;
+}
+
+.create-dance-button {
+    font-size: 2.5rem;
+    background-color: #38a5f9;
+}
+
+.create-dance-button:hover {
+    background-color: #38a5f9;
 }

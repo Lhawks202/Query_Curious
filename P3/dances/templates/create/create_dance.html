@@ -11,21 +11,31 @@
 
 {% block content %}
 <div class="container py-5" style="font-family: 'Montserrat', sans-serif;">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="fw-normal m-0">Add Dance</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4 px-3">
+        <input class="danceNameInput px-3" placeholder="Untitled Dance">
         <!-- Trash icon button -->
-        <i id="deleteModeBtn" class="bi bi-trash-fill text-danger fs-2" role="button" aria-label="Delete steps"
+        <i id="deleteModeBtn" class="bi bi-trash-fill text-danger fs-2 pe-3" role="button" aria-label="Delete steps"
             style="cursor: pointer;"></i>
     </div>
 
     <div class="content p-3">
-        <!-- Dynamically‐inserted step dropdowns go here -->
-        <div id="stepsContainer"></div>
+        <form id="danceForm" method="post" action="{{ url_for('create.add_dance') }}">
+            <!-- Dynamically‐inserted step dropdowns go here -->
+            <div id="stepsContainer"></div>
 
-        <!-- + button -->
-        <button id="addStepBtn" class="btn add-btn add-btn-step w-100 d-flex justify-content-center align-items-center">
-            <i class="bi bi-plus"></i>
-        </button>
+            <!-- + button -->
+            <button id="addStepBtn" type="button" class="btn add-btn add-btn-step w-100 d-flex justify-content-center align-items-center mb-5">
+                <i class="bi bi-plus"></i>
+            </button>
+
+            <input type="hidden" name="dance_data" id="danceData">
+
+            <hr class="w-100 white-divider mb-4">
+
+            <button type="submit" class="btn add-btn create-dance-button d-flex justify-content-center align-items-center w-100 mb-5">
+                <i class="fa-solid fa-file-import"></i>
+            </button>
+        </form>
     </div>
 </div>
 {% include "create/figure_modal.html" %}
