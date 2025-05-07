@@ -22,12 +22,18 @@
             <p class="card-text">
               <small class="text-muted">
                 Rating:
+                {% if fav['rating'] is none %}
+                  {% for i in range(5) %}
+                    <i class="bi bi-star text-warning"></i>
+                  {% endfor %}
+                {% else %}
                 {% for i in range(fav['rating']) %}
                   <i class="bi bi-star-fill text-warning"></i>
                 {% endfor %}
                 {% for i in range(5 - fav['rating']) %}
                   <i class="bi bi-star text-warning"></i>
                 {% endfor %}
+                {% endif %}
               </small>
             </p>
           </div>

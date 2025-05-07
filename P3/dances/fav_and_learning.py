@@ -9,7 +9,12 @@ bp = Blueprint('fav_and_learning', __name__)
 @login_required
 def favorites():
     if request.method == 'POST':
-        ret_status = add_favorite(request.get_json())
+        data = request.get_json()
+        action = data['action']
+        if action == 'remove':
+            ret_status = remove_from_favorite(data)
+        else:
+            ret_status = add_favorite(data)
         return jsonify(status=ret_status)
     db = get_db()
     # add an error if the user is not logged in?
@@ -56,11 +61,26 @@ def add_favorite(data):
     # TO DO: add error handling
     return "added"
 
+def remove_from_favorite(data):
+    db = get_db()
+    dance_id = data['danceId']
+    user_id = g.user['Username']
+    db.execute('DELETE FROM Favorites WHERE UserId = ? AND DanceId = ?',
+                   (user_id, dance_id))
+    db.commit()
+    return "removed"
+
+
 @bp.route('/learning', methods=['GET', 'POST'])
 @login_required
 def learning():
     if request.method == 'POST':
-        ret_status = add_learning(request.get_json())
+        data = request.get_json()
+        action = data['action']
+        if action == 'remove':
+            ret_status = remove_from_learning(data)
+        else:
+            ret_status = add_learning(data)
         return jsonify(status=ret_status)
     db = get_db()
     # add an error if the user is not logged in?
@@ -104,3 +124,12 @@ def add_learning(data):
     db.commit()
     # TO DO: add error handling
     return "added"
+
+def remove_from_learning(data):
+    db = get_db()
+    dance_id = data['danceId']
+    user_id = g.user['Username']
+    db.execute('DELETE FROM Learning WHERE UserId = ? AND DanceId = ?',
+                   (user_id, dance_id))
+    db.commit()
+    return "removed"
