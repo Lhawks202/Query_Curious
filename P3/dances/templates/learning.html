@@ -6,27 +6,27 @@
 {% endblock %}
 
 {% block content %}
-    {% for learn in learning.values() %}
+    {% for dance_name, details in learning.items() %}
     <div class="col">
         <div class="card h-100 border-0 shadow-sm"
              style="cursor: pointer;"
              data-bs-toggle="modal"
              data-bs-target="#learnModal"
-             data-dance-name="{{ learn['dance_name'] }}"
-             data-date="{{ learn['date_added'] }}"
-             data-step-figure-map='{{ learn["steps"] | default({}) | tojson | safe }}'
+             data-dance-name="{{ dance_name }}"
+             data-step-figure-map='{{ details["steps"]|tojson }}'
+             data-figure-details='{{ figures|tojson }}'
              onclick="populateLearningModal(this)">
           <div class="card-body">
-            <h5 class="card-title">{{ learn['dance_name'] }}</h5>
+            <h5 class="card-title">{{ dance_name }}</h5>
             <p class="card-text">
               <small class="text-muted">
                 <i class="bi bi-calendar3 me-1"></i>
-                Date started learning: {{ learn['date_added'] }}
+                Date started learning: {{ details['date_added'] }}
               </small>
             </p>
             <button type="button"
                     class="btn btn-sm btn-outline-danger mt-2"
-                    data-dance-id="{{ learn['dance_id'] }}"
+                    data-dance-id="{{ details['dance_id'] }}"
                     onclick="event.stopPropagation(); removeFromLearning(this)">
               <i class="bi bi-x-circle me-1"></i>Remove
             </button>
@@ -39,21 +39,21 @@
     {% endfor %}
 
     <div class="modal fade" id="learnModal" tabindex="-1" aria-labelledby="learnModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="learnModalLabel">Learning Dance Info</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <p><strong>Dance:</strong> <span id="modalLearnDanceName"></span></p>
-              <div id="modalStepFigureList">
-                <!-- Step–figure pairs will be inserted here dynamically -->
-              </div>
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header bg-light">
+            <h5 class="modal-title" id="learnModalLabel">Learning Dance Info</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <h4 class="dance-title mb-4"><strong>Dance:</strong> <span id="modalLearnDanceName"></span></h4>
+            <div id="modalStepFigureList" class="step-figure-container">
+              <!-- Step–figure pairs will be inserted here dynamically -->
             </div>
           </div>
         </div>
       </div>
+    </div>
       
 
 
@@ -61,26 +61,83 @@
     function populateLearningModal(card) {
       const danceName = card.getAttribute('data-dance-name');
       const stepFigureData = JSON.parse(card.getAttribute('data-step-figure-map')); // embedded in data attribute
+      const figureDetails = JSON.parse(card.getAttribute('data-figure-details')); // Get figure details
 
       document.getElementById('modalLearnDanceName').textContent = danceName;
-      document.getElementById('modalLearnStepList').textContent = stepList;
 
       const container = document.getElementById('modalStepFigureList');
       container.innerHTML = ''; // clear previous content
 
-      for (const [step, figures] of Object.entries(stepFigureData)) {
-        const p = document.createElement('p');
-        const strong = document.createElement('strong');
-        strong.textContent = `${step}: `;
-        p.appendChild(strong);
-        p.append(figures.join(', '));
-        container.appendChild(p);
+      // Create sections for each step (A, B, etc.)
+      for (const [step, figureIds] of Object.entries(stepFigureData)) {
+        const stepDiv = document.createElement('div');
+        stepDiv.className = 'step-container mb-4';
+        
+        const stepHeader = document.createElement('h2');
+        stepHeader.className = 'step-header mb-3';
+        stepHeader.textContent = step;
+        stepDiv.appendChild(stepHeader);
+        
+        // Create a list for the figures
+        const figureList = document.createElement('ul');
+        figureList.className = 'figure-list list-unstyled';
+        
+        figureIds.forEach(figureId => {
+          const figureName = figureDetails[figureId]['name'];
+          const figureItem = document.createElement('li');
+          figureItem.className = 'figure-item mb-4 border-bottom pb-3';
+          
+          // Create figure name element
+          const nameSpan = document.createElement('h5');
+          nameSpan.className = 'figure-name mb-2';
+          nameSpan.textContent = figureName;
+          figureItem.appendChild(nameSpan);
+          
+          // Get figure details directly by ID
+          if (figureDetails[figureId]) {
+            const details = figureDetails[figureId];
+            
+            // Create details container
+            const detailsDiv = document.createElement('div');
+            detailsDiv.className = 'figure-details ps-3';
+            
+            // Add duration
+            if (details.duration) {
+              const durationP = document.createElement('p');
+              durationP.className = 'mb-2';
+              durationP.innerHTML = `<strong>Duration:</strong> ${details.duration}`;
+              detailsDiv.appendChild(durationP);
+            }
+            
+            // Add positions
+            if (details.start_position || details.end_position) {
+              const positionP = document.createElement('p');
+              positionP.className = 'mb-2';
+              positionP.innerHTML = `<strong>Position:</strong> ${details.start_position || ''} → ${details.end_position || ''}`;
+              detailsDiv.appendChild(positionP);
+            }
+            
+            // Add action
+            if (details.action) {
+              const actionP = document.createElement('p');
+              actionP.className = 'mb-2';
+              actionP.innerHTML = `<strong>Action:</strong> ${details.action}`;
+              detailsDiv.appendChild(actionP);
+            }
+            
+            figureItem.appendChild(detailsDiv);
+          }
+          
+          figureList.appendChild(figureItem);
+        });
+        
+        stepDiv.appendChild(figureList);
+        container.appendChild(stepDiv);
       }
     }
 
     function removeFromLearning(button) {
         const danceId = button.getAttribute('data-dance-id');
-        console.log("danceID: ", danceId)
     
         fetch('/learning', {
             method: 'POST',
@@ -106,4 +163,55 @@
         });
     }
     </script>
+
+<style>
+  /* Styles for the learning modal */
+  .step-header {
+    background-color: var(--bs-light);
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 2rem;
+    color: var(--bs-body-color);
+  }
+  
+  .figure-name {
+    color: var(--bs-primary);
+    font-weight: 500;
+  }
+  
+  .figure-details {
+    background-color: var(--bs-light);
+    padding: 12px 15px;
+    border-radius: 5px;
+    border-left: 3px solid var(--bs-primary);
+  }
+  
+  [data-bs-theme="dark"] .step-header {
+    background-color: #2c3034;
+  }
+  
+  [data-bs-theme="dark"] .figure-details {
+    background-color: #2c3034;
+    border-left: 3px solid var(--bs-primary);
+  }
+  
+  [data-bs-theme="dark"] .modal-header.bg-light {
+    background-color: #2c3034 !important;
+  }
+  
+  .dance-title {
+    color: var(--bs-body-color);
+    border-bottom: 1px solid var(--bs-border-color);
+    padding-bottom: 10px;
+  }
+  
+  .modal-lg {
+    max-width: 800px;
+  }
+  
+  .step-figure-container {
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+</style>
     {% endblock %}

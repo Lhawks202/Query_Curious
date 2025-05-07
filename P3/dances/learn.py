@@ -108,50 +108,76 @@ def learning():
     if g.user is None:
         return render_template('learning.html')
     
-    raw_rows = db.execute(
-    '''SELECT d.ID as dance_id, d.DanceName as dance_name, 
-                    learn.DateAdded as date_added
-                    , s.StepName as step_name, fs.Place as place, 
-                    fig.Name as figure_name
-       FROM Learning learn
-       JOIN Dance d ON learn.DanceId = d.ID 
-       JOIN Steps s ON s.DanceId = d.ID
-       JOIN FigureStep fs ON fs.StepsId = s.ID
-       JOIN Figure fig ON fig.ID = fs.FigureId
-       WHERE learn.UserId = ?
-       ORDER BY d.ID, s.StepName, fs.Place
-    ''',
-    (g.user['Username'],)).fetchall()
-
-    
+    dances = db.execute(
+        '''
+        SELECT d.ID as id, d.DanceName as dance_name, l.DateAdded as date_added
+        FROM Learning l
+        JOIN Dance d ON l.DanceID = d.ID
+        WHERE l.UserID = ?
+        ''', (g.user['Username'],)
+    ).fetchall()
 
     learning_dances = {}
+    figures = {}
 
-    for row in raw_rows:
-        d_id   = row['dance_id']
-        step   = row['step_name']
-        figure = row['figure_name']
-        place  = row['place']
+    for dance in dances:
+        dance_id = dance['id']
+        dance_name = dance['dance_name']
+        date_added = dance['date_added']
+        steps_and_figures = db.execute(
+            '''
+            SELECT s.StepName as step_name, 
+                   f.ID as figure_id, 
+                   f.Name as figure_name, 
+                   f.Duration as duration, 
+                   f.StartPosition as start_position, 
+                   f.EndPosition as end_position, 
+                   f.Action as action, 
+                   fs.Place as place
+            FROM Step s
+            JOIN FigureStep fs ON fs.StepID = s.ID
+            JOIN Figure f ON f.ID = fs.FigureID
+            WHERE DanceID = ?
+            ORDER BY s.StepName, fs.Place ASC
+            ''', (dance_id,)
+        ).fetchall()
 
-        if d_id not in learning_dances:
-            learning_dances[d_id] = {
-                'dance_id': row['dance_id'],
-                'dance_name': row['dance_name'],
-                'date_added': row['date_added'],
-                'steps': defaultdict(list),
-            }
-
-        learning_dances[d_id]['steps'][step].append((place, figure))
-
-    # Sort figures by their numeric place
-    for dance in learning_dances.values():
-        dance['steps'] = {
-            step: [name for place, name in sorted(fig_list)]
-            for step, fig_list in dance['steps'].items()
-        }
-    
-    
-    return render_template('learning.html', learning=learning_dances)
+        # if there are no steps/figures for this dance, warn and continue (shouldn't happen)
+        if len(steps_and_figures) == 0: 
+            print(f"Warning: no steps/figures associated with dance {dance_name} (id: {dance_id})")
+            continue
+        
+        learning_dances[dance_name] = {}
+        learning_dances[dance_name]['steps'] = {}
+        
+        for s in steps_and_figures:
+            # if step already in return object, simply append the figure
+            current_step = s['step_name']
+            current_figure_id = s['figure_id']
+            current_figure_name = s['figure_name']
+            
+            # Store figure details
+            if current_figure_id not in figures:
+                figures[current_figure_id] = {
+                    'name': current_figure_name,
+                    'duration': s['duration'],
+                    'start_position': s['start_position'],
+                    'end_position': s['end_position'],
+                    'action': s['action']
+                }
+            
+            # Store figure ID in steps dictionary
+            if current_step in learning_dances[dance_name]['steps']:
+                learning_dances[dance_name]['steps'][current_step].append(current_figure_id)
+            else:
+                learning_dances[dance_name]['steps'][current_step] = [current_figure_id]
+            
+        learning_dances[dance_name]['date_added'] = date_added
+        learning_dances[dance_name]['dance_id'] = dance_id
+        
+    print(learning_dances)
+    print(figures)
+    return render_template('learning.html', learning=learning_dances, figures=figures)
 
 def add_learning(data):
     db = get_db()
