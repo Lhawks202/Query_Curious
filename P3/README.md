@@ -33,7 +33,7 @@ Our Team members are:
   - `video`
   - `source
 
-### 3. `Step`
+#### 3. `Step`
 - Represents a single movement or unit of choreography.
 - **Attributes:**
   - `ID` (Primary Key)
@@ -95,8 +95,8 @@ Our Team members are:
 
 ## Setting up your environment
 1. Clone the repository. 
-2. Copy output.zip from P2 directory into root of P3 directory.
-3. Unzip output.zip file.
+2. Copy `output.zip` from P2 directory into root of P3 directory.
+3. Unzip `output.zip` file.
 4. Set up a virtual environment:
    a. Run `python -m venv env` to create a virtual environment.
    b. Run `source env/bin/activate` (Mac/Linux) or `env\Scripts\activate` (Windows) to activate the virtual environment.
