@@ -9,7 +9,7 @@ import re
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
-# fetches user from User by Username
+# Fetch user from User by Username
 def fetch_user(username: str) -> Optional[Any]:
     db = get_db()
     return db.execute(
@@ -24,7 +24,7 @@ def register() -> str:
         name = request.form['name']
         email = request.form['email']
         state = request.form['state'] or None
-        city = request.form['city'] or None
+        city = request.form['city'] or None 
         db = get_db()
         error = None
 
@@ -37,12 +37,12 @@ def register() -> str:
         elif not re.match(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", email):
             error = 'Invalid email address.'
 
-        # check if user is in user table
+        # Check if user is in user table
         customer = fetch_user(user_id)
         if customer:
             error = 'User already exists—try logging in!'
         
-        # no error, proceed
+        # No error, proceed
         if error is None:
             try:
                 db.execute(
@@ -53,9 +53,10 @@ def register() -> str:
             except db.IntegrityError:
                 error = f"User {user_id} is already registered."
             else:
-                flash('Registration successful! Please log in.')
-                return redirect(url_for("auth.login"))
-
+                flash('Registration successful!')
+                session['user_id'] = user_id
+                return redirect(url_for('index'))
+                
         flash(error)
 
     next = request.args.get('next')
@@ -64,7 +65,7 @@ def register() -> str:
 @bp.route('/login', methods=('GET', 'POST'))
 def login() -> str:
     if request.method == 'POST':
-        user_id = request.form['user_id'].lower() # treat user_id as case insensitive
+        user_id = request.form['user_id'].lower()
         password = request.form['password']
         error = None
 
