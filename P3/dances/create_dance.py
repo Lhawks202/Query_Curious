@@ -1,4 +1,4 @@
-from flask import (Blueprint, render_template, session, redirect, url_for, flash, request, jsonify)
+from flask import (Blueprint, render_template, redirect, url_for, request, jsonify)
 from .db import get_db
 import secrets, re, sqlite3, json
 

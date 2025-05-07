@@ -1,17 +1,16 @@
-<!-- Figure Name / Step Modal -->
 <div class="modal fade" id="figureModal" tabindex="-1" aria-labelledby="figureModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-fullscreen" role="document">
     <div class="modal-content shadow-sm">
       <div class="modal-body p-0">
-        <!-- Begin your login/signup panel markup -->
+
         <div class="container" id="container">
-          <!-- SIGN UP PANEL -->
+
           <div class="form-container add p-5">
             <div class="add-container pe-3 mb-4">
               <form id="figureForm" method="post" action="{{ url_for('create.add_dance') }}">
                 <div class="mb-3 w-80">
                   <h4 class="mb-3">Name</h4>
-                  <!-- <label for="figureNameInput" class="form-label">Figure Name</label> -->
+
                   <div class="textarea-container p-2">
                     <textarea id="figureNameInput" name="name" type="text" class="form-control textarea-scroll"
                       placeholder="Circle Left and Fall Back" required></textarea>
@@ -19,7 +18,6 @@
                 </div>
 
                 <div class="mb-3 w-80">
-                  <!-- <label for="rolesInput" class="form-label">Roles</label> -->
                   <h4 class="mb-3">Roles</h4>
                   <div class="textarea-container p-2">
                     <textarea id="rolesInput" name="roles" type="text" class="form-control textarea-scroll"
@@ -28,7 +26,6 @@
                 </div>
 
                 <div class="mb-3 w-80">
-                  <!-- <label for="startPosInput" class="form-label">Start Position</label> -->
                   <h4 class="mb-3">Start Position</h4>
                   <div class="textarea-container p-2">
                     <textarea id="startPosInput" name="start_position" type="text" class="form-control textarea-scroll"
@@ -37,7 +34,6 @@
                 </div>
 
                 <div class="mb-3 w-80">
-                  <!-- <label for="actionInput" class="form-label">Action</label> -->
                   <h4 class="mb-3">Action</h4>
                   <div class="textarea-container p-2">
                     <textarea id="actionInput" name="action" type="text" class="form-control textarea-scroll"
@@ -46,7 +42,7 @@
                 </div>
 
                 <div class="mb-3 w-80">
-                  <!-- <label for="endPosInput" class="form-label">End Position</label> -->
+
                   <h4 class="mb-3">End Position</h4>
                   <div class="textarea-container p-2">
                     <textarea id="endPosInput" name="end_position" type="text" class="form-control textarea-scroll"
@@ -55,7 +51,6 @@
                 </div>
 
                 <div class="mb-3 w-80">
-                  <!-- <label for="durationInput" class="form-label">Duration (seconds)</label> -->
                   <h4 class="mb-3">Duration (s)</h4>
                   <input id="durationInput" name="duration" type="number" min="1" class="form-control" placeholder="4"
                     required>
@@ -71,27 +66,26 @@
             </div>
           </div>
 
-          <!-- SIGN IN PANEL -->
+
           <div class="form-container search p-5">
 
-              <form id="figureSearchForm">
-                <h4>Search for Figure</h4>
-                <div class="input-group mb-3 w-80">
-                  <input id="figureSearchInput" type="text" class="form-control" placeholder="keywords…"
-                    aria-label="search figures" />
-                  <button class="btn btn-outline-secondary" type="submit">
-                    <i class="bi bi-search"></i>
-                  </button>
-                </div>
-              </form>
-
-              <div id="figureSearchResults" class="w-80">
-                <!-- results injected here -->
+            <form id="figureSearchForm">
+              <h4>Search for Figure</h4>
+              <div class="input-group mb-3 w-80">
+                <input id="figureSearchInput" type="text" class="form-control" placeholder="keywords…"
+                  aria-label="search figures" />
+                <button class="btn btn-outline-secondary" type="submit">
+                  <i class="bi bi-search"></i>
+                </button>
               </div>
+            </form>
+
+            <div id="figureSearchResults" class="w-80">
+
+            </div>
 
           </div>
 
-          <!-- TOGGLE PANELS -->
           <div class="toggle-container shadow">
             <div class="toggle">
               <div class="toggle-panel toggle-left">
@@ -109,7 +103,6 @@
             </div>
           </div>
         </div>
-        <!-- End login/signup panel markup -->
       </div>
     </div>
   </div>

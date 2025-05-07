@@ -33,7 +33,6 @@ body {
     position: relative;
 }
 
-/* Tremble animation: slight rotate side to side */
 @keyframes tremble {
     0% {
         transform: rotate(-0.15deg);
@@ -98,7 +97,6 @@ body {
     color: #121212;
 }
 
-/* Optional: highlight cards on hover in delete mode */
 .step-card.shake:hover,
 .figure-card.shake:hover {
     box-shadow: 0 0 0 2px rgba(255, 10, 67, 0.9) !important;
@@ -119,17 +117,13 @@ body {
 }
 
 
-/* ===== make the modal nearly fullscreen ===== */
 #figureModal .modal-dialog {
     max-width: 90vw;
-    /* almost full‑width */
     margin: 0 auto;
-    /* center horizontally */
 }
 
 #figureModal .modal-content {
     height: 80vh;
-    /* ~80% of viewport height */
     display: flex;
     flex-direction: column;
     border-radius: 2rem;
@@ -139,14 +133,12 @@ body {
 
 #figureModal .modal-body {
     flex: 1 1 auto;
-    /* body fills available height */
     overflow-y: auto;
     border-radius: 2rem;
     background-color: #2f2f2f;
     overflow-y: hidden;
 }
 
-/* ensure header/footer keep their natural size */
 #figureModal .modal-header,
 #figureModal .modal-footer {
     flex: 0 0 auto;

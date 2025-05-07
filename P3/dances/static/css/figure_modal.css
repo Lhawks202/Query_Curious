@@ -201,7 +201,8 @@
 .textarea-scroll:focus {
     outline: none !important;
     box-shadow: none !important;
-    border: none; /* or whatever your normal border color is */
+    border: none;
+    /* or whatever your normal border color is */
 }
 
 .textarea-scroll::-webkit-scrollbar {
@@ -222,7 +223,7 @@
 #figureForm input::placeholder {
     color: #999;
     font-style: italic;
-  }
+}
 
 .w-80 {
     width: 80%;
@@ -236,13 +237,13 @@
 /* Chrome, Safari, Edge, Opera */
 input[type=number]::-webkit-outer-spin-button,
 input[type=number]::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 /* Firefox */
 input[type=number] {
-  -moz-appearance: textfield;
+    -moz-appearance: textfield;
 }
 
 #figureForm {
@@ -255,31 +256,31 @@ input[type=number] {
 
 .white-divider {
     border: none;
-    height: 1px;  
-    opacity: 100%;            
-    background-color: #999;  
-  }
+    height: 1px;
+    opacity: 100%;
+    background-color: #999;
+}
 
 .form-container.search {
     display: flex;
     flex-direction: column;
-    justify-content: center; 
-    align-items: center;   
-    height: 100%;            
-  }
-  
-  #figureSearchForm,
-  #figureSearchResults {
-    width: 80%;          
-  }
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
 
-  .card-title {
+#figureSearchForm,
+#figureSearchResults {
+    width: 80%;
+}
+
+.card-title {
     color: black;
-  }
+}
 
-  #figureSearchResults {
+#figureSearchResults {
     overflow-y: auto;
     height: 50vh;
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
-  }
+}

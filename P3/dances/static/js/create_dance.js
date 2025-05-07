@@ -50,7 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function createStep() {
     const idx = stepCount++;
-    // const label = String.fromCharCode(65 + idx);
     const collapseId = `collapse${idx}`;
 
     const card = document.createElement('div');
@@ -62,7 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const input = document.createElement('input');
     input.type = 'text';
     input.className = 'step-label-input ms-2 ps-1';
-    // input.value = label;
     input.placeholder = "Enter Step Name";
     input.addEventListener('mousedown', e => e.stopPropagation());
     input.addEventListener('click', e => e.stopPropagation());
@@ -228,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
       source: sourceInput.value.trim(),
       steps
     };
-    
+
     danceData.value = JSON.stringify(payload);
   });
 });
