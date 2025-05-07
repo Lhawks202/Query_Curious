@@ -90,12 +90,15 @@ Our Team members are:
 
 ## Setting up your environment
 1. Clone the repository. 
-2. Download the `dances.sqlite` binary from releases.
-3. Place that binary in `<project-root>/dances/`
+2. Copy output.zip from P2 directory into root of P3 directory.
+3. Unzip output.zip file.
 4. Set up a virtual environment:
    a. Run `python -m venv env` to create a virtual environment.
    b. Run `source env/bin/activate` (Mac/Linux) or `env\Scripts\activate` (Windows) to activate the virtual environment.
-5. Run `pip install -r requirements` to install all necessary requirements.
-6. Run `flask --app dances init-db` to update the Dances DB schema.
+5. Run `pip install -r requirements.txt` to install all necessary requirements.
+6. Run `flask --app dances init-db` to initialize the Dances DB schema.
+  a. To populate the database add the `--populate` flag
+  b. To delete the database and reinitialize add the `--force` flag
+  c. To delete and repopulate add both flags
 7.  Run `flask --app dances run` to start the Flask application.
 8. Navigate to the local URL provided in the terminal to access the app.
