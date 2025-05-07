@@ -156,11 +156,11 @@
           {% if g.user %}
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                <img src="https://ui-avatars.com/api/?name={{ g.user['UserID'] }}&background=random" class="rounded-circle" width="30" height="30">
-                {{ g.user['UserID'] }}
+                <img src="https://ui-avatars.com/api/?name={{ g.user['Username'] }}&background=random" class="rounded-circle" width="30" height="30">
+                {{ g.user['Username'] }}
               </a>
               <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="#">My Profile</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('profile.view_profile') }}">My Profile</a></li>
                 <li><a class="dropdown-item" href="{{ url_for('fav_and_learning.favorites') }}">My Favorites</a></li>
                 <li><a class="dropdown-item" href="{{ url_for('fav_and_learning.learning') }}">Learning List</a></li>
                 <li><hr class="dropdown-divider"></li>
