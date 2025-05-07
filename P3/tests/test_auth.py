@@ -24,13 +24,13 @@ def test_register(client: FlaskClient, app: Flask, auth: Any) -> None:
         assert get_db().execute(
             "SELECT * FROM User WHERE Username = ?", ('testtestingauth',)
         ).fetchone() is not None
-    response = auth.register(username='testtestingauth2', password='testtestingauth2', next='/cart')
+    response = auth.register(username='testtestingauth2', password='testtestingauth2', next='/')
     # Check if the user was added to the database
     with app.app_context():
         assert get_db().execute(
             "SELECT * FROM User WHERE Username = 'testtestingauth2'",
         ).fetchone() is not None
-    assert response.headers['Location'] == '/auth/login', "Post registration redirect location is incorrect."
+    assert response.headers['Location'] == '/', "Post registration redirect location is incorrect."
 
 def test_register_existing_user(client: FlaskClient, auth: Any) -> None:
     auth.register()
