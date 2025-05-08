@@ -19,7 +19,7 @@
 
         {% if dance.Video %}
           <div class="mb-3">
-            <iframe src="{{ dance.Video }}" width="100%" height="400" frameborder="0" allowfullscreen></iframe>
+            <iframe src="{{ dance.Video|replace('watch?v=', 'embed/') if 'youtube' in dance.Video else dance.Video }}" width="100%" height="400" frameborder="0" allowfullscreen></iframe>
           </div>
         {% endif %}
 
