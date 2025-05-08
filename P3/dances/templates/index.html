@@ -35,6 +35,7 @@
             <div class="card-body">
               <h5 class="card-title">{{ dance.DanceName }}</h5>
               <p class="card-text"><i class="bi bi-music-note me-1"></i>{{ dance.StepName }}</p>
+
               {% if dance.Date %}
                 <p class="card-text"><small class="text-muted"><i class="bi bi-calendar3 me-1"></i>Date: {{ dance.Date }}</small></p>
               {% endif %}
@@ -45,28 +46,31 @@
             <div class="card-footer border-0 bg-transparent">
               <div class="btn-group w-100" role="group">
                 {% if g.user %}
-                  <button type="button"
+                {% if dance.ID|string not in user_learned %}
+                <button type="button"
                         class="btn btn-sm {% if dance.ID|string in user_learning %}btn-warning{% else %}btn-outline-warning{% endif %}"
                         data-dance-id="{{ dance.ID }}"
                         data-dance-name="{{ dance.DanceName }}"
                         data-is-learning="{{ 'true' if dance.ID|string in user_learning else 'false' }}"
                         data-role="learning-button"
                         onclick="handleLearningButtonClick(this)">
-                    <i class="bi {% if dance.ID|string in user_learning %}bi-bookmark-check-fill{% else %}bi-bookmark-plus{% endif %} me-1"></i>
-                    {% if dance.ID|string in user_learning %}Learning{% else %}Learn{% endif %}
-                  </button>
-        
-                  <button type="button" 
-                          class="btn btn-sm {% if dance.ID|string in user_learned %}btn-danger{% else %}btn-outline-danger{% endif %}"
-                          data-dance-id="{{ dance.ID }}"
-                          data-dance-name="{{ dance.DanceName }}"
-                          data-is-learned="{{ 'true' if dance.ID|string in user_learned else 'false' }}"
-                          data-is-currently-learning="{{ 'true' if dance.ID|string in user_learning else 'false' }}"
-                          data-role="learned-button"
-                          onclick="handleLearnedButtonClick(this)">
-                    <i class="bi {% if dance.ID|string in user_learned %}bi-heart-fill{% else %}bi-heart{% endif %} me-1"></i>
-                    {% if dance.ID|string in user_learned%}Learned{% elif dance.ID|string in user_learning %}Finished?{% else %}Learned{% endif %}
-                  </button>
+                  <i class="bi {% if dance.ID|string in user_learning %}bi-bookmark-check-fill{% else %}bi-bookmark-plus{% endif %} me-1"></i>
+                  {% if dance.ID|string in user_learning %}Learning{% else %}Learn{% endif %}
+                </button>
+              {% endif %}
+              
+              <button type="button" 
+                      class="btn btn-sm {% if dance.ID|string in user_learned %}btn-danger{% else %}btn-outline-danger{% endif %}"
+                      data-dance-id="{{ dance.ID }}"
+                      data-dance-name="{{ dance.DanceName }}"
+                      data-is-learned="{{ 'true' if dance.ID|string in user_learned else 'false' }}"
+                      data-is-currently-learning="{{ 'true' if dance.ID|string in user_learning else 'false' }}"
+                      data-role="learned-button"
+                      onclick="handleLearnedButtonClick(this)">
+                <i class="bi {% if dance.ID|string in user_learned %}bi-heart-fill{% else %}bi-heart{% endif %} me-1"></i>
+                {% if dance.ID|string in user_learned %}Learned{% elif dance.ID|string in user_learning %}Finished?{% else %}Learned{% endif %}
+              </button>
+              
                 {% endif %}
               </div>
             </div>
@@ -164,6 +168,8 @@
 function handleLearnedButtonClick(button) {
   const isLearned = button.dataset.isLearned === 'true';
   const isCurrentlyLearning = button.dataset.isCurrentlyLearning === 'true';
+  console.log("Has already learned: ", isLearned)
+  console.log("Is currently learning: ", isCurrentlyLearning)
   const danceId = button.dataset.danceId;
   const danceName = button.dataset.danceName;
 

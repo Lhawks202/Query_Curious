@@ -33,18 +33,18 @@ def index():
     if g.user:
         user_id = g.user['Username']
         user_learned = database.execute(
-            'SELECT DanceId FROM Learned WHERE UserId = ?',
+            'SELECT DanceID FROM Learned WHERE UserID = ?',
             (user_id,)
         ).fetchall()
-        user_learned = [f['DanceId'] for f in user_learned]
+        user_learned = [f['DanceID'] for f in user_learned]
         
         user_learning = database.execute(
-            'SELECT DanceId FROM Learning WHERE UserId = ?',
+            'SELECT DanceID FROM Learning WHERE UserID = ?',
             (user_id,)
         ).fetchall()
-        user_learning = [l['DanceId'] for l in user_learning]
+        user_learning = [l['DanceID'] for l in user_learning]
         
     return render_template('index.html', dances=dances, 
-                          user_favorites=user_learned, 
+                          user_learned=user_learned, 
                           user_learning=user_learning,
                           current_date=current_date)
