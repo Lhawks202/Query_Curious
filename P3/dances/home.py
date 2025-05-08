@@ -45,6 +45,6 @@ def index():
         user_learning = [l['DanceId'] for l in user_learning]
         
     return render_template('index.html', dances=dances, 
-                          user_favorites=user_learned, 
+                          user_learned=user_learned, 
                           user_learning=user_learning,
                           current_date=current_date)
