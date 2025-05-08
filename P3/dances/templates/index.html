@@ -50,9 +50,11 @@
                             data-dance-id="{{ dance.ID }}"
                             data-dance-name="{{ dance.DanceName }}"
                             data-role="learning-button"
+                            {% if not dance.ID|string in user_learning %}
                             data-bs-toggle="modal"
                             data-bs-target="#learningModal"
-                            onclick="handleLearningButtonClick(this)">
+                            {% endif %}
+                            onclick="handleLearningButtonClick(this, event)">
                       <i class="bi {% if dance.ID|string in user_learning %}bi-bookmark-check-fill{% else %}bi-bookmark-plus{% endif %} me-1"></i>
                       {% if dance.ID|string in user_learning %}Learning{% else %}Learn{% endif %}
                     </button>
@@ -63,7 +65,7 @@
                             data-role="learned-button"
                             data-bs-toggle="modal"
                             data-bs-target="#learnedModal"
-                            onclick="handleLearnedButtonClick(this)">
+                            onclick="handleLearnedButtonClick(this, event)">
                       <i class="bi {% if dance.ID|string in user_learned %}bi-heart-fill{% else %}bi-heart{% endif %} me-1"></i>
                       {% if dance.ID|string in user_learned %}Learned{% else %}Learned{% endif %}
                     </button>
@@ -161,12 +163,15 @@
 <script>
 // Handle learned
 
-function handleLearnedButtonClick(button) {
-  const isLearned = button.dataset.isLearned === 'true';
+function handleLearnedButtonClick(button, event) {
+  // const isLearned = button.dataset.isLearned === 'true';
+  const isLearned = button.classList.contains('btn-danger');
   const danceId = button.dataset.danceId;
   const danceName = button.dataset.danceName;
 
   if (isLearned) {
+    event.preventDefault();
+    event.stopPropagation();
     // Immediate removal, no modal
     fetch('/learned', {
       method: 'POST',
@@ -194,6 +199,16 @@ function updateLearnedButton(button, hasLearned) {
   button.dataset.isLearned = hasLearned ? 'true' : 'false';
   button.classList.toggle('btn-danger', hasLearned);
   button.classList.toggle('btn-outline-danger', !hasLearned);
+  
+  // Update data-bs attributes based on learned status
+  if (hasLearned) {
+    button.removeAttribute('data-bs-toggle');
+    button.removeAttribute('data-bs-target');
+  } else {
+    button.setAttribute('data-bs-toggle', 'modal');
+    button.setAttribute('data-bs-target', '#learnedModal');
+  }
+  
   button.innerHTML = hasLearned
     ? '<i class="bi bi-heart-fill me-1"></i>Learned'
     : '<i class="bi bi-heart me-1"></i>Learned';
@@ -204,7 +219,6 @@ document.getElementById('learnedFormElement').addEventListener('submit', functio
   const danceId = document.getElementById('learnedDanceId').value;
   const date = document.getElementById('date').value;
   const rating = parseInt(document.querySelector('input[name="rating"]:checked')?.value, 10);
-  console.log("rating: ", rating)
   const button = document.querySelector(`button[data-dance-id="${danceId}"][data-role="learned-button"]`);
   const danceName = button.dataset.danceName;
 
@@ -228,20 +242,22 @@ document.getElementById('learnedFormElement').addEventListener('submit', functio
 });
 
 document.getElementById('learnedModal').addEventListener('hidden.bs.modal', function () {
-  console.log('Modal closed');
   document.querySelector('.modal-backdrop')?.remove();
   document.body.style.overflow = '';
 });
 
 
 //Handle learning
-function handleLearningButtonClick(button) {
-  const isLearning = button.dataset.isLearning === 'true';
+function handleLearningButtonClick(button, event) {
+  // const isLearning = button.dataset.isLearning === 'true';
+  const isLearning = button.classList.contains('btn-warning'); 
   const danceId = button.dataset.danceId;
   const danceName = button.dataset.danceName;
 
   if (isLearning) {
-    // 🔸 Immediate removal, no modal
+    event.preventDefault();
+    event.stopPropagation();
+    // Immediate removal, no modal
     fetch('/learning', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -257,10 +273,9 @@ function handleLearningButtonClick(button) {
       }
     });
   } else {
-    // 🔸 Show modal to add
+    // Show modal to add
     const modal = new bootstrap.Modal(document.getElementById('learningModal'));
     document.getElementById('learningDanceId').value = danceId;
-    // document.getElementById('learningDanceName').textContent = danceName;
     modal.show();
   }
 }
@@ -269,6 +284,16 @@ function updateLearningButton(button, isNowLearning) {
   button.dataset.isLearning = isNowLearning ? 'true' : 'false';
   button.classList.toggle('btn-warning', isNowLearning);
   button.classList.toggle('btn-outline-warning', !isNowLearning);
+  
+  // Update data-bs attributes based on learning status
+  if (isNowLearning) {
+    button.removeAttribute('data-bs-toggle');
+    button.removeAttribute('data-bs-target');
+  } else {
+    button.setAttribute('data-bs-toggle', 'modal');
+    button.setAttribute('data-bs-target', '#learningModal');
+  }
+  
   button.innerHTML = isNowLearning
     ? '<i class="bi bi-bookmark-check-fill me-1"></i>Learning'
     : '<i class="bi bi-bookmark-plus me-1"></i>Learn';
@@ -276,10 +301,8 @@ function updateLearningButton(button, isNowLearning) {
 
 document.getElementById('learningFormElement').addEventListener('submit', function(event) {
   event.preventDefault();
-  console.log('Submit button clicked');
   const danceId = document.getElementById('learningDanceId').value;
   const date = document.getElementById('date').value;
-  console.log('Dance ID:', danceId);
   const button = document.querySelector(`button[data-dance-id="${danceId}"][data-role="learning-button"]`);
   if (!button) {
     console.error(`Button with data-dance-id="${danceId}" not found.`);
@@ -307,7 +330,6 @@ document.getElementById('learningFormElement').addEventListener('submit', functi
 });
 
 document.getElementById('learningModal').addEventListener('hidden.bs.modal', function () {
-  console.log('Modal closed');
   document.querySelector('.modal-backdrop')?.remove();
   document.body.style.overflow = '';
 });
