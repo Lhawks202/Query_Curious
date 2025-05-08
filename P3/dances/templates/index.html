@@ -198,14 +198,14 @@ function handleLearnedButtonClick(button) {
   } 
 }
 
-function updateLearnedButton(button, hasLearned) {
-  button.dataset.isLearned = hasLearned ? 'true' : 'false';
-  button.classList.toggle('btn-danger', hasLearned);
-  button.classList.toggle('btn-outline-danger', !hasLearned);
-  button.innerHTML = hasLearned
-    ? '<i class="bi bi-heart-fill me-1"></i>Learned'
-    : '<i class="bi bi-heart me-1"></i>Learned';
-}
+// function updateLearnedButton(button, hasLearned) {
+//   button.dataset.isLearned = hasLearned ? 'true' : 'false';
+//   button.classList.toggle('btn-danger', hasLearned);
+//   button.classList.toggle('btn-outline-danger', !hasLearned);
+//   button.innerHTML = hasLearned
+//     ? '<i class="bi bi-heart-fill me-1"></i>Learned'
+//     : '<i class="bi bi-heart me-1"></i>Learned';
+// }
 
 document.getElementById('learnedFormElement').addEventListener('submit', function(event) {
   event.preventDefault();
@@ -287,14 +287,14 @@ function handleLearningButtonClick(button) {
   }
 }
 
-function updateLearningButton(button, isNowLearning) {
-  button.dataset.isLearning = isNowLearning ? 'true' : 'false';
-  button.classList.toggle('btn-warning', isNowLearning);
-  button.classList.toggle('btn-outline-warning', !isNowLearning);
-  button.innerHTML = isNowLearning
-    ? '<i class="bi bi-bookmark-check-fill me-1"></i>Learning'
-    : '<i class="bi bi-bookmark-plus me-1"></i>Learn';
-}
+// function updateLearningButton(button, isNowLearning) {
+//   button.dataset.isLearning = isNowLearning ? 'true' : 'false';
+//   button.classList.toggle('btn-warning', isNowLearning);
+//   button.classList.toggle('btn-outline-warning', !isNowLearning);
+//   button.innerHTML = isNowLearning
+//     ? '<i class="bi bi-bookmark-check-fill me-1"></i>Learning'
+//     : '<i class="bi bi-bookmark-plus me-1"></i>Learn';
+// }
 
 document.getElementById('learningFormElement').addEventListener('submit', function(event) {
   event.preventDefault();
