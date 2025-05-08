@@ -12,14 +12,7 @@
 {% block content %}
     {% for dance_name, details in learning.items() %}
     <div class="col">
-        <div class="card h-100 border-0 shadow-sm"
-             style="cursor: pointer;"
-             data-bs-toggle="modal"
-             data-bs-target="#learnModal"
-             data-dance-name="{{ dance_name }}"
-             data-step-figure-map='{{ details["steps"]|tojson }}'
-             data-figure-details='{{ figures|tojson }}'
-             onclick="populateLearningModal(this)">
+        <div class="card h-100 border-0 shadow-sm">
           <div class="card-body">
             <h5 class="card-title">{{ dance_name }}</h5>
             <p class="card-text">
@@ -28,12 +21,24 @@
                 Date started learning: {{ details['date_added'] }}
               </small>
             </p>
-            <button type="button"
-                    class="btn btn-sm btn-outline-danger mt-2"
-                    data-dance-id="{{ details['dance_id'] }}"
-                    onclick="event.stopPropagation(); removeFromLearning(this)">
-              <i class="bi bi-x-circle me-1"></i>Remove
-            </button>
+            <div class="d-flex justify-content-between mt-2">
+              <button type="button"
+                      class="btn btn-sm btn-outline-danger"
+                      data-dance-id="{{ details['dance_id'] }}"
+                      onclick="removeFromLearning(this)">
+                <i class="bi bi-x-circle me-1"></i>Remove
+              </button>
+              <button type="button"
+                      class="btn btn-sm btn-outline-primary"
+                      data-bs-toggle="modal"
+                      data-bs-target="#learnModal"
+                      data-dance-name="{{ dance_name }}"
+                      data-step-figure-map='{{ details["steps"]|tojson }}'
+                      data-figure-details='{{ figures|tojson }}'
+                      onclick="populateLearningModal(this)">
+                <i class="bi bi-info-circle me-1"></i>Details
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -156,7 +161,7 @@
                 if (card) card.remove();
 
                 alert('Dance removed from Learning');
-                location.reload();
+                window.location.href = window.location.pathname;
             } else {
                 alert('Error removing dance.');
             }
