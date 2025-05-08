@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 
-{% if g.user %}
+{% block head %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/learning.css') }}">
+{% endblock %}
 
 {% block header %}
   <h1 class="display-4 mb-3">Currently Learning Dances</h1>
@@ -8,27 +10,161 @@
 {% endblock %}
 
 {% block content %}
-    {% for learn in learning %}
-        <div class="col">
-            <div class="card h-100 border-0 shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">{{ learn['dance_name'] }}</h5>
-                <p class="card-text">
-                <small class="text-muted">
-                    <i class="bi bi-calendar3 me-1"></i>
-                    Date started learning: {{ learn['date_added'] }}
-                </small>
-                </p>
-            </div>
-            </div>
+    {% for dance_name, details in learning.items() %}
+    <div class="col">
+        <div class="card h-100 border-0 shadow-sm"
+             style="cursor: pointer;"
+             data-bs-toggle="modal"
+             data-bs-target="#learnModal"
+             data-dance-name="{{ dance_name }}"
+             data-step-figure-map='{{ details["steps"]|tojson }}'
+             data-figure-details='{{ figures|tojson }}'
+             onclick="populateLearningModal(this)">
+          <div class="card-body">
+            <h5 class="card-title">{{ dance_name }}</h5>
+            <p class="card-text">
+              <small class="text-muted">
+                <i class="bi bi-calendar3 me-1"></i>
+                Date started learning: {{ details['date_added'] }}
+              </small>
+            </p>
+            <button type="button"
+                    class="btn btn-sm btn-outline-danger mt-2"
+                    data-dance-id="{{ details['dance_id'] }}"
+                    onclick="event.stopPropagation(); removeFromLearning(this)">
+              <i class="bi bi-x-circle me-1"></i>Remove
+            </button>
+          </div>
         </div>
+      </div>
+      
         {% else %}
         <p>No learning dances found for this user. Go back to home and find a fun dance to learn!</p>
     {% endfor %}
-{% endblock %}
 
-{% else %}
-<h1>Error: not logged in</h1>
-{% endif %}
-</body>
-</html>
+    <div class="modal fade" id="learnModal" tabindex="-1" aria-labelledby="learnModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header bg-light">
+            <h5 class="modal-title" id="learnModalLabel">Learning Dance Info</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <h4 class="dance-title mb-4"><strong>Dance:</strong> <span id="modalLearnDanceName"></span></h4>
+            <div id="modalStepFigureList" class="step-figure-container">
+              <!-- Step–figure pairs will be inserted here dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+      
+
+
+<script>
+    function populateLearningModal(card) {
+      const danceName = card.getAttribute('data-dance-name');
+      const stepFigureData = JSON.parse(card.getAttribute('data-step-figure-map')); // embedded in data attribute
+      const figureDetails = JSON.parse(card.getAttribute('data-figure-details')); // Get figure details
+
+      document.getElementById('modalLearnDanceName').textContent = danceName;
+
+      const container = document.getElementById('modalStepFigureList');
+      container.innerHTML = ''; // clear previous content
+
+      // Create sections for each step (A, B, etc.)
+      for (const [step, figureIds] of Object.entries(stepFigureData)) {
+        const stepDiv = document.createElement('div');
+        stepDiv.className = 'step-container mb-4';
+        
+        const stepHeader = document.createElement('h2');
+        stepHeader.className = 'step-header mb-3';
+        stepHeader.textContent = step;
+        stepDiv.appendChild(stepHeader);
+        
+        // Create a list for the figures
+        const figureList = document.createElement('ul');
+        figureList.className = 'figure-list list-unstyled';
+        
+        figureIds.forEach(figureId => {
+          const figureName = figureDetails[figureId]['name'];
+          const figureItem = document.createElement('li');
+          figureItem.className = 'figure-item mb-4 border-bottom pb-3';
+          
+          // Create figure name element
+          const nameSpan = document.createElement('h5');
+          nameSpan.className = 'figure-name mb-2';
+          nameSpan.textContent = figureName;
+          figureItem.appendChild(nameSpan);
+          
+          // Get figure details directly by ID
+          if (figureDetails[figureId]) {
+            const details = figureDetails[figureId];
+            
+            // Create details container
+            const detailsDiv = document.createElement('div');
+            detailsDiv.className = 'figure-details ps-3';
+            
+            // Add duration
+            if (details.duration) {
+              const durationP = document.createElement('p');
+              durationP.className = 'mb-2';
+              durationP.innerHTML = `<strong>Duration:</strong> ${details.duration}`;
+              detailsDiv.appendChild(durationP);
+            }
+            
+            // Add positions
+            if (details.start_position || details.end_position) {
+              const positionP = document.createElement('p');
+              positionP.className = 'mb-2';
+              positionP.innerHTML = `<strong>Position:</strong> ${details.start_position || ''} → ${details.end_position || ''}`;
+              detailsDiv.appendChild(positionP);
+            }
+            
+            // Add action
+            if (details.action) {
+              const actionP = document.createElement('p');
+              actionP.className = 'mb-2';
+              actionP.innerHTML = `<strong>Action:</strong> ${details.action}`;
+              detailsDiv.appendChild(actionP);
+            }
+            
+            figureItem.appendChild(detailsDiv);
+          }
+          
+          figureList.appendChild(figureItem);
+        });
+        
+        stepDiv.appendChild(figureList);
+        container.appendChild(stepDiv);
+      }
+    }
+
+    function removeFromLearning(button) {
+        const danceId = button.getAttribute('data-dance-id');
+    
+        fetch('/learning', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ danceId, action: 'remove' })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'removed') {
+                
+                const card = button.closest('.col');
+                if (card) card.remove();
+
+                alert('Dance removed from Learning');
+                location.reload();
+            } else {
+                alert('Error removing dance.');
+            }
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            alert('Request failed.');
+        });
+    }
+    </script>
+    {% endblock %}

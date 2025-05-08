@@ -1,6 +1,7 @@
 from flask import (Blueprint, render_template, redirect, url_for, request, jsonify, current_app, abort)
 from .db import get_db
 import secrets, re, sqlite3, json
+from collections import defaultdict
 
 bp = Blueprint('dance', __name__, url_prefix='/dance')
 
@@ -227,3 +228,60 @@ def search_figures():
         for r in rows
     ]
     return jsonify(results), 200
+
+@bp.route('/<int:dance_id>', methods=['GET', 'POST'])
+def display_information(dance_id):
+    db = get_db()
+
+    # Get main dance information
+    dance_info = db.execute(
+        '''SELECT ID, DanceName, Video, Source 
+           FROM Dance WHERE ID = ?''',
+        (dance_id,)
+    ).fetchone()
+
+    if not dance_info:
+        return "Dance not found", 404
+
+    # Get steps and figures for this dance
+    steps_and_figures = db.execute(
+        '''
+        SELECT s.StepName as step_name, 
+               f.ID as figure_id, 
+               f.Name as figure_name, 
+               f.Duration as duration, 
+               f.StartPosition as start_position, 
+               f.EndPosition as end_position, 
+               f.Action as action, 
+               fs.Place as place
+        FROM Step s
+        JOIN FigureStep fs ON fs.StepId = s.ID
+        JOIN Figure f ON f.ID = fs.FigureId
+        WHERE s.DanceId = ?
+        ORDER BY s.StepName, fs.Place ASC
+        ''', (dance_id,)
+    ).fetchall()
+
+    # Prepare the data for rendering
+    steps = defaultdict(list)
+    figures = {}
+
+    for s in steps_and_figures:
+        current_step = s['step_name']
+        current_figure_id = s['figure_id']
+        current_figure_name = s['figure_name']
+
+        # Store figure details if not already stored
+        if current_figure_id not in figures:
+            figures[current_figure_id] = {
+                'name': current_figure_name,
+                'duration': s['duration'],
+                'start_position': s['start_position'],
+                'end_position': s['end_position'],
+                'action': s['action']
+            }
+
+        # Append figure ID to the appropriate step
+        steps[current_step].append(current_figure_id)
+
+    return render_template('specific_dance.html', dance=dance_info, steps=steps, figures=figures)

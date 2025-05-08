@@ -21,53 +21,55 @@
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
       {% for dance in dances %}
         <div class="col">
-          <div class="card h-100 border-0 shadow-sm">
-            {% if dance.Video %}
-              <div class="ratio ratio-16x9">
-                <iframe src="{{ dance.Video|replace('watch?v=', 'embed/') if 'youtube' in dance.Video else dance.Video }}" allowfullscreen></iframe>
-              </div>
-            {% else %}
-              <div class="bg-primary bg-opacity-10 text-center p-5">
-                <i class="bi bi-music-note-beamed" style="font-size: 4rem;"></i>
-                <p class="mt-2">No Preview Available</p>
-              </div>
-            {% endif %}
-            <div class="card-body">
-              <h5 class="card-title">{{ dance.DanceName }}</h5>
-              <p class="card-text"><i class="bi bi-music-note me-1"></i>{{ dance.StepName }}</p>
-              {% if dance.Date %}
-                <p class="card-text"><small class="text-muted"><i class="bi bi-calendar3 me-1"></i>Date: {{ dance.Date }}</small></p>
+            <div class="card h-100 border-0 shadow-sm">
+              <a href="{{ url_for('dance.display_information', dance_id=dance.ID) }}" class="stretched-link"></a>
+              {% if dance.Video %}
+                <div class="ratio ratio-16x9">
+                  <iframe src="{{ dance.Video|replace('watch?v=', 'embed/') if 'youtube' in dance.Video else dance.Video }}" allowfullscreen></iframe>
+                </div>
+              {% else %}
+                <div class="bg-primary bg-opacity-10 text-center p-5">
+                  <i class="bi bi-music-note-beamed" style="font-size: 4rem;"></i>
+                  <p class="mt-2">No Preview Available</p>
+                </div>
               {% endif %}
-              {% if dance.Source %}
-                <p class="card-text"><small class="text-muted"><i class="bi bi-book me-1"></i>Source: {{ dance.Source }}</small></p>
-              {% endif %}
-            </div>
-            <div class="card-footer border-0 bg-transparent">
-              <div class="btn-group w-100" role="group">
-                {% if g.user %}
-                  <button type="button" 
-                          class="btn btn-sm {% if dance.ID|string in user_learning %}btn-warning{% else %}btn-outline-warning{% endif %}"
-                          data-dance-id="{{ dance.ID }}"
-                          data-role="learning-button"
-                          data-bs-toggle="modal"
-                          data-bs-target="#learningModal">
-                    <i class="bi {% if dance.ID|string in user_learning %}bi-bookmark-check-fill{% else %}bi-bookmark-plus{% endif %} me-1"></i>
-                    {% if dance.ID|string in user_learning %}Learning{% else %}Learn{% endif %}
-                  </button>
-                  <button type="button" 
-                          class="btn btn-sm {% if dance.ID|string in user_favorites %}btn-danger{% else %}btn-outline-danger{% endif %}"
-                          data-dance-id="{{ dance.ID }}"
-                          data-role="favorite-button"
-                          data-bs-toggle="modal"
-                          data-bs-target="#favoriteModal">
-                          <!-- onclick="prepareFavoriteForm('{{ dance.ID }}')" -->
-                    <i class="bi {% if dance.ID|string in user_favorites %}bi-heart-fill{% else %}bi-heart{% endif %} me-1"></i>
-                    {% if dance.ID|string in user_favorites %}Favorited{% else %}Favorite{% endif %}
-                  </button>
+              <div class="card-body">
+                <h5 class="card-title">{{ dance.DanceName }}</h5>
+                <p class="card-text"><i class="bi bi-music-note me-1"></i>{{ dance.StepName }}</p>
+                {% if dance.Date %}
+                  <p class="card-text"><small class="text-muted"><i class="bi bi-calendar3 me-1"></i>Date: {{ dance.Date }}</small></p>
+                {% endif %}
+                {% if dance.Source %}
+                  <p class="card-text"><small class="text-muted"><i class="bi bi-book me-1"></i>Source: {{ dance.Source }}</small></p>
                 {% endif %}
               </div>
+              <div class="card-footer border-0 bg-transparent">
+                <div class="btn-group w-100" role="group">
+                  {% if g.user %}
+                    <button type="button" 
+                            class="btn btn-sm {% if dance.ID|string in user_learning %}btn-warning{% else %}btn-outline-warning{% endif %}"
+                            data-dance-id="{{ dance.ID }}"
+                            data-role="learning-button"
+                            data-bs-toggle="modal"
+                            data-bs-target="#learningModal">
+                      <i class="bi {% if dance.ID|string in user_learning %}bi-bookmark-check-fill{% else %}bi-bookmark-plus{% endif %} me-1"></i>
+                      {% if dance.ID|string in user_learning %}Learning{% else %}Learn{% endif %}
+                    </button>
+                    <button type="button" 
+                            class="btn btn-sm {% if dance.ID|string in user_learned %}btn-danger{% else %}btn-outline-danger{% endif %}"
+                            data-dance-id="{{ dance.ID }}"
+                            data-role="learned-button"
+                            data-bs-toggle="modal"
+                            data-bs-target="#learnedModal"
+                            onclick="handleLearnedButtonClick(this)">
+                      <i class="bi {% if dance.ID|string in user_learned %}bi-heart-fill{% else %}bi-heart{% endif %} me-1"></i>
+                      {% if dance.ID|string in user_learned %}Learned{% else %}Learn{% endif %}
+                    </button>
+                  {% endif %}
+                </div>
+              </div>
             </div>
-          </div>
+            
         </div>
       {% endfor %}
     </div>
@@ -81,17 +83,17 @@
     {% endif %}
   {% endif %}
 
-  <!-- Favorite Modal -->
-<div class="modal fade" id="favoriteModal" tabindex="-1" aria-hidden="true">
+  <!-- Learned Modal -->
+<div class="modal fade" id="learnedModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-      <form id="favoriteFormElement">
+      <form id="learnedFormElement">
         <div class="modal-header">
-          <h5 class="modal-title">Add to Favorites</h5>
+          <h5 class="modal-title">Add to Learned</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <input type="hidden" id="favoriteDanceId">
+          <input type="hidden" id="learnedDanceId">
           <div class="mb-3">
             <label for="rating" class="form-label">What do you rate this dance?</label>
             <div class="star-rating d-flex justify-content-center mb-3">
@@ -155,89 +157,137 @@
 
 
 <script>
-// Handle favorites
-document.getElementById('favoriteModal').addEventListener('show.bs.modal', function (event) {
-  const button = event.relatedTarget; // ← the button that triggered the modal
-  const danceId = button.getAttribute('data-dance-id');
-  document.getElementById('favoriteDanceId').value = danceId;
-  document.querySelectorAll('input[name="rating"]').forEach(input => input.checked = false);
-});
+// Handle learned
 
-  document.getElementById('favoriteFormElement').addEventListener('submit', function(event) {
+function handleLearnedButtonClick(button) {
+  const isLearned = button.dataset.isLearned === 'true';
+  const danceId = button.dataset.danceId;
+  const danceName = button.dataset.danceName;
+
+  if (isLearned) {
+    // Immediate removal, no modal
+    fetch('/learned', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ danceId, action: 'remove' })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === 'removed') {
+        updateLearnedButton(button, false);
+        alert(`You removed ${danceName} from Learned`);
+      } else {
+        alert('Error: ' + data.message);
+      }
+    });
+  } else {
+    // Show modal to add
+    const modal = new bootstrap.Modal(document.getElementById('learnedModal'));
+    document.getElementById('learnedDanceId').value = danceId;
+    modal.show();
+  }
+}
+
+function updateLearnedButton(button, hasLearned) {
+  button.dataset.isLearned = hasLearned ? 'true' : 'false';
+  button.classList.toggle('btn-danger', hasLearned);
+  button.classList.toggle('btn-outline-danger', !hasLearned);
+  button.innerHTML = hasLearned
+    ? '<i class="bi bi-heart-fill me-1"></i>Learned'
+    : '<i class="bi bi-heart me-1"></i>Learned';
+}
+
+document.getElementById('learnedFormElement').addEventListener('submit', function(event) {
   event.preventDefault();
-  const danceId = document.getElementById('favoriteDanceId').value;
-  const rating = parseInt(document.querySelector('input[name="rating"]:checked')?.value, 10);
+  const danceId = document.getElementById('learnedDanceId').value;
   const date = document.getElementById('date').value;
+  const rating = parseInt(document.querySelector('input[name="rating"]:checked')?.value, 10);
+  console.log("rating: ", rating)
+  const button = document.querySelector(`button[data-dance-id="${danceId}"][data-role="learned-button"]`);
+  const danceName = button.dataset.danceName;
 
-  console.log("Dance ID:", danceId);
-
-  fetch(`/favorites`, {
+  fetch('/learned', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ rating, date, danceId })
+    body: JSON.stringify({ rating, danceId, date, action: 'add' })
   })
   .then(res => res.json())
   .then(data => {
-    alert('Dance favorited!');
-    console.log('Success:', data);
-    const modal = bootstrap.Modal.getInstance(document.getElementById('favoriteModal'));
-    modal.hide();  // close modal
-    const button = document.querySelector(`button[data-dance-id="${danceId.toString()}"][data-role="favorite-button"]`);
     if (data.status === 'added') {
-        button.classList.remove('btn-outline-danger');
-        button.classList.add('btn-danger');
-        button.innerHTML = `<i class="bi bi-heart-fill me-1"></i>Favorited`;
-      } else {
-        button.classList.remove('btn-danger');
-        button.classList.add('btn-outline-danger');
-        button.innerHTML = `<i class="bi bi-heart me-1"></i>Favorite`;
-      }
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    alert('Something went wrong.');
+      updateLearnedButton(button, true);
+      bootstrap.Modal.getInstance(document.getElementById('learnedModal')).hide();
+      alert(`${danceName} added to Learned.`);
+    } else {
+      alert('Failed to add.');
+    }
   });
 });
 
-//Handle learning
-document.getElementById('learningModal').addEventListener('show.bs.modal', function (event) {
-  const button = event.relatedTarget; // ← the button that triggered the modal
-  const danceId = button.getAttribute('data-dance-id');
-  document.getElementById('learningDanceId').value = danceId;
-});
 
-  document.getElementById('learningFormElement').addEventListener('submit', function(event) {
+//Handle learning
+function handleLearningButtonClick(button) {
+  const isLearning = button.dataset.isLearning === 'true';
+  const danceId = button.dataset.danceId;
+  const danceName = button.dataset.danceName;
+
+  if (isLearning) {
+    // 🔸 Immediate removal, no modal
+    fetch('/learning', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ danceId, action: 'remove' })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === 'removed') {
+        updateLearningButton(button, false);
+        alert(`You removed ${danceName} from Learning`);
+      } else {
+        alert('Error: ' + data.message);
+      }
+    });
+  } else {
+    // 🔸 Show modal to add
+    const modal = new bootstrap.Modal(document.getElementById('learningModal'));
+    document.getElementById('learningDanceId').value = danceId;
+    // document.getElementById('learningDanceName').textContent = danceName;
+    modal.show();
+  }
+}
+
+function updateLearningButton(button, isNowLearning) {
+  button.dataset.isLearning = isNowLearning ? 'true' : 'false';
+  button.classList.toggle('btn-warning', isNowLearning);
+  button.classList.toggle('btn-outline-warning', !isNowLearning);
+  button.innerHTML = isNowLearning
+    ? '<i class="bi bi-bookmark-check-fill me-1"></i>Learning'
+    : '<i class="bi bi-bookmark-plus me-1"></i>Learn';
+}
+
+document.getElementById('learningFormElement').addEventListener('submit', function(event) {
   event.preventDefault();
   const danceId = document.getElementById('learningDanceId').value;
   const date = document.getElementById('date').value;
+  const button = document.querySelector(`button[data-dance-id="${danceId}"][data-role="learning-button"]`);
+  const danceName = button.dataset.danceName;
 
-  fetch(`/learning`, {
+  fetch('/learning', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ date, danceId })
+    body: JSON.stringify({ danceId, date, action: 'add' })
   })
   .then(res => res.json())
   .then(data => {
-    alert('Add to learning!');
-    console.log('Success:', data);
-    const modal = bootstrap.Modal.getInstance(document.getElementById('learningModal'));
-    modal.hide();  // close modal
-    const button = document.querySelector(`button[data-dance-id="${danceId.toString()}"][data-role="learning-button"]`);
     if (data.status === 'added') {
-        button.classList.remove('btn-outline-warning');
-        button.classList.add('btn-warning');
-        button.innerHTML = `<i class="bi bi-bookmark-check-fill me-1"></i>Learning`;
-      } else {
-        button.classList.remove('btn-warning');
-        button.classList.add('btn-outline-warning');
-        button.innerHTML = `<i class="bi bi-bookmark-plus me-1"></i>Learn`;
-      }
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    alert('Something went wrong.');
+      updateLearningButton(button, true);
+      bootstrap.Modal.getInstance(document.getElementById('learningModal')).hide();
+      alert(`${danceName} added to Learning.`);
+    } else {
+      alert('Failed to add.');
+    }
   });
 });
+
 
 </script>
 {% endblock %} 

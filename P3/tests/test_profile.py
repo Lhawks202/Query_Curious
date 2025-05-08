@@ -1,8 +1,9 @@
-from flask import g
 from dances.db import get_db
+from flask import Flask
+from flask.testing import FlaskClient
+from typing import Any
 
-def test_view_profile(client, auth):
-    """Test viewing the profile page."""
+def test_view_profile(client: FlaskClient, auth: Any) -> None:
     auth.register()
     auth.login()
     response = client.get('/profile/')
@@ -13,7 +14,7 @@ def test_view_profile(client, auth):
     assert 'testname' in response_text  # Name
     assert 'test@test.com' in response_text  # Email
 
-def test_update_profile_success(client, auth, app):
+def test_update_profile_success(client: FlaskClient, auth: Any, app: Flask) -> None:
     auth.register()
     auth.login()
     response = client.post('/profile/update', data={
@@ -35,8 +36,7 @@ def test_update_profile_success(client, auth, app):
         assert user['State'] == 'Updated State'
         assert user['City'] == 'Updated City'
 
-def test_update_profile_missing_name(client, auth):
-    """Test updating the profile with a missing name."""
+def test_update_profile_missing_name(client: FlaskClient, auth: Any) -> None:
     auth.register()
     auth.login()
     response = client.post('/profile/update', data={
@@ -49,8 +49,7 @@ def test_update_profile_missing_name(client, auth):
     response_text = response.data.decode('utf-8')
     assert 'Name is required.' in response_text
 
-def test_update_profile_invalid_email(client, auth):
-    """Test updating the profile with an invalid email."""
+def test_update_profile_invalid_email(client: FlaskClient, auth: Any) -> None:
     auth.register()
     auth.login()
     response = client.post('/profile/update', data={

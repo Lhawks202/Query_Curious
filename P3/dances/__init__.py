@@ -40,8 +40,8 @@ def create_app(test_config: Optional[Dict[str, Any]] = None) -> Flask:
     app.register_blueprint(home.bp)
     app.add_url_rule('/', endpoint='index')
 
-    from . import fav_and_learning
-    app.register_blueprint(fav_and_learning.bp)
+    from . import learn
+    app.register_blueprint(learn.bp)
     
     from . import profile
     app.register_blueprint(profile.bp)

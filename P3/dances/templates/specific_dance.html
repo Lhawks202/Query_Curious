@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block head %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/learning.css') }}">
+{% endblock %}
+
+{% if g.user %}
+  {% block header %}
+    <h1 class="display-4 mb-3">Dance Info</h1>
+    <p class="lead">Details about this dance</p>
+  {% endblock %}
+
+  {% block content %}
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h3 class="card-title">{{ dance.DanceName }}</h3>
+        <a href="{{ url_for('dance.edit_dance', dance_id=dance.ID) }}">Edit</a>
+
+        {% if dance.Video %}
+          <div class="mb-3">
+            <iframe src="{{ dance.Video }}" width="100%" height="400" frameborder="0" allowfullscreen></iframe>
+          </div>
+        {% endif %}
+
+        {% if dance.Source %}
+          <p><strong>Source:</strong> {{ dance.Source }}</p>
+        {% endif %}
+
+        <h5 class="mt-4">Steps:</h5>
+        <div class="step-figure-container mt-3" id="specificStepFigureList"
+             data-step-figure-map='{{ steps|tojson }}'
+             data-figure-details='{{ figures|tojson }}'>
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const container = document.getElementById("specificStepFigureList");
+        const stepFigureData = JSON.parse(container.getAttribute("data-step-figure-map"));
+        const figureDetails = JSON.parse(container.getAttribute("data-figure-details"));
+
+        for (const [step, figureIds] of Object.entries(stepFigureData)) {
+          const stepDiv = document.createElement('div');
+          stepDiv.className = 'step-container mb-4';
+
+          const stepHeader = document.createElement('h2');
+          stepHeader.className = 'step-header mb-3';
+          stepHeader.textContent = step;
+          stepDiv.appendChild(stepHeader);
+
+          const figureList = document.createElement('ul');
+          figureList.className = 'figure-list list-unstyled';
+
+          figureIds.forEach(figureId => {
+            const figureName = figureDetails[figureId]['name'];
+            const figureItem = document.createElement('li');
+            figureItem.className = 'figure-item mb-4 border-bottom pb-3';
+
+            const nameSpan = document.createElement('h5');
+            nameSpan.className = 'figure-name mb-2';
+            nameSpan.textContent = figureName;
+            figureItem.appendChild(nameSpan);
+
+            if (figureDetails[figureId]) {
+              const details = figureDetails[figureId];
+              const detailsDiv = document.createElement('div');
+              detailsDiv.className = 'figure-details ps-3';
+
+              if (details.duration) {
+                const durationP = document.createElement('p');
+                durationP.innerHTML = `<strong>Duration:</strong> ${details.duration}`;
+                detailsDiv.appendChild(durationP);
+              }
+
+              if (details.start_position || details.end_position) {
+                const positionP = document.createElement('p');
+                positionP.innerHTML = `<strong>Position:</strong> ${details.start_position || ''} → ${details.end_position || ''}`;
+                detailsDiv.appendChild(positionP);
+              }
+
+              if (details.action) {
+                const actionP = document.createElement('p');
+                actionP.innerHTML = `<strong>Action:</strong> ${details.action}`;
+                detailsDiv.appendChild(actionP);
+              }
+
+              figureItem.appendChild(detailsDiv);
+            }
+
+            figureList.appendChild(figureItem);
+          });
+
+          stepDiv.appendChild(figureList);
+          container.appendChild(stepDiv);
+        }
+      });
+    </script>
+  {% endblock %}
+{% endif %}
