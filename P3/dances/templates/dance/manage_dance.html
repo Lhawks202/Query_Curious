@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Dance{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/figure_modal.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/manage_dance.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="font-family: 'Montserrat', sans-serif;">
+    <div class="d-flex justify-content-between align-items-center mb-4 px-3">
+        <input class="danceNameInput px-3" placeholder="Untitled Dance" {% if dance %}value="{{ dance.danceName }}"{% endif %}>
+        <i id="deleteModeBtn" class="bi bi-trash-fill text-danger fs-1 pe-3" role="button" aria-label="Delete steps"
+            style="cursor: pointer;"></i>
+    </div>
+
+    <div class="d-flex justify-content-left align-items-center mb-4 px-3">
+        <input class="sourceInput px-3" placeholder="Input Source" {% if dance %}value="{{ dance.source }}"{% endif %}>
+    </div>
+    <div class="d-flex justify-content-left align-items-center mb-5 px-3">
+        <input class="videoInput px-3" placeholder="Input Video Link" {% if dance %}value="{{ dance.video }}"{% endif %}>
+    </div>
+
+
+    <div class="content p-3">
+        <form id="danceForm" method="post" action="{% if dance %}{{ url_for('dance.edit_dance', dance_id=dance.danceID) }}{% else %}{{ url_for('dance.add_dance') }}{% endif %}">
+            <div id="stepsContainer">
+                {% if dance %}
+                {% for step in dance.steps %}
+                  <div class="shadow-sm step-card mb-4">
+                    <div class="step-card-header d-flex justify-content-between align-items-center">
+                      <input
+                        type="text"
+                        class="step-label-input ms-2 ps-1"
+                        value="{{ step.stepName }}"
+                        placeholder="Enter Step Name"
+                      >
+                      <i class="bi bi-chevron-down pe-3"></i>
+                    </div>
+                    <div class="collapse" id="collapse{{ loop.index0 }}">
+                      <div class="card-body p-3 d-flex flex-column figure-dropdown">
+                        {% for fig in step.figures %}
+                            <div class="shadow-sm figure-card p-3 mx-5">
+                            {{ fig }}
+                            </div>
+                        {% endfor %}
+                        <button
+                          type="button"
+                          class="btn shadow-sm figure-card p-3 mx-5 add-btn add-btn-figure d-flex justify-content-center align-items-center"
+                          data-bs-toggle="tooltip"
+                          data-bs-placement="top"
+                          title="Click to add a new figure"
+                        ><i class="bi bi-plus"></i></button>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+                {% endif %}
+            </div>
+              
+
+
+
+            <button id="addStepBtn" type="button"
+                class="btn add-btn add-btn-step w-100 d-flex justify-content-center align-items-center mb-5"
+                data-bs-toggle="tooltip" data-bs-placement="top" title="Click to add a new step">
+                <i class="bi bi-plus"></i>
+            </button>
+
+            <input type="hidden" name="dance_data" id="danceData">
+
+            <hr class="w-100 white-divider mb-4">
+
+            <button type="submit"
+                class="btn add-btn create-dance-button d-flex justify-content-center align-items-center w-100 mb-5"
+                data-bs-toggle="tooltip" data-bs-placement="top" title="Click to create dance">
+                <i class="fa-solid fa-file-import"></i>
+            </button>
+        </form>
+    </div>
+</div>
+{% include "dance/figure_modal.html" %}
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/manage_dance.js') }}"></script>
+<script src="{{ url_for('static', filename='js/figure_modal.js') }}"></script>
+{% endblock %}

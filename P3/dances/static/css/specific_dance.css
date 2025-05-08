@@ -1,0 +1,7 @@
+body {
+    overflow-y: hidden !important;
+}
+
+.step-figure-container {
+    height: 50vh;
+}

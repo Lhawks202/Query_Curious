@@ -28,7 +28,6 @@
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    padding: 0 40px;
     height: 100%;
     background-color: #2f2f2f;
     height: auto;
@@ -110,9 +109,7 @@
     position: absolute;
     top: 0;
     left: 75%;
-    /* was 50% */
     width: 25%;
-    /* was 50% */
     height: 100%;
     overflow: hidden;
     transition: all 0.6s ease-in-out;
@@ -196,13 +193,19 @@
     scrollbar-width: thin;
     scrollbar-color: rgba(78, 78, 78, 0.3) transparent;
     border: none;
+    background-color: #f2f0ef;
+    color: black;
 }
 
 .textarea-scroll:focus {
     outline: none !important;
     box-shadow: none !important;
     border: none;
-    /* or whatever your normal border color is */
+    background-color: #f2f0ef;
+}
+
+[data-bs-theme="dark"] .textarea-scroll:focus {
+    color: black;
 }
 
 .textarea-scroll::-webkit-scrollbar {
@@ -220,7 +223,8 @@
 }
 
 .textarea-scroll::placeholder,
-#figureForm input::placeholder {
+#figureForm input::placeholder,
+#figureSearchInput::placeholder {
     color: #999;
     font-style: italic;
 }
@@ -230,8 +234,13 @@
 }
 
 .textarea-container {
-    background-color: white;
+    background-color: #f2f0ef;
+    color: black;
     border-radius: 7.5px;
+}
+
+[data-bs-theme="dark"] .textarea-scroll {
+    background-color: #f2f0ef;
 }
 
 /* Chrome, Safari, Edge, Opera */
@@ -252,6 +261,18 @@ input[type=number] {
 
 #durationInput {
     height: 4rem;
+    color: black;
+    background-color: #f2f0ef;
+}
+
+[data-bs-theme="dark"] #durationInput {
+    background-color: #f2f0ef;
+}
+
+#durationInput:focus {
+    outline: none !important;
+    box-shadow: none !important;
+    border: none;
 }
 
 .white-divider {
@@ -279,8 +300,46 @@ input[type=number] {
 }
 
 #figureSearchResults {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
     overflow-y: auto;
     height: 50vh;
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+[data-bs-theme="dark"] .searchResult {
+    background-color: #f2f0ef !important;
+    border: none;
+}
+
+.searchResult {
+    background-color: #f2f0ef;
+    border: none;
+}
+
+.addFigureField {
+    color: #f2f0ef;
+}
+
+.searchFigureBtn {
+    background-color: #29ae72;
+    font-size: 1.5rem;
+}
+
+.searchFigureBtn:hover {
+    background-color: #29ae72;
+}
+
+#figureSearchInput {
+    font-size: 1.15rem;
+    background-color: #f2f0ef;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+[data-bs-theme="dark"] #figureSearchInput {
+    color: black;
 }

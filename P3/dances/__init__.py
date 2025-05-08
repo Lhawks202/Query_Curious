@@ -33,6 +33,9 @@ def create_app(test_config: Optional[Dict[str, Any]] = None) -> Flask:
     from . import auth
     app.register_blueprint(auth.bp)
 
+    from . import dance
+    app.register_blueprint(dance.bp)
+
     from . import home
     app.register_blueprint(home.bp)
     app.add_url_rule('/', endpoint='index')
@@ -42,9 +45,6 @@ def create_app(test_config: Optional[Dict[str, Any]] = None) -> Flask:
     
     from . import profile
     app.register_blueprint(profile.bp)
-
-    from . import dance
-    app.register_blueprint(dance.bp)
 
     @app.route('/')
     def index():
