@@ -204,6 +204,10 @@
     background-color: #f2f0ef;
 }
 
+[data-bs-theme="dark"] .textarea-scroll:focus {
+    color: black;
+}
+
 .textarea-scroll::-webkit-scrollbar {
     width: 8px;
 }
@@ -334,4 +338,8 @@ input[type=number] {
     background-color: #f2f0ef;
     padding-left: 0.5rem;
     padding-right: 0.5rem;
+}
+
+[data-bs-theme="dark"] #figureSearchInput {
+    color: black;
 }

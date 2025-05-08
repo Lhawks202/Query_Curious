@@ -23,14 +23,14 @@ def edit_dance(dance_id):
 
         db.execute(
           "DELETE FROM FigureStep "
-          " WHERE StepsId IN (SELECT ID FROM Steps WHERE DanceID=?)",
+          " WHERE StepId IN (SELECT ID FROM Step WHERE DanceID=?)",
           (dance_id,)
         )
-        db.execute("DELETE FROM Steps WHERE DanceID=?", (dance_id,))
+        db.execute("DELETE FROM Step WHERE DanceID=?", (dance_id,))
 
         for step in new_steps:
             cur = db.execute(
-              "INSERT INTO Steps (DanceID, StepName) VALUES (?, ?)",
+              "INSERT INTO Step (DanceID, StepName) VALUES (?, ?)",
               (dance_id, step['stepName'])
             )
             step_id = cur.lastrowid
@@ -42,7 +42,7 @@ def edit_dance(dance_id):
                 ).fetchone()
                 if row:
                     db.execute(
-                      "INSERT INTO FigureStep (StepsId, FigureId, Place) "
+                      "INSERT INTO FigureStep (StepId, FigureId, Place) "
                       "VALUES (?, ?, ?)",
                       (step_id, row['ID'], place)
                     )
@@ -68,7 +68,7 @@ def edit_dance(dance_id):
     }
 
     step_rows = db.execute(
-        "SELECT ID, StepName FROM Steps WHERE DanceID = ? ORDER BY ID",
+        "SELECT ID, StepName FROM Step WHERE DanceID = ? ORDER BY ID",
         (dance_id,)
     ).fetchall()
 
@@ -78,7 +78,7 @@ def edit_dance(dance_id):
             SELECT F.Name
               FROM FigureStep FS
               JOIN Figure F ON FS.FigureId = F.ID
-             WHERE FS.StepsId = ?
+             WHERE FS.StepId = ?
              ORDER BY FS.Place
             """,
             (step["ID"],)
@@ -114,7 +114,7 @@ def add_dance():
         for step in steps:
             step_name = step['stepName']
             cursor = db.execute(
-                "INSERT INTO Steps (DanceID, StepName) VALUES (?, ?)",
+                "INSERT INTO Step (DanceID, StepName) VALUES (?, ?)",
                 (dance_id, step_name,)
             )
             step_id = cursor.lastrowid
@@ -128,7 +128,7 @@ def add_dance():
                 if row:
                     figure_id = row['ID']
                     db.execute(
-                        "INSERT INTO FigureStep (StepsId, FigureId, Place) VALUES (?, ?, ?)",
+                        "INSERT INTO FigureStep (StepId, FigureId, Place) VALUES (?, ?, ?)",
                         (step_id, figure_id, place,)
                     )
                 else:
