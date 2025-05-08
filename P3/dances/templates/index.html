@@ -22,7 +22,6 @@
       {% for dance in dances %}
         <div class="col">
             <div class="card h-100 border-0 shadow-sm">
-              <a href="{{ url_for('dance.display_information', dance_id=dance.ID) }}" class="stretched-link"></a>
               {% if dance.Video %}
                 <div class="ratio ratio-16x9">
                   <iframe src="{{ dance.Video|replace('watch?v=', 'embed/') if 'youtube' in dance.Video else dance.Video }}" allowfullscreen></iframe>
@@ -33,7 +32,8 @@
                   <p class="mt-2">No Preview Available</p>
                 </div>
               {% endif %}
-              <div class="card-body">
+              <div class="card-body position-relative">
+                <a href="{{ url_for('dance.display_information', dance_id=dance.ID) }}" class="stretched-link"></a>
                 <h5 class="card-title">{{ dance.DanceName }}</h5>
                 {% if dance.Date %}
                   <p class="card-text"><small class="text-muted"><i class="bi bi-calendar3 me-1"></i>Date: {{ dance.Date }}</small></p>
@@ -48,21 +48,24 @@
                     <button type="button" 
                             class="btn btn-sm {% if dance.ID|string in user_learning %}btn-warning{% else %}btn-outline-warning{% endif %}"
                             data-dance-id="{{ dance.ID }}"
+                            data-dance-name="{{ dance.DanceName }}"
                             data-role="learning-button"
                             data-bs-toggle="modal"
-                            data-bs-target="#learningModal">
+                            data-bs-target="#learningModal"
+                            onclick="handleLearningButtonClick(this)">
                       <i class="bi {% if dance.ID|string in user_learning %}bi-bookmark-check-fill{% else %}bi-bookmark-plus{% endif %} me-1"></i>
                       {% if dance.ID|string in user_learning %}Learning{% else %}Learn{% endif %}
                     </button>
                     <button type="button" 
                             class="btn btn-sm {% if dance.ID|string in user_learned %}btn-danger{% else %}btn-outline-danger{% endif %}"
                             data-dance-id="{{ dance.ID }}"
+                            data-dance-name="{{ dance.DanceName }}"
                             data-role="learned-button"
                             data-bs-toggle="modal"
                             data-bs-target="#learnedModal"
                             onclick="handleLearnedButtonClick(this)">
                       <i class="bi {% if dance.ID|string in user_learned %}bi-heart-fill{% else %}bi-heart{% endif %} me-1"></i>
-                      {% if dance.ID|string in user_learned %}Learned{% else %}Learn{% endif %}
+                      {% if dance.ID|string in user_learned %}Learned{% else %}Learned{% endif %}
                     </button>
                   {% endif %}
                 </div>
@@ -215,11 +218,19 @@ document.getElementById('learnedFormElement').addEventListener('submit', functio
     if (data.status === 'added') {
       updateLearnedButton(button, true);
       bootstrap.Modal.getInstance(document.getElementById('learnedModal')).hide();
+      document.querySelector('.modal-backdrop')?.remove();
+      document.body.style.overflow = '';
       alert(`${danceName} added to Learned.`);
     } else {
       alert('Failed to add.');
     }
   });
+});
+
+document.getElementById('learnedModal').addEventListener('hidden.bs.modal', function () {
+  console.log('Modal closed');
+  document.querySelector('.modal-backdrop')?.remove();
+  document.body.style.overflow = '';
 });
 
 
@@ -265,9 +276,15 @@ function updateLearningButton(button, isNowLearning) {
 
 document.getElementById('learningFormElement').addEventListener('submit', function(event) {
   event.preventDefault();
+  console.log('Submit button clicked');
   const danceId = document.getElementById('learningDanceId').value;
   const date = document.getElementById('date').value;
+  console.log('Dance ID:', danceId);
   const button = document.querySelector(`button[data-dance-id="${danceId}"][data-role="learning-button"]`);
+  if (!button) {
+    console.error(`Button with data-dance-id="${danceId}" not found.`);
+    return;
+  }
   const danceName = button.dataset.danceName;
 
   fetch('/learning', {
@@ -280,11 +297,19 @@ document.getElementById('learningFormElement').addEventListener('submit', functi
     if (data.status === 'added') {
       updateLearningButton(button, true);
       bootstrap.Modal.getInstance(document.getElementById('learningModal')).hide();
+      document.querySelector('.modal-backdrop')?.remove();
+      document.body.style.overflow = '';
       alert(`${danceName} added to Learning.`);
     } else {
       alert('Failed to add.');
     }
   });
+});
+
+document.getElementById('learningModal').addEventListener('hidden.bs.modal', function () {
+  console.log('Modal closed');
+  document.querySelector('.modal-backdrop')?.remove();
+  document.body.style.overflow = '';
 });
 
 
