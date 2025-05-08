@@ -1,7 +1,7 @@
-from flask import g, session
-from dances.db import get_db
+from flask.testing import FlaskClient
+from typing import Any
 
-def test_index_no_user(client):
+def test_index_no_user(client: FlaskClient) -> None:
     response = client.get('/')      
     assert response.status_code == 200, "Internal Server Error Index"
     response_text = response.data.decode('utf-8')
@@ -17,7 +17,7 @@ def test_index_no_user(client):
     assert 'My Learned' not in response_text
     assert 'My Learning' not in response_text
 
-def test_index_user(client, auth):
+def test_index_user(client: FlaskClient, auth: Any) -> None:
     auth.register()
     auth.login()
     with client:
@@ -36,15 +36,14 @@ def test_index_user(client, auth):
         assert 'My Learned' in response_text
         assert 'Learning List' in response_text
 
-def test_index_with_valid_search(client):
+def test_index_with_valid_search(client: FlaskClient) -> None:
     response = client.get('/?search=The Gypsy Orbit')
     assert response.status_code == 200, "Internal Server Error on search"
     response_text = response.data.decode('utf-8')
     assert 'The Gypsy Orbit' in response_text
     assert 'All In A Garden Green' not in response_text
 
-def test_index_with_invalid_search(client):
-    """Test the index route with an invalid search query."""
+def test_index_with_invalid_search(client: FlaskClient) -> None:
     response = client.get('/?search=NonExistentDance')
     assert response.status_code == 200, "Internal Server Error on search"
     response_text = response.data.decode('utf-8')

@@ -1,13 +1,14 @@
-from flask import g
 from dances.db import get_db
+from flask import Flask
+from flask.testing import FlaskClient
+from typing import Any
 
-def test_learning_not_logged_in(client):
+def test_learning_not_logged_in(client: FlaskClient) -> None:
     response = client.get('/learning', follow_redirects=False)
     assert response.status_code == 302
     assert response.headers['Location'] == '/auth/login'
 
-def test_add_learning(client, app, auth, insert):
-    """Test adding a dance to the learning list via POST."""
+def test_add_learning(client: FlaskClient, app: Flask, auth: Any, insert: Any) -> None:
     with app.app_context():
         auth.register()
         auth.login()
@@ -28,7 +29,7 @@ def test_add_learning(client, app, auth, insert):
         assert learning_entry is not None
         assert learning_entry['DateAdded'] == '2025-05-01'
 
-def test_remove_learning(client, app, auth, insert):
+def test_remove_learning(client: FlaskClient, app: Flask, auth: Any, insert: Any) -> None:
     with app.app_context():
         auth.register()
         auth.login()
@@ -52,7 +53,7 @@ def test_remove_learning(client, app, auth, insert):
         ).fetchone()
         assert learned_entry is None
 
-def test_learning_with_no_dances(client, app, auth):
+def test_learning_with_no_dances(client: FlaskClient, app: Flask, auth: Any) -> None:
     with app.app_context():
         auth.register()
         auth.login()
@@ -61,7 +62,7 @@ def test_learning_with_no_dances(client, app, auth):
     response_text = response.data.decode('utf-8')
     assert 'No learning dances found' in response_text
 
-def test_learning_with_empty_dances(client, app, auth, insert, capsys):
+def test_learning_with_empty_dances(client: FlaskClient, app: Flask, auth: Any, insert: Any, capsys: Any) -> None:
     with app.app_context():
         auth.register()
         auth.login()
@@ -83,7 +84,7 @@ def test_learning_with_empty_dances(client, app, auth, insert, capsys):
         for i, dance_id in enumerate(dance_ids):
             assert f"Warning: no steps/figures associated with dance Dance {i} (id: {dance_id})" in stdout_output
 
-def test_learning_with_dances(client, app, auth, insert):
+def test_learning_with_dances(client: FlaskClient, app: Flask, auth: Any, insert: Any) -> None:
     with app.app_context():
         auth.register()
         auth.login()
@@ -116,12 +117,12 @@ def test_learning_with_dances(client, app, auth, insert):
             assert f"Dance {i}" in response_text
             assert f"Date started learning: 2025-05-0{i + 1}" in response_text
 
-def test_learned_not_logged_in(client):
+def test_learned_not_logged_in(client: FlaskClient) -> None:
     response = client.get('/learned', follow_redirects=False)
     assert response.status_code == 302
     assert response.headers['Location'] == '/auth/login'
 
-def test_add_learned(client, app, auth, insert):
+def test_add_learned(client: FlaskClient, app: Flask, auth: Any, insert: Any) -> None:
     with app.app_context():
         auth.register()
         auth.login()
@@ -144,7 +145,7 @@ def test_add_learned(client, app, auth, insert):
         assert learned_entry['DateAdded'] == '2025-05-01'
         assert learned_entry['Rating'] == 5
 
-def test_remove_learned(client, app, auth, insert):
+def test_remove_learned(client: FlaskClient, app: Flask, auth: Any, insert: Any) -> None:
     with app.app_context():
         auth.register()
         auth.login()
@@ -168,7 +169,7 @@ def test_remove_learned(client, app, auth, insert):
         ).fetchone()
         assert learned_entry is None
 
-def test_learned_no_dances(client, app, auth, insert):
+def test_learned_no_dances(client: FlaskClient, app: Flask, auth: Any) -> None:
     with app.app_context():
         auth.register()
         auth.login()
@@ -177,7 +178,7 @@ def test_learned_no_dances(client, app, auth, insert):
         response_text = response.data.decode('utf-8')
         assert '<p>No learned dances found for this user. Go to home, choose a dance, and start learning!</p>' in response_text
 
-def test_learned_with_empty_dances(client, app, auth, insert, capsys):
+def test_learned_with_empty_dances(client: FlaskClient, app: Flask, auth: Any, insert: Any, capsys: Any) -> None:
     with app.app_context():
         auth.register()
         auth.login()
@@ -200,7 +201,7 @@ def test_learned_with_empty_dances(client, app, auth, insert, capsys):
         for i, dance_id in enumerate(dance_ids):
             assert f"Warning: no steps/figures associated with dance Dance {i} (id: {dance_id})" in stdout_output
 
-def test_learned_with_dances(client, app, auth, insert):
+def test_learned_with_dances(client: FlaskClient, app: Flask, auth: Any, insert: Any) -> None:
     with app.app_context():
         auth.register()
         auth.login()

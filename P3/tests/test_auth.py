@@ -1,6 +1,5 @@
-from flask import g, session, Blueprint, Flask
 from dances.db import get_db
-from dances.auth import login_required
+from flask import g, session, Flask
 from flask.testing import FlaskClient
 from typing import Any
 

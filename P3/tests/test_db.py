@@ -1,10 +1,9 @@
 import pytest
 import sqlite3
 import os
-from flask import g, Flask, current_app
-from flask.testing import FlaskClient
-from dances.db import close_db, get_db
 from click.testing import CliRunner
+from dances.db import close_db, get_db
+from flask import g, Flask, current_app
 
 @pytest.fixture #Ensures a new db connection for each test.
 def db_connection(app):
@@ -14,13 +13,11 @@ def db_connection(app):
     yield conn
     conn.close()
 
-
 def test_get_db(app: Flask) -> None:
     with app.app_context():
         db = get_db()
         assert db is not None, "Failed to get database connection"
         assert 'db' in g, "Database connection not stored in g"
-
 
 def test_close_db(app: Flask) -> None:
     with app.app_context():

@@ -1,12 +1,10 @@
-import shutil
 import os
 import pytest
-import sys 
-from flask import session, Flask, g
-from flask.testing import FlaskClient
-from flask_wtf.csrf import generate_csrf
-from typing import Optional
+import sys
 from click.testing import CliRunner
+from flask import Flask, g
+from flask.testing import FlaskClient, FlaskCliRunner
+from flask.wrappers import Response
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
