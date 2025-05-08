@@ -40,7 +40,7 @@ def test_init_db(app: Flask, runner: CliRunner, db_connection: sqlite3.Connectio
         cursor = db_connection.cursor()
         expected_tables = [
             'Dance',
-            'Steps',
+            'Step',
             'Figure',
             'FigureStep',
             'User',
@@ -63,7 +63,7 @@ def test_populate_db(app: Flask, runner: CliRunner, db_connection: sqlite3.Conne
         cursor = db_connection.cursor()
         testing_tables = [
             'Dance',
-            'Steps',
+            'Step',
             'Figure',
             'FigureStep'
         ]
