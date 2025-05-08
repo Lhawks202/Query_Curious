@@ -9,8 +9,7 @@
             <div class="add-container pe-3 mb-4">
               <form id="figureForm" method="post" action="{{ url_for('dance.create_figure') }}">
                 <div class="mb-3 w-80">
-                  <h4 class="mb-3">Name</h4>
-
+                  <h4 class="mb-3 addFigureField">Name</h4>
                   <div class="textarea-container p-2">
                     <textarea id="figureNameInput" name="name" type="text" class="form-control textarea-scroll"
                       placeholder="Circle Left and Fall Back" required></textarea>
@@ -18,7 +17,7 @@
                 </div>
 
                 <div class="mb-3 w-80">
-                  <h4 class="mb-3">Roles</h4>
+                  <h4 class="mb-3 addFigureField">Roles</h4>
                   <div class="textarea-container p-2">
                     <textarea id="rolesInput" name="roles" type="text" class="form-control textarea-scroll"
                       placeholder="Bottom 2 Couples (1st & 3rd)" required></textarea>
@@ -26,7 +25,7 @@
                 </div>
 
                 <div class="mb-3 w-80">
-                  <h4 class="mb-3">Start Position</h4>
+                  <h4 class="mb-3 addFigureField">Start Position</h4>
                   <div class="textarea-container p-2">
                     <textarea id="startPosInput" name="start_position" type="text" class="form-control textarea-scroll"
                       placeholder="Facing each other in a circle of 4" required></textarea>
@@ -34,7 +33,7 @@
                 </div>
 
                 <div class="mb-3 w-80">
-                  <h4 class="mb-3">Action</h4>
+                  <h4 class="mb-3 addFigureField">Action</h4>
                   <div class="textarea-container p-2">
                     <textarea id="actionInput" name="action" type="text" class="form-control textarea-scroll"
                       placeholder="Circle 4 to the left, half way then fall back" required></textarea>
@@ -43,7 +42,7 @@
 
                 <div class="mb-3 w-80">
 
-                  <h4 class="mb-3">End Position</h4>
+                  <h4 class="mb-3 addFigureField">End Position</h4>
                   <div class="textarea-container p-2">
                     <textarea id="endPosInput" name="end_position" type="text" class="form-control textarea-scroll"
                       placeholder="Facing each other in a line" required></textarea>
@@ -51,7 +50,7 @@
                 </div>
 
                 <div class="mb-3 w-80">
-                  <h4 class="mb-3">Duration (s)</h4>
+                  <h4 class="mb-3 addFigureField">Duration (s)</h4>
                   <input id="durationInput" name="duration" type="number" min="1" class="form-control" placeholder="4"
                     required>
                 </div>
@@ -73,17 +72,17 @@
               action="{{ url_for('dance.search_figures') }}"
               method="post"
             >
-              <h4>Search for Figure</h4>
+              <!-- <h4 class="addFigureField">Search for Figure</h4> -->
               <div class="input-group mb-3 w-80">
-                <input id="figureSearchInput" type="text" class="form-control" placeholder="keywords…"
+                <input id="figureSearchInput" type="text" class="form-control" placeholder="Browse by Keywords"
                   aria-label="search figures" />
-                <button class="btn btn-outline-secondary" type="submit">
+                <button class="btn searchFigureBtn" type="submit">
                   <i class="bi bi-search"></i>
                 </button>
               </div>
             </form>
 
-            <div id="figureSearchResults" class="w-80">
+            <div id="figureSearchResults" class="w-100">
 
             </div>
 

@@ -1,10 +1,99 @@
-from flask import (Blueprint, render_template, redirect, url_for, request, jsonify)
+from flask import (Blueprint, render_template, redirect, url_for, request, jsonify, current_app, abort)
 from .db import get_db
 import secrets, re, sqlite3, json
 
 bp = Blueprint('dance', __name__, url_prefix='/dance')
 
-@bp.route('/edit', methods=['GET', 'POST'])
+@bp.route('/edit/<int:dance_id>', methods=['GET', 'POST'])
+def edit_dance(dance_id):
+    db = get_db()
+
+    if request.method == 'POST':
+        data       = json.loads(request.form['dance_data'])
+        new_name   = data['danceName']
+        new_video  = data['video']
+        new_source = data['source']
+        new_steps  = data['steps'] 
+
+        db.execute(
+          "UPDATE Dance SET DanceName=?, Video=?, Source=? WHERE ID=?",
+          (new_name, new_video, new_source, dance_id)
+        )
+
+        db.execute(
+          "DELETE FROM FigureStep "
+          " WHERE StepsId IN (SELECT ID FROM Steps WHERE DanceID=?)",
+          (dance_id,)
+        )
+        db.execute("DELETE FROM Steps WHERE DanceID=?", (dance_id,))
+
+        for step in new_steps:
+            cur = db.execute(
+              "INSERT INTO Steps (DanceID, StepName) VALUES (?, ?)",
+              (dance_id, step['stepName'])
+            )
+            step_id = cur.lastrowid
+
+            for place, fig_name in enumerate(step['figures']):
+                row = db.execute(
+                  "SELECT ID FROM Figure WHERE Name = ?",
+                  (fig_name,)
+                ).fetchone()
+                if row:
+                    db.execute(
+                      "INSERT INTO FigureStep (StepsId, FigureId, Place) "
+                      "VALUES (?, ?, ?)",
+                      (step_id, row['ID'], place)
+                    )
+                else:
+                     current_app.logger.warning(f"Figure not found: {fig_name}")
+
+        db.commit()
+        return redirect(url_for('dance.edit_dance', dance_id=dance_id))
+
+    dance_row = db.execute(
+        "SELECT ID, DanceName, Video, Source FROM Dance WHERE ID = ?",
+        (dance_id,)
+    ).fetchone()
+    if dance_row is None:
+        abort(404)
+
+    dance_data = {
+        "danceID": dance_row["ID"],
+        "danceName": dance_row["DanceName"],
+        "video": dance_row["Video"],
+        "source": dance_row["Source"],
+        "steps": []
+    }
+
+    step_rows = db.execute(
+        "SELECT ID, StepName FROM Steps WHERE DanceID = ? ORDER BY ID",
+        (dance_id,)
+    ).fetchall()
+
+    for step in step_rows:
+        fig_rows = db.execute(
+            """
+            SELECT F.Name
+              FROM FigureStep FS
+              JOIN Figure F ON FS.FigureId = F.ID
+             WHERE FS.StepsId = ?
+             ORDER BY FS.Place
+            """,
+            (step["ID"],)
+        ).fetchall()
+
+        dance_data["steps"].append({
+            "stepName": step["StepName"],
+            "figures":  [f["Name"] for f in fig_rows]
+        })
+
+    return render_template(
+        'dance/manage_dance.html',
+        dance=dance_data
+    )
+
+@bp.route('/create', methods=['GET', 'POST'])
 def add_dance():
     db = get_db()
 
@@ -46,7 +135,7 @@ def add_dance():
         db.commit()
         return redirect(url_for('dance.add_dance'))
 
-    return render_template('dance/create_dance.html')
+    return render_template('dance/manage_dance.html')
 
 @bp.route('/create_figure', methods=['POST'])
 def create_figure():

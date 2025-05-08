@@ -1,5 +1,36 @@
 document.addEventListener('DOMContentLoaded', () => {
+
+
   const stepsContainer = document.getElementById('stepsContainer');
+  const existingCards = Array.from(stepsContainer.querySelectorAll('.step-card'));
+  
+  let stepCount = existingCards.length;
+
+  existingCards.forEach((card, idx) => {
+    const hdr  = card.querySelector('.step-card-header');
+    const coll = card.querySelector('.collapse');
+    coll.id = `collapse${idx}`;
+    hdr.addEventListener('click', e => {
+      if (e.target.closest('input')) return;
+      bootstrap.Collapse.getOrCreateInstance(coll).toggle();
+    });
+  });
+
+  document.querySelectorAll('.add-btn-figure').forEach(btn => {
+    btn.addEventListener('mousedown', e => e.stopPropagation());
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      pendingAddFn = name => {
+        const body = btn.closest('.figure-dropdown');
+        const fc   = document.createElement('div');
+        fc.className   = 'shadow-sm figure-card p-3 mx-5';
+        fc.textContent = name;
+        body.insertBefore(fc, btn);
+      };
+      figureModal.show();
+    });
+  });
+
   const addStepBtn = document.getElementById('addStepBtn');
   const deleteBtn = document.getElementById('deleteModeBtn');
 
@@ -9,7 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let pendingAddFn = null;
 
-  let stepCount = 0;
   let deleteMode = false;
 
   function updateDeleteModeUI() {
@@ -179,13 +209,13 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(r => r.json())
       .then(list => {
         if (list.length === 0) {
-          resultsHolder.innerHTML = '<p>No matches found.</p>';
+          resultsHolder.innerHTML = '<p style="color: white;">No matches found.</p>';
           return;
         }
         resultsHolder.innerHTML = '';
         list.forEach(fig => {
           const card = document.createElement('div');
-          card.className = 'card mb-2';
+          card.className = 'searchResult card mb-2';
           card.innerHTML = `
             <div class="card-body">
               <h5 class="card-title">${fig.name}</h5>
