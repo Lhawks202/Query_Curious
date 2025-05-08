@@ -2,13 +2,14 @@ from flask import (
     Blueprint, g, render_template, request, jsonify)
 from dances.db import get_db
 from dances.auth import login_required
-from collections import defaultdict
+from typing import Optional, Any, Dict, Union
+from werkzeug.wrappers.response import Response
 
 bp = Blueprint('learn', __name__)
 
 @bp.route('/learned', methods=['GET', 'POST'],)
 @login_required
-def learned():
+def learned() -> Union[str, Response]:
     if request.method == 'POST':
         data = request.get_json()
         print(data)
@@ -96,7 +97,7 @@ def learned():
         
     return render_template('learned.html', learned=learned_dances, figures=figures)
 
-def add_learned(data):
+def add_learned(data: Optional[Dict[str, Any]]) -> str:
     db = get_db()
     dance_id = data['danceId']
     rating = data['rating']
@@ -111,7 +112,7 @@ def add_learned(data):
     # TO DO: add error handling
     return "added"
 
-def remove_from_learned(data):
+def remove_from_learned(data: Optional[Dict[str, Any]]) -> str:
     db = get_db()
     dance_id = data['danceId']
     user_id = g.user['Username']
@@ -120,7 +121,7 @@ def remove_from_learned(data):
     db.commit()
     return "removed"
 
-def transfer_to_learned(data):
+def transfer_to_learned(data: Optional[Dict[str, Any]]) -> str:
     db = get_db()
     dance_id = data['danceId']
     rating = data['rating']
@@ -139,7 +140,7 @@ def transfer_to_learned(data):
 
 @bp.route('/learning', methods=['GET', 'POST'])
 @login_required
-def learning():
+def learning() -> Union[str, Response]:
     if request.method == 'POST':
         data = request.get_json()
         action = data['action']
@@ -222,7 +223,7 @@ def learning():
         
     return render_template('learning.html', learning=learning_dances, figures=figures)
 
-def add_learning(data):
+def add_learning(data: Optional[Dict[str, Any]]) -> str:
     db = get_db()
     dance_id = data['danceId']
     date = data['date']
@@ -236,7 +237,7 @@ def add_learning(data):
     # TO DO: add error handling
     return "added"
 
-def remove_from_learning(data):
+def remove_from_learning(data: Optional[Dict[str, Any]]) -> str:
     db = get_db()
     dance_id = data['danceId']
     user_id = g.user['Username']

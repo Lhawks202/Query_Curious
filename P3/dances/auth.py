@@ -3,8 +3,9 @@ from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
 from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.wrappers.response import Response
 from dances.db import get_db
-from typing import Optional, Any
+from typing import Optional, Any, Union
 import re
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
@@ -17,7 +18,7 @@ def fetch_user(username: str) -> Optional[Any]:
     ).fetchone()
 
 @bp.route('/register', methods=('GET', 'POST'))
-def register() -> str:
+def register() -> Union[str, Response]:
     if request.method == 'POST':
         user_id = request.form['user_id'].lower()
         password = request.form['password']
@@ -63,7 +64,7 @@ def register() -> str:
     return render_template('auth/register.html', next=next)
 
 @bp.route('/login', methods=('GET', 'POST'))
-def login() -> str:
+def login() -> Union[str, Response]:
     if request.method == 'POST':
         user_id = request.form['user_id'].lower()
         password = request.form['password']
@@ -96,7 +97,7 @@ def load_logged_in_user() -> None:
         g.user = fetch_user(user_id)
 
 @bp.route('/logout')
-def logout() -> str:
+def logout() -> Response:
     session.clear()
     return redirect(url_for('index'))
 

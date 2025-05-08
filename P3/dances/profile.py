@@ -4,18 +4,19 @@ from flask import (
 from dances.db import get_db
 from dances.auth import login_required
 import re
+from werkzeug.wrappers.response import Response
 
 bp = Blueprint('profile', __name__, url_prefix='/profile')
 
 @bp.route('/', methods=['GET'])
 @login_required
-def view_profile():
+def view_profile() -> str:
     """View user profile information."""
     return render_template('profile.html', user=g.user)
 
 @bp.route('/update', methods=['POST'])
 @login_required
-def update_profile():
+def update_profile() -> Response:
     """Update user profile information."""
     name = request.form['name']
     email = request.form['email']

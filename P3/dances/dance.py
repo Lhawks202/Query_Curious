@@ -2,11 +2,13 @@ from flask import (Blueprint, render_template, redirect, url_for, request, jsoni
 from .db import get_db
 import secrets, re, sqlite3, json
 from collections import defaultdict
+from typing import Tuple, Union
+from werkzeug.wrappers.response import Response
 
 bp = Blueprint('dance', __name__, url_prefix='/dance')
 
 @bp.route('/edit/<int:dance_id>', methods=['GET', 'POST'])
-def edit_dance(dance_id):
+def edit_dance(dance_id) -> Union[Response, str, Tuple[Response, int]]:
     db = get_db()
 
     if request.method == 'POST':
@@ -124,7 +126,7 @@ def edit_dance(dance_id):
     )
 
 @bp.route('/create', methods=['GET', 'POST'])
-def add_dance():
+def add_dance() -> Union[Response, Tuple[Response, int], str]:
     db = get_db()
 
     if request.method == 'POST':
@@ -179,7 +181,7 @@ def add_dance():
     return render_template('dance/manage_dance.html')
 
 @bp.route('/create_figure', methods=['POST'])
-def create_figure():
+def create_figure() -> Tuple[Response, int]:
     data = request.get_json() or {}
     db = get_db()
 
@@ -212,7 +214,7 @@ def create_figure():
 
 
 @bp.route('/search', methods=['POST'])
-def search_figures():
+def search_figures() -> Tuple[Response, int]:
     raw = request.get_json().get('q', '').strip()
     if not raw:
         return jsonify([]), 200
@@ -270,7 +272,7 @@ def search_figures():
     return jsonify(results), 200
 
 @bp.route('/<int:dance_id>', methods=['GET', 'POST'])
-def display_information(dance_id):
+def display_information(dance_id: int) -> Union[Tuple[str, int], str]:
     db = get_db()
 
     # Get main dance information

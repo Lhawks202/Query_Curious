@@ -1,20 +1,20 @@
 import sqlite3
-import click
 import json
 import glob
 import os
 from flask import current_app
+from typing import List, Union
 
 DANCE_DIR = './output'
 FIGURE_FILE = os.path.join(DANCE_DIR, 'figure_library.json')
 DANCE_GLOB = os.path.join(DANCE_DIR, 'ins_*.json')
 
-def get_db_file():
+def get_db_file() -> str:
     app = current_app
     db_file = app.config['DATABASE']
     return db_file
 
-def init_fts(cursor):
+def init_fts(cursor: sqlite3.Cursor) -> None:
     cursor.execute("""
     CREATE VIRTUAL TABLE IF NOT EXISTS FigureFTS
     USING fts5(
@@ -30,7 +30,7 @@ def init_fts(cursor):
 
     cursor.execute("INSERT INTO FigureFTS(FigureFTS) VALUES('rebuild');")
 
-def insert_figures(cursor, figure_data):
+def insert_figures(cursor: sqlite3.Cursor, figure_data: List) -> None:
     for fig in figure_data:
         cursor.execute('''
             INSERT INTO Figure (Name, Roles, StartPosition, Action, EndPosition, Duration)
@@ -44,12 +44,12 @@ def insert_figures(cursor, figure_data):
             fig['duration']
         ))
 
-def get_figure_id(cursor, name):
+def get_figure_id(cursor: sqlite3.Cursor, name: str) -> Union[int, None]:
     cursor.execute('SELECT ID FROM Figure WHERE Name = ?', (name,))
     result = cursor.fetchone()
     return result[0] if result else None
 
-def insert_dance_and_steps(cursor, dance_data, source_filename):
+def insert_dance_and_steps(cursor: sqlite3.Cursor, dance_data: dict, source_filename: str) -> int:
     video = dance_data.get('video') # None if doesn't exist
     dance_name = (
         source_filename.replace('ins_', '') 
@@ -88,7 +88,7 @@ def insert_dance_and_steps(cursor, dance_data, source_filename):
                 missing_sum += 1
     return missing_sum
 
-def populate_db():
+def populate_db() -> None:
     with current_app.app_context():
         db_file = get_db_file()
         with open(FIGURE_FILE, 'r') as f:
