@@ -1,12 +1,10 @@
-import shutil
 import os
 import pytest
-import sys 
-from flask import session, Flask
-from flask.testing import FlaskClient
-from flask_wtf.csrf import generate_csrf
-from typing import Optional
+import sys
 from click.testing import CliRunner
+from flask import Flask, g
+from flask.testing import FlaskClient, FlaskCliRunner
+from flask.wrappers import Response
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -22,6 +20,11 @@ def app():
     app = create_app()
     app.config['DATABASE'] = TEST_DB
     app.config['WTF_CSRF_ENABLED'] = False
+    @app.teardown_appcontext
+    def close_db_connection(exception):
+        db = g.pop('db', None)
+        if db is not None:
+            db.close()
     with app.app_context():
         db.init_db()
         runner = CliRunner()
@@ -75,7 +78,7 @@ class InsertActions(object):
         with self._app.app_context():
             db = get_db()
             cursor = db.execute(
-                "INSERT INTO Steps (DanceID, StepName) VALUES (?, ?)",
+                "INSERT INTO Step (DanceID, StepName) VALUES (?, ?)",
                 (dance_id, step_name)
             )
             db.commit()
@@ -97,69 +100,11 @@ class InsertActions(object):
         with self._app.app_context():
             db = get_db()
             cursor = db.execute(
-                "INSERT INTO FigureStep (StepsId, FigureId, Place) VALUES (?, ?, ?)",
+                "INSERT INTO FigureStep (StepId, FigureId, Place) VALUES (?, ?, ?)",
                 (step_id, figure_id, place)
             )
             db.commit()
             return cursor.lastrowid
-
-    '''def insert_learning(self, user_id: str = 'testtestingauth', dance_id: int = 1, date_added: str = '2025-05-01') -> int:
-        with self._app.app_context():
-            db = get_db()
-            cursor = db.execute(
-                "INSERT INTO Learning (UserId, DanceId, DateAdded) VALUES (?, ?, ?)",
-                (user_id, dance_id, date_added)
-            )
-            db.commit()
-            return cursor.lastrowid
-
-    def insert_favorites(self, user_id: str = 'testtestingauth', dance_id: int = 1, date_added: str = '2025-05-01') -> int:
-        with self._app.app_context():
-            db = get_db()
-            cursor = db.execute(
-                "INSERT INTO Favorites (UserId, DanceId, DateAdded) VALUES (?, ?, ?)",
-                (user_id, dance_id, date_added)
-            )
-            db.commit()
-            return cursor.lastrowid
-    
-    def testing_populate(self) -> None:
-        with self._app.app_context():
-            db = get_db()
-            dance_ids = []
-            for i in range(3):
-                dance_id = self.insert_dance(
-                    dance_name=f'Dance {i}',
-                    video=f'dance{i}.mp4',
-                    source=f'Source {i}'
-                )
-                dance_ids.append(dance_id)
-            step_ids = []
-            for i, dance_id in enumerate(dance_ids, start=1):
-                for j in range(2):  # 2 steps per dance
-                    step_id = self.insert_step(
-                        dance_id=dance_id,
-                        step_name=f'Step {i}-{j}'
-                    )
-                    step_ids.append(step_id)
-            figure_ids = []
-            for i in range(3):
-                figure_id = self.insert_figure(
-                    name=f'Figure {i}',
-                    roles='Lead, Follow',
-                    start_position='Closed',
-                    action=f'Action {i}',
-                    end_position='Open',
-                    duration= i
-                )
-                figure_ids.append(figure_id)
-            for i, figure_id in enumerate(figure_ids):
-                # Each figure gets 2 steps
-                self.insert_figure_step(step_id=step_ids[i * 2], figure_id=figure_id, place=1)
-                self.insert_figure_step(step_id=step_ids[i * 2 + 1], figure_id=figure_id, place=2)
-            db.commit()
-            return dance_ids'''
-
 
 @pytest.fixture(scope='function')
 def auth(client: FlaskClient) -> AuthActions:
