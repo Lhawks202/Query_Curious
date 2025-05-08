@@ -11,23 +11,42 @@ def edit_dance(dance_id):
 
     if request.method == 'POST':
         data       = json.loads(request.form['dance_data'])
-        new_name   = data['danceName']
-        new_video  = data['video']
-        new_source = data['source']
-        new_steps  = data['steps'] 
 
         try:
+            new_steps  = data['steps'] 
+            # fetch old values
+            row = db.execute(
+                "SELECT DanceName as name, Video as video, Source as source FROM Dance WHERE ID=?",
+                (dance_id,)
+            ).fetchone()
+            # default to old values if updated values aren't present
+            if not data['danceName']:
+                new_name = row['name']
+            else:
+                new_name   = data['danceName']
+            
+            if not data['video']:
+                new_video = row['video']
+            else:
+                new_video = data['video']
+
+            if not data['source']:
+                new_source = row['source']
+            else:
+                new_source = data['source']
+            
             db.execute(
               "UPDATE Dance SET DanceName=?, Video=?, Source=? WHERE ID=?",
               (new_name, new_video, new_source, dance_id)
             )
 
-            db.execute(
-              "DELETE FROM FigureStep "
-              " WHERE StepId IN (SELECT ID FROM Step WHERE DanceID=?)",
-              (dance_id,)
-            )
-            db.execute("DELETE FROM Step WHERE DanceID=?", (dance_id,))
+            if len(new_steps) > 0:
+                db.execute(
+                "DELETE FROM FigureStep "
+                " WHERE StepId IN (SELECT ID FROM Step WHERE DanceID=?)",
+                (dance_id,)
+                )
+                db.execute("DELETE FROM Step WHERE DanceID=?", (dance_id,))
 
             for step in new_steps:
                 cur = db.execute(
@@ -72,10 +91,11 @@ def edit_dance(dance_id):
     dance_data = {
         "danceID": dance_row["ID"],
         "danceName": dance_row["DanceName"],
-        "video": dance_row["Video"],
         "source": dance_row["Source"],
         "steps": []
     }
+
+    if dance_row['Video'] != None: dance_data['video'] = dance_row['Video']
 
     step_rows = db.execute(
         "SELECT ID, StepName FROM Step WHERE DanceID = ? ORDER BY ID",
@@ -98,7 +118,6 @@ def edit_dance(dance_id):
             "stepName": step["StepName"],
             "figures":  [f["Name"] for f in fig_rows]
         })
-
     return render_template(
         'dance/manage_dance.html',
         dance=dance_data
@@ -304,5 +323,4 @@ def display_information(dance_id):
 
         # Append figure ID to the appropriate step
         steps[current_step].append(current_figure_id)
-
     return render_template('specific_dance.html', dance=dance_info, steps=steps, figures=figures)
