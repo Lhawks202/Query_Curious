@@ -9,7 +9,7 @@ Our Team members are:
 - Luke Sanford :: Unit Testing
 - Joshua Gorniak :: Development Engineer - 
 - Rafael Singer :: Development Engineer - 
-- Katie Baek :: Development Engineer - 
+- Katie Baek :: Development Engineer - Learned/Learning
 - Sofia Utoft :: Development Engineer - Authentication (Login/Registration) & Documentation
 
 
