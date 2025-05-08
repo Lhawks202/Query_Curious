@@ -56,14 +56,14 @@
                       {% if dance.ID|string in user_learning %}Learning{% else %}Learn{% endif %}
                     </button>
                     <button type="button" 
-                            class="btn btn-sm {% if dance.ID|string in user_favorites %}btn-danger{% else %}btn-outline-danger{% endif %}"
+                            class="btn btn-sm {% if dance.ID|string in user_learned %}btn-danger{% else %}btn-outline-danger{% endif %}"
                             data-dance-id="{{ dance.ID }}"
-                            data-role="favorite-button"
+                            data-role="learned-button"
                             data-bs-toggle="modal"
-                            data-bs-target="#favoriteModal">
-                            <!-- onclick="prepareFavoriteForm('{{ dance.ID }}')" -->
-                      <i class="bi {% if dance.ID|string in user_favorites %}bi-heart-fill{% else %}bi-heart{% endif %} me-1"></i>
-                      {% if dance.ID|string in user_favorites %}Favorited{% else %}Favorite{% endif %}
+                            data-bs-target="#learnedModal"
+                            onclick="handleLearnedButtonClick(this)">
+                      <i class="bi {% if dance.ID|string in user_learned %}bi-heart-fill{% else %}bi-heart{% endif %} me-1"></i>
+                      {% if dance.ID|string in user_learned %}Learned{% else %}Learn{% endif %}
                     </button>
                   {% endif %}
                 </div>
