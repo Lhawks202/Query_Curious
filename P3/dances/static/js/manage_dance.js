@@ -244,6 +244,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const sourceInput = document.querySelector('.sourceInput');
 
   danceForm.addEventListener('submit', e => {
+    e.preventDefault(); 
+    
     const steps = Array.from(document.querySelectorAll('.step-card')).map(card => {
       const stepName = card.querySelector('.step-label-input').value;
       const figures = Array.from(card.querySelectorAll('.figure-card')).map(figureCard => figureCard.textContent.trim()).filter(name => name.length > 0);
@@ -258,5 +260,65 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     danceData.value = JSON.stringify(payload);
+    
+    const formData = new FormData();
+    formData.append('dance_data', JSON.stringify(payload));
+    
+    // determine if we're editing or creating
+    const isEditing = window.location.pathname.includes('/edit/');
+    
+    fetch(danceForm.action, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      // Handle successful response
+      const responseModal = new bootstrap.Modal(document.getElementById('responseModal'));
+      const responseBody = document.getElementById('responseModalBody');
+      const responseTitle = document.getElementById('responseModalLabel');
+      
+      if (data.status === 'success') {
+        responseTitle.textContent = 'Success';
+        responseTitle.classList.remove('text-danger');
+        responseTitle.classList.add('text-success');
+        responseBody.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
+        
+        // If this was a new dance creation, you might want to redirect after modal close
+        if (!isEditing && data.dance_id) {
+          document.querySelector('.modal-footer .btn-primary').addEventListener('click', () => {
+            window.location.href = `/dance/edit/${data.dance_id}`;
+          }, { once: true });
+        }
+      } else {
+        responseTitle.textContent = 'Error';
+        responseTitle.classList.remove('text-success');
+        responseTitle.classList.add('text-danger');
+        responseBody.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+      }
+      
+      responseModal.show();
+    })
+    .catch(error => {
+      // Handle errors
+      const responseModal = new bootstrap.Modal(document.getElementById('responseModal'));
+      const responseBody = document.getElementById('responseModalBody');
+      const responseTitle = document.getElementById('responseModalLabel');
+      
+      responseTitle.textContent = 'Error';
+      responseTitle.classList.remove('text-success');
+      responseTitle.classList.add('text-danger');
+      responseBody.innerHTML = `<div class="alert alert-danger">An error occurred: ${error.message}</div>`;
+      
+      responseModal.show();
+    });
   });
 });

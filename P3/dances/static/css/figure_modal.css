@@ -318,6 +318,7 @@ input[type=number] {
 .searchResult {
     background-color: #f2f0ef;
     border: none;
+    cursor: pointer;
 }
 
 .addFigureField {

@@ -16,41 +16,51 @@ def edit_dance(dance_id):
         new_source = data['source']
         new_steps  = data['steps'] 
 
-        db.execute(
-          "UPDATE Dance SET DanceName=?, Video=?, Source=? WHERE ID=?",
-          (new_name, new_video, new_source, dance_id)
-        )
-
-        db.execute(
-          "DELETE FROM FigureStep "
-          " WHERE StepId IN (SELECT ID FROM Step WHERE DanceID=?)",
-          (dance_id,)
-        )
-        db.execute("DELETE FROM Step WHERE DanceID=?", (dance_id,))
-
-        for step in new_steps:
-            cur = db.execute(
-              "INSERT INTO Step (DanceID, StepName) VALUES (?, ?)",
-              (dance_id, step['stepName'])
+        try:
+            db.execute(
+              "UPDATE Dance SET DanceName=?, Video=?, Source=? WHERE ID=?",
+              (new_name, new_video, new_source, dance_id)
             )
-            step_id = cur.lastrowid
 
-            for place, fig_name in enumerate(step['figures']):
-                row = db.execute(
-                  "SELECT ID FROM Figure WHERE Name = ?",
-                  (fig_name,)
-                ).fetchone()
-                if row:
-                    db.execute(
-                      "INSERT INTO FigureStep (StepId, FigureId, Place) "
-                      "VALUES (?, ?, ?)",
-                      (step_id, row['ID'], place)
-                    )
-                else:
-                     current_app.logger.warning(f"Figure not found: {fig_name}")
+            db.execute(
+              "DELETE FROM FigureStep "
+              " WHERE StepId IN (SELECT ID FROM Step WHERE DanceID=?)",
+              (dance_id,)
+            )
+            db.execute("DELETE FROM Step WHERE DanceID=?", (dance_id,))
 
-        db.commit()
-        return redirect(url_for('dance.edit_dance', dance_id=dance_id))
+            for step in new_steps:
+                cur = db.execute(
+                  "INSERT INTO Step (DanceID, StepName) VALUES (?, ?)",
+                  (dance_id, step['stepName'])
+                )
+                step_id = cur.lastrowid
+
+                for place, fig_name in enumerate(step['figures']):
+                    row = db.execute(
+                      "SELECT ID FROM Figure WHERE Name = ?",
+                      (fig_name,)
+                    ).fetchone()
+                    if row:
+                        db.execute(
+                          "INSERT INTO FigureStep (StepId, FigureId, Place) "
+                          "VALUES (?, ?, ?)",
+                          (step_id, row['ID'], place)
+                        )
+                    else:
+                         current_app.logger.warning(f"Figure not found: {fig_name}")
+
+            db.commit()
+            # Check if this is an AJAX request
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({"status": "success", "message": "Dance updated successfully"}), 200
+            return redirect(url_for('dance.edit_dance', dance_id=dance_id))
+        except Exception as e:
+            db.rollback()
+            current_app.logger.error(f"Error updating dance: {str(e)}")
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({"status": "error", "message": f"Failed to update dance: {str(e)}"}), 500
+            abort(500)
 
     dance_row = db.execute(
         "SELECT ID, DanceName, Video, Source FROM Dance WHERE ID = ?",
@@ -105,36 +115,47 @@ def add_dance():
         video = data.get('video', '')
         steps = data.get('steps', [])
 
-        cursor = db.execute(
-            "INSERT INTO Dance (DanceName, Video, Source) VALUES (?, ?, ?)",
-            (dance_name, video, source)
-        )
-        dance_id = cursor.lastrowid
-
-        for step in steps:
-            step_name = step['stepName']
+        try:
             cursor = db.execute(
-                "INSERT INTO Step (DanceID, StepName) VALUES (?, ?)",
-                (dance_id, step_name,)
+                "INSERT INTO Dance (DanceName, Video, Source) VALUES (?, ?, ?)",
+                (dance_name, video, source)
             )
-            step_id = cursor.lastrowid
+            dance_id = cursor.lastrowid
 
-            for place, fig_name in enumerate(step['figures']):
-                row = db.execute(
-                    "SELECT ID FROM Figure WHERE Name = ?",
-                    (fig_name,)
-                ).fetchone()
+            for step in steps:
+                step_name = step['stepName']
+                cursor = db.execute(
+                    "INSERT INTO Step (DanceID, StepName) VALUES (?, ?)",
+                    (dance_id, step_name,)
+                )
+                step_id = cursor.lastrowid
 
-                if row:
-                    figure_id = row['ID']
-                    db.execute(
-                        "INSERT INTO FigureStep (StepId, FigureId, Place) VALUES (?, ?, ?)",
-                        (step_id, figure_id, place,)
-                    )
-                else:
-                    print(f"Warning: figure not found: {fig_name}")
-        db.commit()
-        return redirect(url_for('dance.add_dance'))
+                for place, fig_name in enumerate(step['figures']):
+                    row = db.execute(
+                        "SELECT ID FROM Figure WHERE Name = ?",
+                        (fig_name,)
+                    ).fetchone()
+
+                    if row:
+                        figure_id = row['ID']
+                        db.execute(
+                            "INSERT INTO FigureStep (StepId, FigureId, Place) VALUES (?, ?, ?)",
+                            (step_id, figure_id, place,)
+                        )
+                    else:
+                        print(f"Warning: figure not found: {fig_name}")
+            db.commit()
+            
+            # Check if this is an AJAX request
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({"status": "success", "message": "Dance created successfully", "dance_id": dance_id}), 201
+            return redirect(url_for('dance.add_dance'))
+        except Exception as e:
+            db.rollback()
+            current_app.logger.error(f"Error creating dance: {str(e)}")
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({"status": "error", "message": f"Failed to create dance: {str(e)}"}), 500
+            abort(500)
 
     return render_template('dance/manage_dance.html')
 
