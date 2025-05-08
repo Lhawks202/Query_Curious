@@ -64,9 +64,31 @@
       </div>
     </div>
       
-
+    <div class="modal fade" id="notificationModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Notification</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p id="notificationMessage"></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
 <script>
+    function showNotification(message) {
+      const notificationMessage = document.getElementById('notificationMessage');
+      notificationMessage.textContent = message;
+      const modal = new bootstrap.Modal(document.getElementById('notificationModal'));
+      modal.show();
+    }
+
     function populateLearningModal(card) {
       const danceName = card.getAttribute('data-dance-name');
       const stepFigureData = JSON.parse(card.getAttribute('data-step-figure-map')); // embedded in data attribute
@@ -160,15 +182,15 @@
                 const card = button.closest('.col');
                 if (card) card.remove();
 
-                alert('Dance removed from Learning');
+                showNotification('Dance removed from Learning');
                 window.location.href = window.location.pathname;
             } else {
-                alert('Error removing dance.');
+                showNotification('Error removing dance.');
             }
         })
         .catch(err => {
             console.error('Error:', err);
-            alert('Request failed.');
+            showNotification('Request failed.');
         });
     }
     </script>

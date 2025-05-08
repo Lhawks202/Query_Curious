@@ -85,6 +85,7 @@
     {% else %}
       No dances available. Check back later!
     {% endif %}
+  </div>
   {% endif %}
 
   <!-- Learned Modal -->
@@ -154,6 +155,22 @@
   </div>
 </div>
 
+<div class="modal fade" id="notificationModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Notification</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p id="notificationMessage"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 {% endblock %}
 
@@ -161,8 +178,14 @@
 
 
 <script>
-// Handle learned
+function showNotification(message) {
+  const notificationMessage = document.getElementById('notificationMessage');
+  notificationMessage.textContent = message;
+  const modal = new bootstrap.Modal(document.getElementById('notificationModal'));
+  modal.show();
+}
 
+// Handle learned
 function handleLearnedButtonClick(button, event) {
   // const isLearned = button.dataset.isLearned === 'true';
   const isLearned = button.classList.contains('btn-danger');
@@ -182,9 +205,9 @@ function handleLearnedButtonClick(button, event) {
     .then(data => {
       if (data.status === 'removed') {
         updateLearnedButton(button, false);
-        alert(`You removed ${danceName} from Learned`);
+        showNotification(`You removed ${danceName} from Learned`);
       } else {
-        alert('Error: ' + data.message);
+        showNotification('Error: ' + data.message);
       }
     });
   } else {
@@ -234,9 +257,9 @@ document.getElementById('learnedFormElement').addEventListener('submit', functio
       bootstrap.Modal.getInstance(document.getElementById('learnedModal')).hide();
       document.querySelector('.modal-backdrop')?.remove();
       document.body.style.overflow = '';
-      alert(`${danceName} added to Learned.`);
+      showNotification(`${danceName} added to Learned.`);
     } else {
-      alert('Failed to add.');
+      showNotification('Failed to add.');
     }
   });
 });
@@ -267,9 +290,9 @@ function handleLearningButtonClick(button, event) {
     .then(data => {
       if (data.status === 'removed') {
         updateLearningButton(button, false);
-        alert(`You removed ${danceName} from Learning`);
+        showNotification(`You removed ${danceName} from Learning`);
       } else {
-        alert('Error: ' + data.message);
+        showNotification('Error: ' + data.message);
       }
     });
   } else {
@@ -322,9 +345,9 @@ document.getElementById('learningFormElement').addEventListener('submit', functi
       bootstrap.Modal.getInstance(document.getElementById('learningModal')).hide();
       document.querySelector('.modal-backdrop')?.remove();
       document.body.style.overflow = '';
-      alert(`${danceName} added to Learning.`);
+      showNotification(`${danceName} added to Learning.`);
     } else {
-      alert('Failed to add.');
+      showNotification('Failed to add.');
     }
   });
 });
