@@ -15,7 +15,9 @@
     <div class="card border-0 shadow-sm">
       <div class="card-body">
         <h3 class="card-title">{{ dance.DanceName }}</h3>
-        <a href="{{ url_for('dance.edit_dance', dance_id=dance.ID) }}">Edit</a>
+        <a href="{{ url_for('dance.edit_dance', dance_id=dance.ID) }}">
+          <i class="bi bi-pencil"></i> Edit
+        </a>
 
         {% if dance.Video %}
           <div class="mb-3">
